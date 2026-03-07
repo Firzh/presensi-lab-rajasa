@@ -1,0 +1,31 @@
+{
+  "name": "rajasa/presensi-lab-backend",
+  "description": "Backend sistem presensi lab SMKS Rajasa",
+  "type": "project",
+  "autoload": {
+    "psr-4": {
+      "Rajasa\\PresensiLabBackend\\": "src/"
+    }
+  },
+  "authors": [
+    {
+      "name": "Muhammad Rizqy Alfy Firmansyah",
+      "email": "rizqyalfyf@gmail.com"
+    },
+    {
+      "name": "Ahmad Fashich Azzuhri Ramadhani",
+      "email": "null@gmail.com"
+    },
+    {
+      "name": "Rizky Mahdi Hutomo",
+      "email": "rizky.23023@mhs.unesa.ac.id"
+    }
+  ],
+  "minimum-stability": "stable",
+  "require": {
+    "php-di/php-di": "^7.1",
+    "nikic/fast-route": "^1.3",
+    "illuminate/database": "^12.53",
+    "vlucas/phpdotenv": "^5.6"
+  }
+}

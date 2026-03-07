@@ -1,0 +1,65 @@
+services:
+  # Service Database
+  db:
+    image: mysql:8.0
+    restart: always
+    command: --defaults-extra-file=/etc/mysql/conf.d/my-optimasi.cnf
+    environment:
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./mysql/my-optimasi.cnf:/etc/mysql/conf.d/my-optimasi.cnf # Mount config
+    networks:
+      - app-network
+
+  # Service Backend (Laravel)
+  backend:
+    build:
+      context: ./backend
+      args:
+        USER_ID: ${UID}
+        GROUP_ID: ${GID}
+    user: "${UID}:${GID}"
+    volumes:
+      - ./backend:/var/www
+    depends_on:
+      - db
+    environment:
+      DB_HOST: db # Gunakan nama service sebagai hostname
+    networks:
+      - app-network
+
+  # Service Frontend (React)
+  # frontend:
+  #   build: ./frontend
+  #   ports:
+  #     - "${FRONTEND_PORT}:3000"
+  #   volumes:
+  #     - ./frontend:/app
+  #     - /app/node_modules # Agar tidak ter-overwrite volume lokal
+  #   depends_on:
+  #     - backend
+  #   networks:
+  #     - app-network
+
+  # Service Nginx (Web Server)
+  nginx:
+    image: nginx:stable-alpine
+    ports:
+      - "8080:80" # Akses API/Backend via http://localhost:8080
+    volumes:
+      - ./backend:/var/www
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - backend
+    networks:
+      - app-network
+
+  # Tambahkan network agar komunikasi antar kontainer lebih stabil
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  db_data:

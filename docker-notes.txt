@@ -1,0 +1,9 @@
+# docker build
+docker-compose up -d --build
+
+# check status docker
+docker-compose ps
+
+# cleaning docker images
+> open git bash
+sh docker-refresh.sh

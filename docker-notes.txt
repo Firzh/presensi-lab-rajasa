@@ -7,3 +7,8 @@ docker-compose ps
 # cleaning docker images
 > open git bash
 sh docker-refresh.sh
+
+# run local server
+docker-compose exec frontend npm run dev -- --host
+atau 
+docker-compose exec frontend npm run dev

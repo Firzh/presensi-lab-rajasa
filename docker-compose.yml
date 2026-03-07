@@ -31,17 +31,17 @@ services:
       - app-network
 
   # Service Frontend (React)
-  # frontend:
-  #   build: ./frontend
-  #   ports:
-  #     - "${FRONTEND_PORT}:3000"
-  #   volumes:
-  #     - ./frontend:/app
-  #     - /app/node_modules # Agar tidak ter-overwrite volume lokal
-  #   depends_on:
-  #     - backend
-  #   networks:
-  #     - app-network
+  frontend:
+    build: ./frontend
+    ports:
+      - "${FRONTEND_PORT}:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules # Agar tidak ter-overwrite volume lokal
+    depends_on:
+      - backend
+    networks:
+      - app-network
 
   # Service Nginx (Web Server)
   nginx:

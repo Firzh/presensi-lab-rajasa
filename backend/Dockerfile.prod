@@ -1,0 +1,48 @@
+FROM php:8.3-fpm-alpine
+
+RUN apk add --no-cache \
+      bash \
+      icu-dev \
+      oniguruma-dev \
+      libzip-dev \
+      zlib-dev \
+      libpng-dev \
+      libjpeg-turbo-dev \
+      freetype-dev \
+      mariadb-client \
+      unzip \
+      git \
+      $PHPIZE_DEPS \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install -j"$(nproc)" \
+      pdo \
+      pdo_mysql \
+      gd \
+      opcache \
+      intl \
+      zip \
+    && rm -rf /tmp/pear
+
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+
+WORKDIR /var/www
+
+COPY composer.json composer.lock* ./
+
+RUN composer install \
+      --no-dev \
+      --prefer-dist \
+      --no-interaction \
+      --optimize-autoloader \
+      --no-scripts
+
+COPY . .
+
+RUN mkdir -p storage bootstrap/cache public \
+    && chown -R www-data:www-data /var/www
+
+USER www-data
+
+EXPOSE 9000
+
+CMD ["php-fpm"]

@@ -1,6 +1,9 @@
 import { useEffect, useState } from 'preact/hooks'
 import './app.css'
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api'
+const AUTH_USER_KEY = 'rajasa-auth-user'
+
 const THEME_KEY = 'rajasa-presensi-theme'
 
 function UserIcon() {
@@ -100,6 +103,29 @@ function FormField({ id, label, type = 'text', placeholder, icon, value, onInput
   )
 }
 
+function Dashboard({ user, onLogout }) {
+  return (
+    <main className="dashboard-page">
+      <section className="dashboard-card">
+        <p className="dashboard-eyebrow">Dashboard</p>
+        <h1>{user.primary_role_name || 'User'}</h1>
+        <p className="dashboard-name">{user.nama_lengkap}</p>
+
+        <div className="dashboard-meta">
+          <span>Username: {user.username}</span>
+          <span>Role: {user.primary_role_slug}</span>
+          {user.kelas_aktif && <span>Kelas: {user.kelas_aktif}</span>}
+          {user.jabatan && <span>Jabatan: {user.jabatan}</span>}
+        </div>
+
+        <button type="button" className="logout-button" onClick={onLogout}>
+          Logout
+        </button>
+      </section>
+    </main>
+  )
+}
+
 export function App() {
   const [theme, setTheme] = useState(() => {
     if (typeof window === 'undefined') return 'light'
@@ -111,6 +137,19 @@ export function App() {
   const [remember, setRemember] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
 
+  const [authUser, setAuthUser] = useState(() => {
+    if (typeof window === 'undefined') return null
+
+    try {
+      return JSON.parse(localStorage.getItem(AUTH_USER_KEY) || 'null')
+    } catch {
+      return null
+    }
+  })
+
+  const [loginError, setLoginError] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
   useEffect(() => {
     document.documentElement.dataset.theme = theme
     localStorage.setItem(THEME_KEY, theme)
@@ -120,16 +159,67 @@ export function App() {
     setTheme((current) => (current === 'light' ? 'dark' : 'light'))
   }
 
-  function handleSubmit(event) {
-    event.preventDefault()
-
-    const payload = {
-      username,
-      password,
-      remember,
+  async function handleLogout() {
+    try {
+      await fetch(`${API_BASE_URL}/logout`, {
+        method: 'POST',
+        credentials: 'include',
+      })
+    } catch {
+      // Abaikan error logout sementara, session lokal tetap dibersihkan.
     }
 
-    console.log('Login payload:', payload)
+    localStorage.removeItem(AUTH_USER_KEY)
+
+    setUsername('')
+    setPassword('')
+    setRemember(false)
+    setShowPassword(false)
+    setLoginError('')
+    setIsSubmitting(false)
+    setAuthUser(null)
+
+    window.history.pushState(null, '', '/')
+  }
+
+  async function handleSubmit(event) {
+    event.preventDefault()
+    setLoginError('')
+    setIsSubmitting(true)
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          username,
+          password,
+          remember,
+        }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok || !data.ok) {
+        throw new Error(data.message || 'Login gagal.')
+      }
+
+      localStorage.setItem(AUTH_USER_KEY, JSON.stringify(data.user))
+      setAuthUser(data.user)
+
+      window.history.pushState(null, '', data.user.dashboard_path || '/dashboard')
+    } catch (error) {
+      setLoginError(error.message || 'Tidak bisa menghubungi server.')
+    } finally {
+      setIsSubmitting(false)
+    }
+  } 
+  
+  if (authUser) {
+    return <Dashboard user={authUser} onLogout={handleLogout} />
   }
 
   return (
@@ -219,8 +309,10 @@ export function App() {
                   </a>
                 </div>
 
-                <button type="submit" className="login-button">
-                  Login
+                {loginError && <p className="login-alert">{loginError}</p>}
+
+                <button type="submit" className="login-button" disabled={isSubmitting}>
+                  {isSubmitting ? 'Memproses...' : 'Login'}
                 </button>
               </form>
             </div>

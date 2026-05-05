@@ -142,6 +142,10 @@
   box-sizing: border-box;
 }
 
+html {
+  scrollbar-gutter: stable;
+}
+
 html,
 body,
 #app {
@@ -161,4 +165,3 @@ select,
 textarea {
   font: inherit;
 }
-

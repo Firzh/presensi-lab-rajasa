@@ -5,14 +5,20 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080
 const AUTH_USER_KEY = 'rajasa-auth-user'
 const THEME_KEY = 'rajasa-presensi-theme'
 const STUDENTS_KEY = 'rajasa-data-siswa'
-const LIST_ROUTE = '/dashboard/admin/manajemen/data-siswa'
-const ADD_ROUTE = `${LIST_ROUTE}/tambah`
+const JURUSAN_KEY = 'rajasa-data-jurusan'
+
+const SISWA_LIST_ROUTE = '/dashboard/admin/manajemen/data-siswa'
+const SISWA_ADD_ROUTE = `${SISWA_LIST_ROUTE}/tambah`
+const JURUSAN_LIST_ROUTE = '/dashboard/admin/manajemen/data-jurusan'
+const JURUSAN_ADD_ROUTE = `${JURUSAN_LIST_ROUTE}/tambah`
 
 const JURUSAN_OPTIONS = ['TKJ', 'RPL', 'MM', 'DKV', 'TKR']
 const KELAS_OPTIONS = ['X-1', 'X-2', 'XI-1', 'XI-2', 'XII-1', 'XII-2']
 const STATUS_OPTIONS = ['Aktif', 'Lulus', 'Keluar', 'Mutasi']
+const JURUSAN_STATUS_OPTIONS = ['Aktif', 'Nonaktif']
 const GENDER_OPTIONS = ['L', 'P']
 const PAGE_SIZE = 10
+const JURUSAN_PAGE_SIZE = 4
 
 function normalizePath(pathname) {
   if (!pathname || pathname === '/') return '/'
@@ -50,10 +56,44 @@ function createSeedStudents() {
   }))
 }
 
+function createSeedJurusan() {
+  const base = [
+    ['TKJ', 'Teknik Komputer dan Jaringan'],
+    ['TITL', 'Teknik Instalasi Tenaga Listrik'],
+    ['TKRO', 'Teknik Kendaraan Ringan Otomotif'],
+    ['MP', 'Manajemen Perkantoran'],
+    ['RPL', 'Rekayasa Perangkat Lunak'],
+    ['DKV', 'Desain Komunikasi Visual'],
+    ['TKR', 'Teknik Kendaraan Ringan'],
+    ['AKL', 'Akuntansi dan Keuangan Lembaga'],
+    ['OTKP', 'Otomatisasi dan Tata Kelola Perkantoran'],
+    ['BDP', 'Bisnis Daring dan Pemasaran'],
+    ['MM', 'Multimedia'],
+    ['TOI', 'Teknik Otomasi Industri'],
+  ]
+
+  return base.map(([kode, nama], index) => ({
+    id: `jurusan-${index + 1}`,
+    kode,
+    namaJurusan: nama,
+    ketuaJurusan: 'Dr. Ahmad Supriyadi, S.Pd.',
+    jumlahSiswa: 365,
+    jumlahRombel: 6,
+    jumlahLab: 1,
+    status: 'Aktif',
+  }))
+}
+
 function loadStudents() {
   const stored = readJson(STUDENTS_KEY, null)
   if (Array.isArray(stored)) return stored
   return createSeedStudents()
+}
+
+function loadJurusan() {
+  const stored = readJson(JURUSAN_KEY, null)
+  if (Array.isArray(stored)) return stored
+  return createSeedJurusan()
 }
 
 function iconPath(name) {
@@ -85,7 +125,7 @@ function useClientRoute() {
   return [route, navigate]
 }
 
-function ThemeButton({ theme, onToggle }) {
+function ThemeButton({ onToggle }) {
   return (
     <button className="theme-chip" type="button" onClick={onToggle} aria-label="Ganti tema">
       <Icon name="circle-half-stroke-solid-full.svg" />
@@ -93,7 +133,7 @@ function ThemeButton({ theme, onToggle }) {
   )
 }
 
-function LoginPage({ theme, onToggleTheme, onLogin }) {
+function LoginPage({ onToggleTheme, onLogin }) {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [remember, setRemember] = useState(false)
@@ -130,7 +170,7 @@ function LoginPage({ theme, onToggleTheme, onLogin }) {
   return (
     <main className="login-page">
       <section className="login-shell">
-        <ThemeButton theme={theme} onToggle={onToggleTheme} />
+        <ThemeButton onToggle={onToggleTheme} />
 
         <div className="login-brand-panel">
           <div className="login-brand-content">
@@ -217,7 +257,7 @@ function LoginPage({ theme, onToggleTheme, onLogin }) {
   )
 }
 
-function Topbar({ user, theme, onToggleTheme }) {
+function Topbar({ user, onToggleTheme }) {
   return (
     <header className="topbar">
       <div className="topbar-search">
@@ -226,7 +266,7 @@ function Topbar({ user, theme, onToggleTheme }) {
       </div>
 
       <div className="topbar-actions">
-        <ThemeButton theme={theme} onToggle={onToggleTheme} />
+        <ThemeButton onToggle={onToggleTheme} />
         <button className="topbar-icon-button" type="button" aria-label="Notifikasi">
           <Icon name="bell-solid-full.svg" />
         </button>
@@ -245,6 +285,7 @@ function Topbar({ user, theme, onToggleTheme }) {
 
 function Sidebar({ route, navigate, onLogout }) {
   const dataSiswaActive = route.includes('/manajemen/data-siswa') || route === '/dashboard/admin'
+  const dataJurusanActive = route.includes('/manajemen/data-jurusan')
 
   return (
     <aside className="sidebar">
@@ -268,11 +309,15 @@ function Sidebar({ route, navigate, onLogout }) {
           <button
             type="button"
             className={`nav-item nav-child ${dataSiswaActive ? 'active' : ''}`}
-            onClick={() => navigate(LIST_ROUTE)}
+            onClick={() => navigate(SISWA_LIST_ROUTE)}
           >
             <Icon name="user-graduate-solid-full.svg" /> Data Siswa
           </button>
-          <button type="button" className="nav-item nav-child" onClick={() => navigate('/dashboard/admin/manajemen/data-jurusan')}>
+          <button
+            type="button"
+            className={`nav-item nav-child ${dataJurusanActive ? 'active' : ''}`}
+            onClick={() => navigate(JURUSAN_LIST_ROUTE)}
+          >
             <Icon name="building-solid-full.svg" /> Data Jurusan
           </button>
           <button type="button" className="nav-item nav-child" onClick={() => navigate('/dashboard/admin/manajemen/data-ruangan')}>
@@ -306,24 +351,24 @@ function Sidebar({ route, navigate, onLogout }) {
   )
 }
 
-function AppLayout({ user, route, navigate, onLogout, theme, onToggleTheme, children }) {
+function AppLayout({ user, route, navigate, onLogout, onToggleTheme, children }) {
   return (
     <div className="admin-shell">
       <Sidebar route={route} navigate={navigate} onLogout={onLogout} />
       <div className="admin-main">
-        <Topbar user={user} theme={theme} onToggleTheme={onToggleTheme} />
-        <main className="content-area">{children}</main>
+        <Topbar user={user} onToggleTheme={onToggleTheme} />
+        <main className="content-area"><div className="page-frame">{children}</div></main>
       </div>
     </div>
   )
 }
 
-function PageHeading({ action }) {
+function PageHeading({ title = 'Data Siswa', subtitle = 'Kelola data siswa SMK Rajasa Surabaya', action }) {
   return (
     <section className="page-heading">
-      <div>
-        <h2>Data Siswa</h2>
-        <p>Kelola data siswa SMK Rajasa Surabaya</p>
+      <div className="page-title-block">
+        <h2>{title}</h2>
+        <p>{subtitle}</p>
       </div>
       {action}
     </section>
@@ -339,16 +384,25 @@ function FilterControl({ icon, children }) {
   )
 }
 
-function EmptyState() {
+function EmptyStateRow({ label }) {
   return (
     <tr>
       <td colSpan="8">
         <div className="empty-state">
           <Icon name="inbox-solid-full.svg" />
-          <p>Tidak ada data siswa</p>
+          <p>{label}</p>
         </div>
       </td>
     </tr>
+  )
+}
+
+function EmptyPanel({ label }) {
+  return (
+    <section className="empty-panel">
+      <Icon name="inbox-solid-full.svg" />
+      <p>{label}</p>
+    </section>
   )
 }
 
@@ -411,8 +465,10 @@ function DataSiswaListPage({ students, navigate }) {
   return (
     <>
       <PageHeading
+        title="Data Siswa"
+        subtitle="Kelola data siswa SMK Rajasa Surabaya"
         action={
-          <button className="primary-action" type="button" onClick={() => navigate(ADD_ROUTE)}>
+          <button className="primary-action" type="button" onClick={() => navigate(SISWA_ADD_ROUTE)}>
             <Icon name="plus-solid-full.svg" /> Tambah Siswa
           </button>
         }
@@ -463,7 +519,7 @@ function DataSiswaListPage({ students, navigate }) {
               </tr>
             </thead>
             <tbody>
-              {currentStudents.length === 0 ? <EmptyState /> : currentStudents.map((student, index) => (
+              {currentStudents.length === 0 ? <EmptyStateRow label="Tidak ada data siswa" /> : currentStudents.map((student, index) => (
                 <tr key={student.id}>
                   <td>{(page - 1) * PAGE_SIZE + index + 1}</td>
                   <td>{student.nisn || student.nis}</td>
@@ -476,7 +532,7 @@ function DataSiswaListPage({ students, navigate }) {
                     <button
                       className="edit-button"
                       type="button"
-                      onClick={() => navigate(`${LIST_ROUTE}/${student.id}/edit`)}
+                      onClick={() => navigate(`${SISWA_LIST_ROUTE}/${student.id}/edit`)}
                     >
                       Edit
                     </button>
@@ -551,12 +607,12 @@ function DataSiswaFormPage({ students, route, onSave, navigate }) {
   function handleSubmit(event) {
     event.preventDefault()
     onSave(form, editId)
-    navigate(LIST_ROUTE)
+    navigate(SISWA_LIST_ROUTE)
   }
 
   return (
     <>
-      <PageHeading />
+      <PageHeading title="Data Siswa" subtitle="Kelola data siswa SMK Rajasa Surabaya" />
 
       <section className="student-form-card">
         <h3>{editId ? 'Edit Data Siswa' : 'Tambah Data Siswa'}</h3>
@@ -661,7 +717,181 @@ function DataSiswaFormPage({ students, route, onSave, navigate }) {
 
           <div className="form-actions">
             <button className="save-button" type="submit">Simpan</button>
-            <button className="cancel-button" type="button" onClick={() => navigate(LIST_ROUTE)}>Batal</button>
+            <button className="cancel-button" type="button" onClick={() => navigate(SISWA_LIST_ROUTE)}>Batal</button>
+          </div>
+        </form>
+      </section>
+    </>
+  )
+}
+
+function makeJurusanCode(name) {
+  const specialCodes = {
+    'teknik komputer dan jaringan': 'TKJ',
+    'teknik instalasi tenaga listrik': 'TITL',
+    'teknik kendaraan ringan otomotif': 'TKRO',
+    'manajemen perkantoran': 'MP',
+    'rekayasa perangkat lunak': 'RPL',
+    'desain komunikasi visual': 'DKV',
+  }
+  const normalized = name.trim().toLowerCase()
+  if (specialCodes[normalized]) return specialCodes[normalized]
+
+  const ignored = new Set(['dan', 'di', 'ke', 'dari', 'the', 'of'])
+  const code = name
+    .trim()
+    .split(/\s+/)
+    .filter((word) => word && !ignored.has(word.toLowerCase()))
+    .map((word) => word[0])
+    .join('')
+    .slice(0, 5)
+    .toUpperCase()
+
+  return code || 'JRS'
+}
+
+function createBlankJurusan() {
+  return {
+    kode: '',
+    namaJurusan: '',
+    ketuaJurusan: '',
+    jumlahSiswa: 0,
+    jumlahRombel: 0,
+    jumlahLab: 0,
+    status: 'Aktif',
+  }
+}
+
+function JurusanCard({ item, onEdit }) {
+  return (
+    <article className="jurusan-card">
+      <div className="jurusan-card-top">
+        <div className="jurusan-badge">{item.kode}</div>
+        <span className={`status-pill ${item.status === 'Aktif' ? 'active' : 'inactive'}`}>{item.status}</span>
+      </div>
+
+      <h3>{item.namaJurusan}</h3>
+
+      <div className="jurusan-leader">
+        <span>Ketua Jurusan:</span>
+        <strong>{item.ketuaJurusan}</strong>
+      </div>
+
+      <div className="jurusan-meta">
+        <p><Icon name="user-graduate-solid-full.svg" /> {item.jumlahSiswa} Siswa</p>
+        <p><Icon name="door-open-solid-full.svg" /> {item.jumlahRombel} Ruang Rombel</p>
+        <p><Icon name="microscope-solid-full.svg" /> {item.jumlahLab} Ruang Lab</p>
+      </div>
+
+      <button className="edit-button jurusan-edit" type="button" onClick={onEdit}>Edit</button>
+    </article>
+  )
+}
+
+function DataJurusanListPage({ jurusanList, navigate }) {
+  const [page, setPage] = useState(1)
+  const totalPages = Math.max(1, Math.ceil(jurusanList.length / JURUSAN_PAGE_SIZE))
+  const currentJurusan = jurusanList.slice((page - 1) * JURUSAN_PAGE_SIZE, page * JURUSAN_PAGE_SIZE)
+
+  useEffect(() => {
+    if (page > totalPages) setPage(totalPages)
+  }, [page, totalPages])
+
+  return (
+    <>
+      <PageHeading
+        title="Data Jurusan"
+        subtitle="Kelola data siswa SMK Rajasa Surabaya"
+        action={
+          <button className="primary-action" type="button" onClick={() => navigate(JURUSAN_ADD_ROUTE)}>
+            <Icon name="plus-solid-full.svg" /> Tambah Jurusan
+          </button>
+        }
+      />
+
+      {currentJurusan.length === 0 ? (
+        <EmptyPanel label="Tidak ada data Jurusan" />
+      ) : (
+        <>
+          <section className="jurusan-grid" aria-label="Daftar jurusan">
+            {currentJurusan.map((item) => (
+              <JurusanCard
+                key={item.id}
+                item={item}
+                onEdit={() => navigate(`${JURUSAN_LIST_ROUTE}/${item.id}/edit`)}
+              />
+            ))}
+          </section>
+          <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
+        </>
+      )}
+    </>
+  )
+}
+
+function DataJurusanFormPage({ jurusanList, route, onSave, navigate }) {
+  const editMatch = route.match(/\/manajemen\/data-jurusan\/([^/]+)\/edit$/)
+  const editId = editMatch?.[1] || null
+  const editedJurusan = editId ? jurusanList.find((item) => item.id === editId) : null
+  const [form, setForm] = useState(() => editedJurusan || createBlankJurusan())
+
+  useEffect(() => {
+    setForm(editedJurusan || createBlankJurusan())
+  }, [editId])
+
+  function setValue(field, value) {
+    setForm((current) => ({ ...current, [field]: value }))
+  }
+
+  function handleSubmit(event) {
+    event.preventDefault()
+    onSave(form, editId)
+    navigate(JURUSAN_LIST_ROUTE)
+  }
+
+  return (
+    <>
+      <PageHeading title="Data Jurusan" subtitle="Kelola data siswa SMK Rajasa Surabaya" />
+
+      <section className="jurusan-form-card">
+        <h3>{editId ? 'Edit Data Jurusan' : 'Tambah Jurusan Baru'}</h3>
+
+        <form className="jurusan-form" onSubmit={handleSubmit}>
+          <div className="jurusan-form-grid">
+            <FormField label="Nama Jurusan" required>
+              <FormInput
+                type="text"
+                value={form.namaJurusan}
+                onInput={(event) => setValue('namaJurusan', event.currentTarget.value)}
+                placeholder="Nama Jurusan..."
+                required
+              />
+            </FormField>
+
+            <FormField label="Status" required>
+              <FormSelect
+                value={form.status}
+                onInput={(event) => setValue('status', event.currentTarget.value)}
+                required
+              >
+                {JURUSAN_STATUS_OPTIONS.map((option) => <option key={option} value={option}>{option}</option>)}
+              </FormSelect>
+            </FormField>
+
+            <FormField label="Ketua Jurusan" required>
+              <FormInput
+                type="text"
+                value={form.ketuaJurusan}
+                onInput={(event) => setValue('ketuaJurusan', event.currentTarget.value)}
+                placeholder="Ketua Jurusan..."
+                required
+              />
+            </FormField>
+
+            <div className="jurusan-form-actions">
+              <button className="save-button" type="submit">Simpan</button>
+              <button className="cancel-button" type="button" onClick={() => navigate(JURUSAN_LIST_ROUTE)}>Batal</button>
+            </div>
           </div>
         </form>
       </section>
@@ -675,12 +905,12 @@ function PlaceholderPage({ title, navigate }) {
       <section className="page-heading">
         <div>
           <h2>{title}</h2>
-          <p>Halaman ini belum menjadi fokus implementasi branch manajemen data siswa.</p>
+          <p>Halaman ini belum menjadi fokus implementasi saat ini.</p>
         </div>
       </section>
       <section className="placeholder-card">
-        <p>Gunakan menu Data Siswa untuk mengecek routing, daftar, filter, tambah, dan edit siswa.</p>
-        <button type="button" className="primary-action" onClick={() => navigate(LIST_ROUTE)}>Ke Data Siswa</button>
+        <p>Gunakan menu Data Siswa atau Data Jurusan untuk mengecek routing, daftar, tambah, dan edit data.</p>
+        <button type="button" className="primary-action" onClick={() => navigate(JURUSAN_LIST_ROUTE)}>Ke Data Jurusan</button>
       </section>
     </>
   )
@@ -691,6 +921,7 @@ export function App() {
   const [theme, setTheme] = useState(() => readJson(THEME_KEY, 'light'))
   const [authUser, setAuthUser] = useState(() => readJson(AUTH_USER_KEY, null))
   const [students, setStudents] = useState(loadStudents)
+  const [jurusanList, setJurusanList] = useState(loadJurusan)
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme
@@ -701,6 +932,10 @@ export function App() {
     writeJson(STUDENTS_KEY, students)
   }, [students])
 
+  useEffect(() => {
+    writeJson(JURUSAN_KEY, jurusanList)
+  }, [jurusanList])
+
   function toggleTheme() {
     setTheme((current) => (current === 'light' ? 'dark' : 'light'))
   }
@@ -708,14 +943,14 @@ export function App() {
   function handleLogin(user) {
     writeJson(AUTH_USER_KEY, user)
     setAuthUser(user)
-    navigate(LIST_ROUTE)
+    navigate(SISWA_LIST_ROUTE)
   }
 
   async function handleLogout() {
     try {
       await fetch(`${API_BASE_URL}/logout`, { method: 'POST', credentials: 'include' })
     } catch {
-      // Session lokal tetap dibersihkan walau request logout gagal.
+      // Sesi lokal tetap dibersihkan walau request logout gagal.
     }
     localStorage.removeItem(AUTH_USER_KEY)
     setAuthUser(null)
@@ -742,20 +977,52 @@ export function App() {
     })
   }
 
-  if (!authUser) {
-    return <LoginPage theme={theme} onToggleTheme={toggleTheme} onLogin={handleLogin} />
+  function saveJurusan(payload, editId) {
+    const cleanNama = payload.namaJurusan.trim()
+    const cleanKetua = payload.ketuaJurusan.trim()
+    const cleanPayload = {
+      ...payload,
+      kode: payload.kode || makeJurusanCode(cleanNama),
+      namaJurusan: cleanNama,
+      ketuaJurusan: cleanKetua,
+      jumlahSiswa: Number(payload.jumlahSiswa || 365),
+      jumlahRombel: Number(payload.jumlahRombel || 6),
+      jumlahLab: Number(payload.jumlahLab || 1),
+      status: payload.status || 'Aktif',
+    }
+
+    setJurusanList((current) => {
+      if (editId) {
+        return current.map((item) => item.id === editId ? { ...item, ...cleanPayload } : item)
+      }
+      return [
+        { ...cleanPayload, id: `jurusan-${Date.now()}` },
+        ...current,
+      ]
+    })
   }
 
-  const routeForRender = route === '/' || route === '/dashboard/admin' ? LIST_ROUTE : route
-  const isDataSiswaList = routeForRender === LIST_ROUTE || routeForRender === '/manajemen/data-siswa'
-  const isDataSiswaAdd = routeForRender === ADD_ROUTE || routeForRender === '/manajemen/data-siswa/tambah'
+  if (!authUser) {
+    return <LoginPage onToggleTheme={toggleTheme} onLogin={handleLogin} />
+  }
+
+  const routeForRender = route === '/' || route === '/dashboard/admin' ? SISWA_LIST_ROUTE : route
+  const isDataSiswaList = routeForRender === SISWA_LIST_ROUTE || routeForRender === '/manajemen/data-siswa'
+  const isDataSiswaAdd = routeForRender === SISWA_ADD_ROUTE || routeForRender === '/manajemen/data-siswa/tambah'
   const isDataSiswaEdit = /\/manajemen\/data-siswa\/[^/]+\/edit$/.test(routeForRender)
+  const isDataJurusanList = routeForRender === JURUSAN_LIST_ROUTE || routeForRender === '/manajemen/data-jurusan'
+  const isDataJurusanAdd = routeForRender === JURUSAN_ADD_ROUTE || routeForRender === '/manajemen/data-jurusan/tambah'
+  const isDataJurusanEdit = /\/manajemen\/data-jurusan\/[^/]+\/edit$/.test(routeForRender)
 
   let page
   if (isDataSiswaList) {
     page = <DataSiswaListPage students={students} navigate={navigate} />
   } else if (isDataSiswaAdd || isDataSiswaEdit) {
     page = <DataSiswaFormPage students={students} route={routeForRender} onSave={saveStudent} navigate={navigate} />
+  } else if (isDataJurusanList) {
+    page = <DataJurusanListPage jurusanList={jurusanList} navigate={navigate} />
+  } else if (isDataJurusanAdd || isDataJurusanEdit) {
+    page = <DataJurusanFormPage jurusanList={jurusanList} route={routeForRender} onSave={saveJurusan} navigate={navigate} />
   } else {
     page = <PlaceholderPage title="Dashboard" navigate={navigate} />
   }
@@ -766,11 +1033,9 @@ export function App() {
       route={routeForRender}
       navigate={navigate}
       onLogout={handleLogout}
-      theme={theme}
       onToggleTheme={toggleTheme}
     >
       {page}
     </AppLayout>
   )
 }
-

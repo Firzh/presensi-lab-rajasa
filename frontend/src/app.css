@@ -904,3 +904,322 @@ tbody td {
   }
 }
 
+.empty-panel {
+  min-height: 520px;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 18px;
+  color: var(--empty-text);
+}
+
+.empty-panel .icon {
+  width: 52px;
+  height: 52px;
+  opacity: 0.95;
+}
+
+.empty-panel p {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 850;
+}
+
+.jurusan-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 48px;
+  margin-bottom: 34px;
+}
+
+.jurusan-card {
+  min-height: 530px;
+  padding: 26px 26px 30px;
+  display: flex;
+  flex-direction: column;
+  border-radius: 10px;
+  background: var(--card-bg);
+  color: var(--admin-text);
+}
+
+.jurusan-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 46px;
+}
+
+.jurusan-badge {
+  min-width: 58px;
+  height: 58px;
+  padding: 0 10px;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 14px;
+  background: var(--jurusan-badge-bg, #c7d6eb);
+  color: var(--admin-text-strong);
+  font-size: 24px;
+  line-height: 1;
+  font-weight: 850;
+  letter-spacing: -0.05em;
+}
+
+.status-pill {
+  min-width: 48px;
+  height: 24px;
+  padding: 0 10px;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 999px;
+  font-size: 12px;
+  line-height: 1;
+  font-weight: 850;
+}
+
+.status-pill.active {
+  background: var(--status-active-bg, #d2f0d9);
+  color: var(--status-active-text, #18a73b);
+}
+
+.status-pill.inactive {
+  background: rgba(255, 105, 109, 0.16);
+  color: #e75055;
+}
+
+.jurusan-card h3 {
+  min-height: 58px;
+  margin: 0 0 46px;
+  color: var(--admin-text-strong);
+  font-size: 23px;
+  line-height: 1.12;
+  letter-spacing: -0.045em;
+  font-weight: 800;
+}
+
+.jurusan-leader {
+  margin-bottom: 22px;
+  color: var(--admin-text);
+  font-size: 15px;
+  line-height: 1.55;
+  font-weight: 700;
+}
+
+.jurusan-leader span,
+.jurusan-leader strong {
+  display: block;
+}
+
+.jurusan-leader strong {
+  color: var(--admin-text);
+  font-weight: 700;
+}
+
+.jurusan-meta {
+  display: grid;
+  gap: 12px;
+  color: var(--admin-muted);
+  font-size: 15px;
+  font-weight: 750;
+}
+
+.jurusan-meta p {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.jurusan-meta .icon {
+  width: 16px;
+  height: 16px;
+}
+
+.jurusan-edit {
+  width: 118px;
+  margin-top: auto;
+  margin-left: auto;
+}
+
+.jurusan-form-card {
+  max-width: 1490px;
+  min-height: 390px;
+  margin: 0 auto;
+  padding: 56px 34px 48px;
+  border-radius: 14px;
+  background: var(--card-bg);
+}
+
+.jurusan-form-card h3 {
+  margin: 0 0 42px;
+  color: var(--admin-text-strong);
+  font-size: 28px;
+  line-height: 1;
+  font-weight: 850;
+  letter-spacing: -0.04em;
+}
+
+.jurusan-form-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 42px 40px;
+  align-items: end;
+}
+
+.jurusan-form-actions {
+  display: flex;
+  align-items: end;
+  justify-content: center;
+  gap: 40px;
+  padding-top: 0;
+}
+
+:root[data-theme='dark'] {
+  --jurusan-badge-bg: #5a6674;
+  --status-active-bg: #34734e;
+  --status-active-text: #51ff6a;
+}
+
+@media (max-width: 1440px) {
+  .jurusan-grid {
+    gap: 32px;
+  }
+
+  .jurusan-card {
+    min-height: 500px;
+  }
+}
+
+@media (max-width: 1280px) {
+  .jurusan-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 900px) {
+  .jurusan-grid,
+  .jurusan-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .jurusan-form-card {
+    padding: 30px 20px;
+  }
+
+  .jurusan-form-actions {
+    flex-direction: column;
+    gap: 14px;
+  }
+}
+
+/* Layout consistency fix: all management pages use one centered filled frame. */
+.admin-main {
+  min-width: 0;
+}
+
+.content-area {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding-left: clamp(32px, 3.15vw, 64px);
+  padding-right: clamp(32px, 3.15vw, 64px);
+}
+
+.page-frame {
+  width: min(100%, 1490px);
+  margin-inline: auto;
+}
+
+.page-heading {
+  width: 100%;
+  align-items: flex-start;
+}
+
+.page-title-block {
+  min-width: 0;
+}
+
+.page-heading .primary-action {
+  flex: 0 0 auto;
+  margin-left: auto;
+}
+
+.filter-card,
+.table-card,
+.student-form-card,
+.jurusan-grid,
+.jurusan-form-card,
+.empty-panel,
+.placeholder-card {
+  width: 100%;
+}
+
+.student-form-card,
+.jurusan-form-card {
+  max-width: none;
+  margin-inline: 0;
+}
+
+.jurusan-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(28px, 2.6vw, 48px);
+}
+
+.jurusan-card {
+  width: 100%;
+}
+
+.empty-panel {
+  min-height: 520px;
+}
+
+@media (max-width: 1440px) {
+  .content-area {
+    padding-left: clamp(28px, 3vw, 50px);
+    padding-right: clamp(28px, 3vw, 50px);
+  }
+}
+
+@media (max-width: 1280px) {
+  .jurusan-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 900px) {
+  .content-area {
+    padding: 32px 20px 44px;
+  }
+
+  .page-frame {
+    width: 100%;
+  }
+
+  .page-heading {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 18px;
+    margin-bottom: 34px;
+  }
+
+  .page-heading .primary-action {
+    min-width: 172px;
+  }
+
+  .jurusan-grid {
+    grid-template-columns: 1fr;
+    gap: 22px;
+  }
+}
+
+@media (max-width: 640px) {
+  .page-heading {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .page-heading .primary-action {
+    width: 100%;
+    margin-left: 0;
+  }
+}

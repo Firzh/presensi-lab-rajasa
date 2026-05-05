@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'preact/hooks'
+import Router from 'preact-router'
+import { authApi } from './utils/api'
+import auth from './utils/auth'
+import DashboardSiswa from './pages/siswa/DashboardSiswa'
 import './app.css'
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api'
-const AUTH_USER_KEY = 'rajasa-auth-user'
 
 const THEME_KEY = 'rajasa-presensi-theme'
 
@@ -103,29 +104,6 @@ function FormField({ id, label, type = 'text', placeholder, icon, value, onInput
   )
 }
 
-function Dashboard({ user, onLogout }) {
-  return (
-    <main className="dashboard-page">
-      <section className="dashboard-card">
-        <p className="dashboard-eyebrow">Dashboard</p>
-        <h1>{user.primary_role_name || 'User'}</h1>
-        <p className="dashboard-name">{user.nama_lengkap}</p>
-
-        <div className="dashboard-meta">
-          <span>Username: {user.username}</span>
-          <span>Role: {user.primary_role_slug}</span>
-          {user.kelas_aktif && <span>Kelas: {user.kelas_aktif}</span>}
-          {user.jabatan && <span>Jabatan: {user.jabatan}</span>}
-        </div>
-
-        <button type="button" className="logout-button" onClick={onLogout}>
-          Logout
-        </button>
-      </section>
-    </main>
-  )
-}
-
 export function App() {
   const [theme, setTheme] = useState(() => {
     if (typeof window === 'undefined') return 'light'
@@ -139,12 +117,7 @@ export function App() {
 
   const [authUser, setAuthUser] = useState(() => {
     if (typeof window === 'undefined') return null
-
-    try {
-      return JSON.parse(localStorage.getItem(AUTH_USER_KEY) || 'null')
-    } catch {
-      return null
-    }
+    return auth.getUser()
   })
 
   const [loginError, setLoginError] = useState('')
@@ -161,25 +134,21 @@ export function App() {
 
   async function handleLogout() {
     try {
-      await fetch(`${API_BASE_URL}/logout`, {
-        method: 'POST',
-        credentials: 'include',
-      })
-    } catch {
-      // Abaikan error logout sementara, session lokal tetap dibersihkan.
+      await authApi.logout()
+    } catch (error) {
+      console.error('Logout error:', error)
+    } finally {
+      setAuthUser(null)
+      setUsername('')
+      setPassword('')
+      setRemember(false)
+      setShowPassword(false)
+      setLoginError('')
+      setIsSubmitting(false)
+      
+      // Redirect to login page
+      window.location.href = '/'
     }
-
-    localStorage.removeItem(AUTH_USER_KEY)
-
-    setUsername('')
-    setPassword('')
-    setRemember(false)
-    setShowPassword(false)
-    setLoginError('')
-    setIsSubmitting(false)
-    setAuthUser(null)
-
-    window.history.pushState(null, '', '/')
   }
 
   async function handleSubmit(event) {
@@ -188,29 +157,17 @@ export function App() {
     setIsSubmitting(true)
 
     try {
-      const response = await fetch(`${API_BASE_URL}/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify({
-          username,
-          password,
-          remember,
-        }),
-      })
+      const response = await authApi.login(username, password)
 
-      const data = await response.json()
-
-      if (!response.ok || !data.ok) {
-        throw new Error(data.message || 'Login gagal.')
+      if (!response.ok || !response.user) {
+        throw new Error(response.message || 'Login gagal.')
       }
 
-      localStorage.setItem(AUTH_USER_KEY, JSON.stringify(data.user))
-      setAuthUser(data.user)
+      setAuthUser(response.user)
 
-      window.history.pushState(null, '', data.user.dashboard_path || '/dashboard')
+      // Redirect to dashboard based on user role
+      const dashboardPath = response.user.dashboard_path || '/dashboard'
+      window.location.href = dashboardPath
     } catch (error) {
       setLoginError(error.message || 'Tidak bisa menghubungi server.')
     } finally {
@@ -218,8 +175,33 @@ export function App() {
     }
   } 
   
+  // If user is authenticated, show router with dashboard routes
   if (authUser) {
-    return <Dashboard user={authUser} onLogout={handleLogout} />
+    const userRole = authUser.primary_role_slug
+
+    // Route based on user role
+    if (userRole === 'siswa') {
+      return (
+        <Router>
+          <DashboardSiswa path="/dashboard/siswa" />
+          <DashboardSiswa path="/dashboard/siswa/*" />
+          {/* Redirect to dashboard if accessing root while authenticated */}
+          <DashboardSiswa default />
+        </Router>
+      )
+    }
+
+    // TODO: Add routes for other roles (guru, admin, operator)
+    // For now, show placeholder
+    return (
+      <div style={{ padding: '2rem', textAlign: 'center' }}>
+        <h1>Dashboard {userRole}</h1>
+        <p>Halaman untuk role {userRole} sedang dalam pengembangan.</p>
+        <button onClick={handleLogout} style={{ marginTop: '1rem', padding: '0.5rem 1rem' }}>
+          Logout
+        </button>
+      </div>
+    )
   }
 
   return (

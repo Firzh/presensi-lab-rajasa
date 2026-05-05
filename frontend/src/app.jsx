@@ -146,8 +146,7 @@ export function App() {
       setLoginError('')
       setIsSubmitting(false)
       
-      // Redirect to login page
-      window.location.href = '/'
+      // No need for window.location.href - setting authUser to null will show login page
     }
   }
 
@@ -163,11 +162,11 @@ export function App() {
         throw new Error(response.message || 'Login gagal.')
       }
 
+      // Set auth user - this will trigger re-render and show dashboard
       setAuthUser(response.user)
-
-      // Redirect to dashboard based on user role
-      const dashboardPath = response.user.dashboard_path || '/dashboard'
-      window.location.href = dashboardPath
+      
+      // No need for window.location.href - React Router will handle the navigation
+      // authApi.login already saved token & user to localStorage
     } catch (error) {
       setLoginError(error.message || 'Tidak bisa menghubungi server.')
     } finally {

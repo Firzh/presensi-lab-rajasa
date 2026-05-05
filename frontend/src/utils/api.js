@@ -138,8 +138,11 @@ export const authApi = {
     const response = await api.post('/login', { username, password });
     
     // Save authentication data
-    if (response.token && response.user) {
-      auth.setToken(response.token);
+    // Note: Backend may or may not return token field
+    if (response.user) {
+      // Save token if exists, otherwise save a placeholder
+      const token = response.token || `session_${Date.now()}`;
+      auth.setToken(token);
       auth.setUser(response.user);
     }
     

@@ -1,0 +1,391 @@
+/**
+ * Dashboard Layout Styles
+ * 
+ * Professional styling for student dashboard layout
+ * matching the prototype design with modern UI/UX principles
+ */
+
+/* ============================================
+   MAIN LAYOUT STRUCTURE
+   ============================================ */
+
+.dashboard-layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: #f5f7fa;
+}
+
+/* ============================================
+   HEADER NAVIGATION - LEVEL 2
+   ============================================ */
+
+.dashboard-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.header-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 2rem;
+  max-width: 1920px;
+  margin: 0 auto;
+}
+
+/* Brand Section */
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.brand-logo {
+  width: 48px;
+  height: 48px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.brand-logo svg {
+  width: 28px;
+  height: 28px;
+}
+
+.brand-text h1 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.brand-text p {
+  font-size: 0.75rem;
+  opacity: 0.9;
+  margin: 0;
+}
+
+/* Header Navigation */
+.header-nav {
+  display: flex;
+  gap: 0.5rem;
+  flex: 1;
+  justify-content: center;
+  max-width: 600px;
+}
+
+.header-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  border-radius: 12px;
+  color: white;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.header-nav-item:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+}
+
+.header-nav-item.active {
+  background: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.nav-icon {
+  width: 20px;
+  height: 20px;
+}
+
+/* User Info */
+.header-user {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.user-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1.1rem;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.user-info {
+  text-align: left;
+}
+
+.user-name {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.user-role {
+  font-size: 0.75rem;
+  opacity: 0.9;
+  margin: 0;
+}
+
+/* ============================================
+   MAIN CONTAINER
+   ============================================ */
+
+.dashboard-main-container {
+  display: flex;
+  flex: 1;
+  max-width: 1920px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* ============================================
+   SIDEBAR NAVIGATION - LEVEL 3
+   ============================================ */
+
+.dashboard-sidebar {
+  width: 280px;
+  background: white;
+  border-right: 1px solid #e5e7eb;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.3s ease;
+}
+
+.dashboard-sidebar.closed {
+  width: 0;
+  overflow: hidden;
+}
+
+.sidebar-content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 1.5rem 0;
+}
+
+/* Sidebar Navigation */
+.sidebar-nav {
+  flex: 1;
+  padding: 0 1rem;
+}
+
+.sidebar-nav-title {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0 0 1rem 0.75rem;
+}
+
+.sidebar-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.875rem 1rem;
+  background: transparent;
+  border: none;
+  border-radius: 10px;
+  color: #374151;
+  font-size: 0.95rem;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-bottom: 0.5rem;
+}
+
+.sidebar-nav-item:hover {
+  background: #f3f4f6;
+  color: #667eea;
+}
+
+.sidebar-nav-item.active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.sidebar-icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+/* Sidebar Footer */
+.sidebar-footer {
+  padding: 1rem;
+  border-top: 1px solid #e5e7eb;
+  margin-top: auto;
+}
+
+.sidebar-logout-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.875rem 1rem;
+  background: #fee2e2;
+  border: none;
+  border-radius: 10px;
+  color: #dc2626;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.sidebar-logout-btn:hover {
+  background: #fecaca;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.2);
+}
+
+/* ============================================
+   MAIN CONTENT AREA - LEVEL 4
+   ============================================ */
+
+.dashboard-content {
+  flex: 1;
+  padding: 2rem;
+  overflow-y: auto;
+  background: #f5f7fa;
+}
+
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+
+@media (max-width: 1024px) {
+  .header-container {
+    padding: 1rem 1.5rem;
+  }
+
+  .header-nav {
+    gap: 0.25rem;
+  }
+
+  .header-nav-item {
+    padding: 0.625rem 1rem;
+    font-size: 0.875rem;
+  }
+
+  .dashboard-sidebar {
+    width: 240px;
+  }
+
+  .dashboard-content {
+    padding: 1.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .header-container {
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .header-brand {
+    flex: 1;
+  }
+
+  .header-user {
+    order: 3;
+  }
+
+  .header-nav {
+    flex: 1 1 100%;
+    order: 4;
+    justify-content: flex-start;
+    overflow-x: auto;
+  }
+
+  .header-nav-item span {
+    display: none;
+  }
+
+  .dashboard-sidebar {
+    position: fixed;
+    left: 0;
+    top: 120px;
+    bottom: 0;
+    z-index: 90;
+    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .dashboard-sidebar.closed {
+    transform: translateX(-100%);
+  }
+
+  .dashboard-content {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .brand-text h1 {
+    font-size: 1rem;
+  }
+
+  .brand-text p {
+    display: none;
+  }
+
+  .user-info {
+    display: none;
+  }
+
+  .dashboard-content {
+    padding: 1rem 0.75rem;
+  }
+}
+
+/* ============================================
+   DARK MODE SUPPORT (Future Enhancement)
+   ============================================ */
+
+[data-theme="dark"] .dashboard-layout {
+  background-color: #1a1a2e;
+}
+
+[data-theme="dark"] .dashboard-sidebar {
+  background: #16213e;
+  border-right-color: #0f3460;
+}
+
+[data-theme="dark"] .dashboard-content {
+  background: #1a1a2e;
+}
+
+[data-theme="dark"] .sidebar-nav-item {
+  color: #e5e7eb;
+}
+
+[data-theme="dark"] .sidebar-nav-item:hover {
+  background: #0f3460;
+}

@@ -6,11 +6,15 @@ const AUTH_USER_KEY = 'rajasa-auth-user'
 const THEME_KEY = 'rajasa-presensi-theme'
 const STUDENTS_KEY = 'rajasa-data-siswa'
 const JURUSAN_KEY = 'rajasa-data-jurusan'
+const RUANGAN_KEY = 'rajasa-data-ruangan'
+const ROOM_TYPES_KEY = 'rajasa-jenis-ruangan'
 
 const SISWA_LIST_ROUTE = '/dashboard/admin/manajemen/data-siswa'
 const SISWA_ADD_ROUTE = `${SISWA_LIST_ROUTE}/tambah`
 const JURUSAN_LIST_ROUTE = '/dashboard/admin/manajemen/data-jurusan'
 const JURUSAN_ADD_ROUTE = `${JURUSAN_LIST_ROUTE}/tambah`
+const RUANGAN_LIST_ROUTE = '/dashboard/admin/manajemen/data-ruangan'
+const RUANGAN_ADD_ROUTE = `${RUANGAN_LIST_ROUTE}/tambah`
 
 const JURUSAN_OPTIONS = ['TKJ', 'RPL', 'MM', 'DKV', 'TKR']
 const KELAS_OPTIONS = ['X-1', 'X-2', 'XI-1', 'XI-2', 'XII-1', 'XII-2']
@@ -19,6 +23,9 @@ const JURUSAN_STATUS_OPTIONS = ['Aktif', 'Nonaktif']
 const GENDER_OPTIONS = ['L', 'P']
 const PAGE_SIZE = 10
 const JURUSAN_PAGE_SIZE = 4
+const RUANGAN_PAGE_SIZE = 4
+const DEFAULT_ROOM_TYPES = ['Kelas', 'Lab', 'Rombel', 'Workshop']
+const RUANGAN_STATUS_OPTIONS = ['Aktif', 'Nonaktif']
 
 function normalizePath(pathname) {
   if (!pathname || pathname === '/') return '/'
@@ -84,6 +91,26 @@ function createSeedJurusan() {
   }))
 }
 
+
+function createSeedRuangan() {
+  return Array.from({ length: 12 }, (_, index) => {
+    const nomor = index + 1
+    const inactive = nomor === 2 || nomor === 7
+    return {
+      id: `ruangan-${nomor}`,
+      jenisRuangan: 'Lab',
+      kode: `LAB-TKJ-${nomor}`,
+      namaRuangan: `LAB Teknik Komputer Jaringan ${nomor}`,
+      kapasitas: 32,
+      terisi: 0,
+      lokasi: 'Lantai 2 Gedung A',
+      jaringan: '192.168.1.xx / xx:xx:xx:xx',
+      fasilitas: '',
+      status: inactive ? 'Nonaktif' : 'Aktif',
+    }
+  })
+}
+
 function loadStudents() {
   const stored = readJson(STUDENTS_KEY, null)
   if (Array.isArray(stored)) return stored
@@ -94,6 +121,18 @@ function loadJurusan() {
   const stored = readJson(JURUSAN_KEY, null)
   if (Array.isArray(stored)) return stored
   return createSeedJurusan()
+}
+
+function loadRuangan() {
+  const stored = readJson(RUANGAN_KEY, null)
+  if (Array.isArray(stored)) return stored
+  return createSeedRuangan()
+}
+
+function loadRoomTypes() {
+  const stored = readJson(ROOM_TYPES_KEY, null)
+  if (Array.isArray(stored) && stored.length) return stored
+  return DEFAULT_ROOM_TYPES
 }
 
 function iconPath(name) {
@@ -286,6 +325,7 @@ function Topbar({ user, onToggleTheme }) {
 function Sidebar({ route, navigate, onLogout }) {
   const dataSiswaActive = route.includes('/manajemen/data-siswa') || route === '/dashboard/admin'
   const dataJurusanActive = route.includes('/manajemen/data-jurusan')
+  const dataRuanganActive = route.includes('/manajemen/data-ruangan')
 
   return (
     <aside className="sidebar">
@@ -320,7 +360,11 @@ function Sidebar({ route, navigate, onLogout }) {
           >
             <Icon name="building-solid-full.svg" /> Data Jurusan
           </button>
-          <button type="button" className="nav-item nav-child" onClick={() => navigate('/dashboard/admin/manajemen/data-ruangan')}>
+          <button
+            type="button"
+            className={`nav-item nav-child ${dataRuanganActive ? 'active' : ''}`}
+            onClick={() => navigate(RUANGAN_LIST_ROUTE)}
+          >
             <Icon name="door-open-solid-full.svg" /> Data Ruangan
           </button>
           <button type="button" className="nav-item nav-child" onClick={() => navigate('/dashboard/admin/laporan')}>
@@ -548,9 +592,9 @@ function DataSiswaListPage({ students, navigate }) {
   )
 }
 
-function FormField({ label, required, children }) {
+function FormField({ label, required, children, className = '' }) {
   return (
-    <label className="form-field">
+    <label className={`form-field ${className}`.trim()}>
       <span>{label}{required ? '*' : ''}</span>
       {children}
     </label>
@@ -899,6 +943,183 @@ function DataJurusanFormPage({ jurusanList, route, onSave, navigate }) {
   )
 }
 
+
+function createBlankRuangan(roomTypes = DEFAULT_ROOM_TYPES) {
+  return {
+    jenisRuangan: roomTypes[0] || 'Kelas',
+    kode: '',
+    namaRuangan: '',
+    kapasitas: '',
+    terisi: 0,
+    lokasi: '',
+    jaringan: '192.168.1.xx / xx:xx:xx:xx',
+    fasilitas: '',
+    status: 'Aktif',
+  }
+}
+
+function makeRoomCode(jenisRuangan, namaRuangan, index = 1) {
+  const type = String(jenisRuangan || 'LAB').trim().slice(0, 3).toUpperCase() || 'LAB'
+  const name = String(namaRuangan || '').trim()
+  const jurusanHint = name.match(/(TKJ|RPL|DKV|TKR|TKRO|TITL|MP|MM|AKL|BDP)/i)?.[1]?.toUpperCase() || 'RJS'
+  return `${type}-${jurusanHint}-${index}`
+}
+
+function RuanganCard({ item, onEdit }) {
+  return (
+    <article className="ruangan-card">
+      <div className="ruangan-card-top">
+        <div className="ruangan-badge">{String(item.jenisRuangan || 'LAB').slice(0, 3).toUpperCase()}</div>
+        <span className={`status-pill ${item.status === 'Aktif' ? 'active' : 'inactive'}`}>{item.status}</span>
+      </div>
+
+      <h3>{item.namaRuangan}</h3>
+      <p className="room-code">{item.kode}</p>
+
+      <div className="room-meta">
+        <p><Icon name="building-solid-full.svg" /> {item.lokasi}</p>
+        <p><Icon name="users-solid-full.svg" /> {Number(item.terisi || 0)}/{Number(item.kapasitas || 0)}</p>
+        <p><Icon name="wifi-solid-full.svg" /> {item.jaringan || '192.168.1.xx / xx:xx:xx:xx'}</p>
+      </div>
+
+      <div className="facility-box">{item.fasilitas || 'Fasilitas...'}</div>
+
+      <button className="edit-button ruangan-edit" type="button" onClick={onEdit}>Edit</button>
+    </article>
+  )
+}
+
+function DataRuanganListPage({ ruanganList, navigate }) {
+  const [page, setPage] = useState(1)
+  const totalPages = Math.max(1, Math.ceil(ruanganList.length / RUANGAN_PAGE_SIZE))
+  const currentRuangan = ruanganList.slice((page - 1) * RUANGAN_PAGE_SIZE, page * RUANGAN_PAGE_SIZE)
+
+  useEffect(() => {
+    if (page > totalPages) setPage(totalPages)
+  }, [page, totalPages])
+
+  return (
+    <>
+      <PageHeading
+        title="Data Ruangan"
+        subtitle="Kelola data siswa SMK Rajasa Surabaya"
+        action={
+          <button className="primary-action" type="button" onClick={() => navigate(RUANGAN_ADD_ROUTE)}>
+            <Icon name="plus-solid-full.svg" /> Tambah Ruangan
+          </button>
+        }
+      />
+
+      {currentRuangan.length === 0 ? (
+        <EmptyPanel label="Tidak ada data ruangan" />
+      ) : (
+        <>
+          <section className="ruangan-grid" aria-label="Daftar ruangan">
+            {currentRuangan.map((item) => (
+              <RuanganCard
+                key={item.id}
+                item={item}
+                onEdit={() => navigate(`${RUANGAN_LIST_ROUTE}/${item.id}/edit`)}
+              />
+            ))}
+          </section>
+          <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
+        </>
+      )}
+    </>
+  )
+}
+
+function DataRuanganFormPage({ ruanganList, roomTypes, route, onSave, navigate }) {
+  const editMatch = route.match(/\/manajemen\/data-ruangan\/([^/]+)\/edit$/)
+  const editId = editMatch?.[1] || null
+  const editedRuangan = editId ? ruanganList.find((item) => item.id === editId) : null
+  const [form, setForm] = useState(() => editedRuangan || createBlankRuangan(roomTypes))
+
+  useEffect(() => {
+    setForm(editedRuangan || createBlankRuangan(roomTypes))
+  }, [editId])
+
+  function setValue(field, value) {
+    setForm((current) => ({ ...current, [field]: value }))
+  }
+
+  function handleSubmit(event) {
+    event.preventDefault()
+    onSave(form, editId)
+    navigate(RUANGAN_LIST_ROUTE)
+  }
+
+  return (
+    <>
+      <PageHeading title="Data Ruangan" subtitle="Kelola data siswa SMK Rajasa Surabaya" />
+
+      <section className="ruangan-form-card">
+        <h3>{editId ? 'Edit Data Ruangan' : 'Tambah Ruangan Baru'}</h3>
+
+        <form className="ruangan-form" onSubmit={handleSubmit}>
+          <div className="ruangan-form-grid">
+            <FormField label="Jenis Ruangan" className="room-type-field" required>
+              <FormSelect
+                value={form.jenisRuangan}
+                onInput={(event) => setValue('jenisRuangan', event.currentTarget.value)}
+                required
+              >
+                {roomTypes.map((option) => <option key={option} value={option}>{option}</option>)}
+              </FormSelect>
+            </FormField>
+            <FormField label="Kapasitas" className="capacity-field" required>
+              <FormInput
+                type="number"
+                min="0"
+                value={form.kapasitas}
+                onInput={(event) => setValue('kapasitas', event.currentTarget.value)}
+                placeholder="Kapasitas Ruangan..."
+                required
+              />
+            </FormField>
+
+            <FormField label="Fasilitas" className="facilities-field" required>
+              <textarea
+                className="field-textarea"
+                value={form.fasilitas}
+                onInput={(event) => setValue('fasilitas', event.currentTarget.value)}
+                placeholder="Daftar Fasilitas"
+                required
+              />
+            </FormField>
+
+            <FormField label="Lokasi" required>
+              <FormInput
+                type="text"
+                value={form.lokasi}
+                onInput={(event) => setValue('lokasi', event.currentTarget.value)}
+                placeholder="Gedung A Lantai 2"
+                required
+              />
+            </FormField>
+
+            <FormField label="Status" required>
+              <FormSelect
+                value={form.status}
+                onInput={(event) => setValue('status', event.currentTarget.value)}
+                required
+              >
+                {RUANGAN_STATUS_OPTIONS.map((option) => <option key={option} value={option}>{option}</option>)}
+              </FormSelect>
+            </FormField>
+
+            <div className="ruangan-form-actions">
+              <button className="save-button" type="submit">Simpan</button>
+              <button className="cancel-button" type="button" onClick={() => navigate(RUANGAN_LIST_ROUTE)}>Batal</button>
+            </div>
+          </div>
+        </form>
+      </section>
+    </>
+  )
+}
+
 function PlaceholderPage({ title, navigate }) {
   return (
     <>
@@ -909,8 +1130,8 @@ function PlaceholderPage({ title, navigate }) {
         </div>
       </section>
       <section className="placeholder-card">
-        <p>Gunakan menu Data Siswa atau Data Jurusan untuk mengecek routing, daftar, tambah, dan edit data.</p>
-        <button type="button" className="primary-action" onClick={() => navigate(JURUSAN_LIST_ROUTE)}>Ke Data Jurusan</button>
+        <p>Gunakan menu Data Siswa, Data Jurusan, atau Data Ruangan untuk mengecek routing, daftar, tambah, dan edit data.</p>
+        <button type="button" className="primary-action" onClick={() => navigate(RUANGAN_LIST_ROUTE)}>Ke Data Ruangan</button>
       </section>
     </>
   )
@@ -922,6 +1143,8 @@ export function App() {
   const [authUser, setAuthUser] = useState(() => readJson(AUTH_USER_KEY, null))
   const [students, setStudents] = useState(loadStudents)
   const [jurusanList, setJurusanList] = useState(loadJurusan)
+  const [ruanganList, setRuanganList] = useState(loadRuangan)
+  const [roomTypes, setRoomTypes] = useState(loadRoomTypes)
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme
@@ -935,6 +1158,14 @@ export function App() {
   useEffect(() => {
     writeJson(JURUSAN_KEY, jurusanList)
   }, [jurusanList])
+
+  useEffect(() => {
+    writeJson(RUANGAN_KEY, ruanganList)
+  }, [ruanganList])
+
+  useEffect(() => {
+    writeJson(ROOM_TYPES_KEY, roomTypes)
+  }, [roomTypes])
 
   function toggleTheme() {
     setTheme((current) => (current === 'light' ? 'dark' : 'light'))
@@ -1002,6 +1233,40 @@ export function App() {
     })
   }
 
+
+  function addRoomType(typeName) {
+    const cleanType = typeName.trim()
+    if (!cleanType) return
+    setRoomTypes((current) => current.some((item) => item.toLowerCase() === cleanType.toLowerCase()) ? current : [...current, cleanType])
+  }
+
+  function saveRuangan(payload, editId) {
+    const nextIndex = ruanganList.length + 1
+    const cleanName = payload.namaRuangan?.trim() || `${payload.jenisRuangan} ${nextIndex}`
+    const cleanPayload = {
+      ...payload,
+      jenisRuangan: payload.jenisRuangan || 'Kelas',
+      kode: payload.kode || makeRoomCode(payload.jenisRuangan, cleanName, nextIndex),
+      namaRuangan: cleanName,
+      kapasitas: Number(payload.kapasitas || 0),
+      terisi: Number(payload.terisi || 0),
+      lokasi: payload.lokasi.trim(),
+      jaringan: payload.jaringan || '192.168.1.xx / xx:xx:xx:xx',
+      fasilitas: payload.fasilitas.trim(),
+      status: payload.status || 'Aktif',
+    }
+
+    setRuanganList((current) => {
+      if (editId) {
+        return current.map((item) => item.id === editId ? { ...item, ...cleanPayload } : item)
+      }
+      return [
+        { ...cleanPayload, id: `ruangan-${Date.now()}` },
+        ...current,
+      ]
+    })
+  }
+
   if (!authUser) {
     return <LoginPage onToggleTheme={toggleTheme} onLogin={handleLogin} />
   }
@@ -1013,6 +1278,9 @@ export function App() {
   const isDataJurusanList = routeForRender === JURUSAN_LIST_ROUTE || routeForRender === '/manajemen/data-jurusan'
   const isDataJurusanAdd = routeForRender === JURUSAN_ADD_ROUTE || routeForRender === '/manajemen/data-jurusan/tambah'
   const isDataJurusanEdit = /\/manajemen\/data-jurusan\/[^/]+\/edit$/.test(routeForRender)
+  const isDataRuanganList = routeForRender === RUANGAN_LIST_ROUTE || routeForRender === '/manajemen/data-ruangan'
+  const isDataRuanganAdd = routeForRender === RUANGAN_ADD_ROUTE || routeForRender === '/manajemen/data-ruangan/tambah'
+  const isDataRuanganEdit = /\/manajemen\/data-ruangan\/[^/]+\/edit$/.test(routeForRender)
 
   let page
   if (isDataSiswaList) {
@@ -1023,6 +1291,10 @@ export function App() {
     page = <DataJurusanListPage jurusanList={jurusanList} navigate={navigate} />
   } else if (isDataJurusanAdd || isDataJurusanEdit) {
     page = <DataJurusanFormPage jurusanList={jurusanList} route={routeForRender} onSave={saveJurusan} navigate={navigate} />
+  } else if (isDataRuanganList) {
+    page = <DataRuanganListPage ruanganList={ruanganList} navigate={navigate} />
+  } else if (isDataRuanganAdd || isDataRuanganEdit) {
+    page = <DataRuanganFormPage ruanganList={ruanganList} roomTypes={roomTypes} route={routeForRender} onSave={saveRuangan} navigate={navigate} />
   } else {
     page = <PlaceholderPage title="Dashboard" navigate={navigate} />
   }
@@ -1039,3 +1311,4 @@ export function App() {
     </AppLayout>
   )
 }
+

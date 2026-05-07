@@ -26,7 +26,11 @@ services:
     depends_on:
       - db
     environment:
-      DB_HOST: db # Gunakan nama service sebagai hostname
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_DATABASE: ${DB_NAME}
+      DB_USERNAME: root
+      DB_PASSWORD: ${DB_PASSWORD}
     networks:
       - app-network
 

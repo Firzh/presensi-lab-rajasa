@@ -1,10 +1,10 @@
-import { useState } from 'preact/hooks'
-import preactLogo from './assets/preact.svg'
-import viteLogo from '/vite.svg'
-import './app.css'
+import { useState } from 'preact/hooks';
+import preactLogo from './assets/preact.svg';
+import viteLogo from '/vite.svg';
+import './app.css';
 
 export function App() {
-  const [count, setCount] = useState(0)
+  const [count, setCount] = useState(0);
 
   return (
     <>
@@ -18,9 +18,7 @@ export function App() {
       </div>
       <h1>Vite + Preact</h1>
       <div class="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
+        <button onClick={() => setCount((count) => count + 1)}>count is {count}</button>
         <p>
           Edit <code>src/app.jsx</code> and save to test HMR
         </p>
@@ -35,9 +33,7 @@ export function App() {
         </a>
         , the official Preact + Vite starter
       </p>
-      <p class="read-the-docs">
-        Click on the Vite and Preact logos to learn more
-      </p>
+      <p class="read-the-docs">Click on the Vite and Preact logos to learn more</p>
     </>
-  )
+  );
 }

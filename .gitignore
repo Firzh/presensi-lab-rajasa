@@ -61,3 +61,5 @@ auth.json
 bootstrap/.tmp/
 bootstrap/backups/
 presensi_contract_pack.zip
+# Frontend dependencies
+frontend/node_modules/

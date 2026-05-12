@@ -4,14 +4,7 @@ import globals from 'globals';
 
 export default [
   {
-    ignores: [
-      'dist/**',
-      'build/**',
-      'coverage/**',
-      'node_modules/**',
-      '.vite/**',
-      'vite.config.*',
-    ],
+    ignores: ['dist/**', 'build/**', 'coverage/**', 'node_modules/**', '.vite/**', 'vite.config.*'],
   },
   js.configs.recommended,
   {

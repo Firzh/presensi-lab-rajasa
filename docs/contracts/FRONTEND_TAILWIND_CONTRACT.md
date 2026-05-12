@@ -73,3 +73,26 @@ frontend/public/icon/
 ## Non-Scope
 
 Tailwind setup must not implement product pages in 31c-2.
+
+## 31c-3 Implementation Rule
+
+Patch 31c-3 may implement the login landing page with Tailwind utilities after Tailwind CDN is available.
+
+Allowed in 31c-3:
+
+```text
+frontend/src/app.jsx
+frontend/src/app.css
+frontend/src/pages/LoginPage.jsx
+frontend/public/icon/*.svg
+```
+
+Rules:
+
+```text
+- app.jsx remains shell/state orchestration.
+- LoginPage.jsx owns login page markup and page-local form state.
+- Page JSX must not define inline SVG icon components.
+- Icons must be referenced from frontend/public/icon.
+- app.css remains global reset only.
+```

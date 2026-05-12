@@ -39,8 +39,11 @@ grep -q "FRONTEND_TAILWIND_CONTRACT.md" docs/CONTRACT_INDEX.md \
   || fail "CONTRACT_INDEX belum mencatat FRONTEND_TAILWIND_CONTRACT"
 
 # Guard: 31c-2 Tailwind-only must not implement page content.
-if git diff --name-only origin/development...HEAD 2>/dev/null | grep -Eq '^frontend/src/(app\.jsx|app\.css|pages/|public/icon/)'; then
-  fail "31c-2 Tailwind-only tidak boleh mengubah app.jsx, app.css, pages, atau public/icon."
+# This guard is branch-scoped so later patches such as 31c-3 may add pages.
+if [[ "$BRANCH" == "alfy/31c-2-tailwind-cdn-only" ]]; then
+  if git diff --name-only origin/development...HEAD 2>/dev/null | grep -Eq '^frontend/src/(app\.jsx|app\.css|pages/|public/icon/)'; then
+    fail "31c-2 Tailwind-only tidak boleh mengubah app.jsx, app.css, pages, atau public/icon."
+  fi
 fi
 
 ok "31c-2 Tailwind CDN-only validation passed"

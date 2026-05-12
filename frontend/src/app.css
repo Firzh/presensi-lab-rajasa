@@ -1,25 +1,24 @@
+html,
+body,
 #app {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+  min-width: 320px;
+  min-height: 100%;
+  margin: 0;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.preact:hover {
-  filter: drop-shadow(0 0 2em #673ab8aa);
+body {
+  min-height: 100vh;
 }
 
-.card {
-  padding: 2em;
+button,
+input {
+  font: inherit;
 }
 
-.read-the-docs {
-  color: #888;
+* {
+  box-sizing: border-box;
+}
+
+.app-auth-shell {
+  min-height: 100vh;
 }

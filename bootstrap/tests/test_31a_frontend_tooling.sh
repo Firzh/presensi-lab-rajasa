@@ -27,7 +27,7 @@ ROOT_DIR="$(git rev-parse --show-toplevel 2>/dev/null)" || fail "Bukan di dalam 
 cd "$ROOT_DIR"
 
 BRANCH="$(git branch --show-current 2>/dev/null || true)"
-[[ "$BRANCH" == alfy/* ]] || fail "Branch aktif wajib prefix alfy/... Saat ini: $BRANCH"
+[[ "$BRANCH" == alfy/* || "$BRANCH" == "development" ]] || fail "Branch aktif wajib prefix alfy/... atau development. Saat ini: $BRANCH"
 ok "branch prefix valid: $BRANCH"
 
 required_files=(

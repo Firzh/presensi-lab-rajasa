@@ -137,14 +137,15 @@ ensure_clean_worktree() {
 }
 
 checkout_target_branch() {
-  validate_branch_name "$TARGET_BRANCH"
-
   if [[ "$TEST_ONLY" == "1" ]]; then
+    [[ "$TARGET_BRANCH" == "development" || "$TARGET_BRANCH" == alfy/* ]] || fail "Untuk --test-only, --branch boleh development atau alfy/... Diberikan: $TARGET_BRANCH"
     local active
     active="$(current_branch)"
     [[ "$active" == "$TARGET_BRANCH" ]] || fail "Untuk --test-only, branch aktif harus $TARGET_BRANCH. Saat ini: $active"
     return 0
   fi
+
+  validate_branch_name "$TARGET_BRANCH"
 
   step "Menyiapkan branch $TARGET_BRANCH"
 

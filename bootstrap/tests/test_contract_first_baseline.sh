@@ -28,7 +28,7 @@ cd "$ROOT_DIR"
 
 BRANCH="$(git branch --show-current 2>/dev/null || true)"
 [[ -n "$BRANCH" ]] || fail "Branch aktif tidak terbaca."
-[[ "$BRANCH" == alfy/* ]] || fail "Branch aktif wajib prefix alfy/... Saat ini: $BRANCH"
+[[ "$BRANCH" == alfy/* || "$BRANCH" == "development" ]] || fail "Branch aktif wajib prefix alfy/... atau development. Saat ini: $BRANCH"
 ok "branch prefix valid: $BRANCH"
 
 required_files=(

@@ -36,3 +36,7 @@ Urutan yang salah:
 2. Merge.
 3. Dokumentasi menyusul nanti.
 ```
+
+## Frontend Tailwind
+
+- `docs/contracts/FRONTEND_TAILWIND_CONTRACT.md` — Tailwind CDN setup contract for 31c-2.

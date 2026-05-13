@@ -17,6 +17,7 @@
  */
 
 import SiswaLayout from '../../components/siswa/SiswaLayout'
+import PresensiCounter from '../../components/siswa/PresensiCounter'
 
 /**
  * Placeholder content shown while individual page features are built.
@@ -69,8 +70,8 @@ function PagePlaceholder({ label }) {
 function resolveContent(activeTab, activePage) {
   if (activeTab === 'dashboard') {
     if (activePage === 'presensi') {
-      // TODO: Replace with <PresensiCounter /> in the next commit
-      return <PagePlaceholder label="Counter Presensi Siswa" />
+      // Level 4: Attendance counters — Tepat Waktu, Terlambat, Alpha, Sakit, Izin
+      return <PresensiCounter />
     }
     if (activePage === 'kalender') {
       // TODO: Replace with <KalenderAkademik /> in the next commit

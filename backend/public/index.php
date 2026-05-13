@@ -324,6 +324,49 @@ try {
         ]);
     }
 
+    // ─── Siswa: Dashboard Stats ───────────────────────────────────────────────
+    if ($method === 'GET' && $path === '/api/siswa/dashboard') {
+        $pdo    = db();
+        $userId = require_auth();
+
+        // Verify user is siswa
+        $userRow = $pdo->prepare('SELECT siswa_id FROM users WHERE user_id = :uid AND user_type = "siswa" LIMIT 1');
+        $userRow->execute(['uid' => $userId]);
+        $siswaRow = $userRow->fetch();
+
+        if (!$siswaRow || !$siswaRow['siswa_id']) {
+            send_json(['ok' => false, 'message' => 'Akses ditolak. Bukan akun siswa.'], 403);
+        }
+
+        $siswaId = (int) $siswaRow['siswa_id'];
+
+        // Count each attendance status for this student
+        $stmt = $pdo->prepare("
+            SELECT
+                SUM(status = 'hadir')     AS tepat_waktu,
+                SUM(status = 'terlambat') AS terlambat,
+                SUM(status = 'sakit')     AS sakit,
+                SUM(status = 'izin')      AS izin,
+                SUM(status = 'alpha')     AS alpha
+            FROM presensi
+            WHERE siswa_id = :siswa_id
+              AND validasi  = 'valid'
+        ");
+        $stmt->execute(['siswa_id' => $siswaId]);
+        $counts = $stmt->fetch();
+
+        send_json([
+            'ok'   => true,
+            'data' => [
+                'tepat_waktu' => (int) ($counts['tepat_waktu'] ?? 0),
+                'terlambat'   => (int) ($counts['terlambat']   ?? 0),
+                'sakit'       => (int) ($counts['sakit']       ?? 0),
+                'izin'        => (int) ($counts['izin']        ?? 0),
+                'alpha'       => (int) ($counts['alpha']       ?? 0),
+            ],
+        ]);
+    }
+
     send_json([
         'ok' => false,
         'message' => 'Route tidak ditemukan.',

@@ -182,10 +182,10 @@ export function App() {
     if (userRole === 'siswa') {
       return (
         <Router>
-          <DashboardSiswa path="/dashboard/siswa" />
-          <DashboardSiswa path="/dashboard/siswa/*" />
+          <DashboardSiswa path="/dashboard/siswa" user={authUser} onLogout={handleLogout} />
+          <DashboardSiswa path="/dashboard/siswa/*" user={authUser} onLogout={handleLogout} />
           {/* Redirect to dashboard if accessing root while authenticated */}
-          <DashboardSiswa default />
+          <DashboardSiswa default user={authUser} onLogout={handleLogout} />
         </Router>
       )
     }

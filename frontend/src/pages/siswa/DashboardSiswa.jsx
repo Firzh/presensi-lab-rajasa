@@ -18,6 +18,7 @@
 
 import SiswaLayout from '../../components/siswa/SiswaLayout'
 import PresensiCounter from '../../components/siswa/PresensiCounter'
+import KalenderAkademik from '../../components/siswa/KalenderAkademik'
 
 /**
  * Placeholder content shown while individual page features are built.
@@ -74,8 +75,8 @@ function resolveContent(activeTab, activePage) {
       return <PresensiCounter />
     }
     if (activePage === 'kalender') {
-      // TODO: Replace with <KalenderAkademik /> in the next commit
-      return <PagePlaceholder label="Kalender Akademik (PDF Viewer)" />
+      // Level 4: PDF viewer — shows academic calendar or empty state
+      return <KalenderAkademik />
     }
   }
 

@@ -324,6 +324,44 @@ try {
         ]);
     }
 
+    // ─── Siswa: Kalender Akademik (PDF) ──────────────────────────────────────
+    if ($method === 'GET' && $path === '/api/siswa/kalender-akademik') {
+        require_auth();
+
+        /**
+         * PDF files are stored at:
+         *   backend/server/kalender-akademik/<filename>.pdf
+         *
+         * The directory is auto-created by the backend when a file is uploaded.
+         * If no PDF exists, the API returns ok=true with pdf_url=null so the
+         * frontend can display an informational empty-state container.
+         */
+        $pdfDir  = __DIR__ . '/../server/kalender-akademik/';
+        $pdfUrl  = null;
+        $pdfName = null;
+
+        if (is_dir($pdfDir)) {
+            $files = glob($pdfDir . '*.pdf');
+            if ($files && count($files) > 0) {
+                // Use the most recently modified PDF
+                usort($files, fn($a, $b) => filemtime($b) <=> filemtime($a));
+                $pdfFile = $files[0];
+                $pdfName = basename($pdfFile);
+
+                // Build a publicly accessible URL
+                $scheme   = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+                $host     = $_SERVER['HTTP_HOST'] ?? 'localhost:8080';
+                $pdfUrl   = "{$scheme}://{$host}/server/kalender-akademik/{$pdfName}";
+            }
+        }
+
+        send_json([
+            'ok'       => true,
+            'pdf_url'  => $pdfUrl,
+            'pdf_name' => $pdfName,
+        ]);
+    }
+
     // ─── Siswa: Dashboard Stats ───────────────────────────────────────────────
     if ($method === 'GET' && $path === '/api/siswa/dashboard') {
         $pdo    = db();

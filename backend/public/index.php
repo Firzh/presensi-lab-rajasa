@@ -324,6 +324,98 @@ try {
         ]);
     }
 
+    // ─── Siswa: Tabel Presensi (dengan filter & pagination) ──────────────────
+    if ($method === 'GET' && $path === '/api/siswa/presensi') {
+        $pdo    = db();
+        $userId = require_auth();
+
+        // Verify siswa role and get siswa_id
+        $userRow = $pdo->prepare('SELECT siswa_id FROM users WHERE user_id = :uid AND user_type = "siswa" LIMIT 1');
+        $userRow->execute(['uid' => $userId]);
+        $siswaRow = $userRow->fetch();
+
+        if (!$siswaRow || !$siswaRow['siswa_id']) {
+            send_json(['ok' => false, 'message' => 'Akses ditolak. Bukan akun siswa.'], 403);
+        }
+
+        $siswaId = (int) $siswaRow['siswa_id'];
+
+        // ── Pagination params ──
+        $page    = max(1, (int) ($_GET['page']     ?? 1));
+        $perPage = max(1, min(100, (int) ($_GET['per_page'] ?? 10)));
+        $offset  = ($page - 1) * $perPage;
+
+        // ── Filter params ──
+        $filter    = $_GET['filter']     ?? 'semua';   // semua|hadir|terlambat|alpha|sakit|izin|date_range
+        $dateStart = $_GET['date_start'] ?? null;
+        $dateEnd   = $_GET['date_end']   ?? null;
+
+        // ── Build WHERE clause ──
+        $where  = ['p.siswa_id = :siswa_id', "p.validasi = 'valid'"];
+        $params = ['siswa_id' => $siswaId];
+
+        $validStatuses = ['hadir', 'terlambat', 'alpha', 'sakit', 'izin'];
+
+        if (in_array($filter, $validStatuses, true)) {
+            $where[]          = 'p.status = :status';
+            $params['status'] = $filter;
+        } elseif ($filter === 'date_range') {
+            if ($dateStart) {
+                $where[]              = 'p.tanggal >= :date_start';
+                $params['date_start'] = $dateStart;
+            }
+            if ($dateEnd) {
+                $where[]            = 'p.tanggal <= :date_end';
+                $params['date_end'] = $dateEnd;
+            }
+        }
+
+        $whereSQL = 'WHERE ' . implode(' AND ', $where);
+
+        // ── Total count ──
+        $countStmt = $pdo->prepare("SELECT COUNT(*) FROM presensi p {$whereSQL}");
+        $countStmt->execute($params);
+        $total = (int) $countStmt->fetchColumn();
+
+        // ── Data rows ──
+        $dataStmt = $pdo->prepare("
+            SELECT
+                p.presensi_id,
+                p.tanggal,
+                p.waktu_masuk,
+                p.waktu_keluar,
+                p.status,
+                p.kelas_snapshot    AS kelas,
+                p.jurusan_snapshot  AS jurusan,
+                r.nama_ruangan      AS ruangan,
+                p.keterangan
+            FROM presensi p
+            LEFT JOIN ruangan r ON r.ruangan_id = p.ruangan_id
+            {$whereSQL}
+            ORDER BY p.tanggal DESC, p.presensi_id DESC
+            LIMIT :limit OFFSET :offset
+        ");
+
+        $dataStmt->bindValue(':limit',  $perPage, PDO::PARAM_INT);
+        $dataStmt->bindValue(':offset', $offset,  PDO::PARAM_INT);
+        foreach ($params as $key => $val) {
+            $dataStmt->bindValue(":{$key}", $val);
+        }
+        $dataStmt->execute();
+        $rows = $dataStmt->fetchAll();
+
+        send_json([
+            'ok'   => true,
+            'data' => $rows,
+            'meta' => [
+                'total'       => $total,
+                'page'        => $page,
+                'per_page'    => $perPage,
+                'total_pages' => (int) ceil($total / $perPage),
+            ],
+        ]);
+    }
+
     // ─── Siswa: Kalender Akademik (PDF) ──────────────────────────────────────
     if ($method === 'GET' && $path === '/api/siswa/kalender-akademik') {
         require_auth();

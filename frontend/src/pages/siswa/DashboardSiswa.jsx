@@ -19,6 +19,7 @@
 import SiswaLayout from '../../components/siswa/SiswaLayout'
 import PresensiCounter from '../../components/siswa/PresensiCounter'
 import KalenderAkademik from '../../components/siswa/KalenderAkademik'
+import TablePresensi from '../../components/siswa/TablePresensi'
 
 /**
  * Placeholder content shown while individual page features are built.
@@ -81,8 +82,8 @@ function resolveContent(activeTab, activePage) {
   }
 
   if (activeTab === 'halaman-presensi') {
-    // TODO: Replace with <TablePresensi /> in the next commit
-    return <PagePlaceholder label="Tabel Presensi Siswa" />
+    // Level 4: Full attendance table with filter + pagination
+    return <TablePresensi />
   }
 
   return <PagePlaceholder label="Halaman tidak ditemukan." />

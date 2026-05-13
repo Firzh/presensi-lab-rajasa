@@ -3,13 +3,11 @@ services:
   db:
     image: mysql:8.0
     restart: always
-    command: --defaults-extra-file=/etc/mysql/conf.d/my-optimasi.cnf
     environment:
       MYSQL_DATABASE: ${DB_NAME}
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
     volumes:
       - db_data:/var/lib/mysql
-      - ./mysql/my-optimasi.cnf:/etc/mysql/conf.d/my-optimasi.cnf # Mount config
     networks:
       - app-network
 

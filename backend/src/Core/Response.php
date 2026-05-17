@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Rajasa\PresensiLabBackend\Core;
+namespace Rajasa\PresensiSiswa\Core;
 
 final class Response
 {

@@ -2,16 +2,20 @@
 
 declare(strict_types=1);
 
-namespace Rajasa\PresensiLabBackend\Core;
+namespace Rajasa\PresensiSiswa\Core;
 
+use Rajasa\PresensiSiswa\Support\Config;
 use Throwable;
 
 final class ExceptionHandler
 {
     public static function handle(Throwable $exception): void
     {
-        Response::error('Terjadi kesalahan sistem.', [
-            'exception' => $exception->getMessage(),
-        ], 500);
+        $debug = Config::get('app.debug', false);
+
+        Response::error('Terjadi kesalahan sistem.', $debug ? [
+            'exception' => $exception::class,
+            'message' => $exception->getMessage(),
+        ] : [], 500);
     }
 }

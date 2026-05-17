@@ -2,9 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Rajasa\PresensiLabBackend\Http\Controllers;
+namespace Rajasa\PresensiSiswa\Http\Controllers;
 
-use Rajasa\PresensiLabBackend\Core\Response;
+use Rajasa\PresensiSiswa\Core\Response;
+use Rajasa\PresensiSiswa\Support\Config;
 
 final class HealthController
 {
@@ -12,6 +13,8 @@ final class HealthController
     {
         Response::success('Backend API is running', [
             'service' => 'presensi-siswa-api',
+            'app' => Config::get('app.name'),
+            'env' => Config::get('app.env'),
             'status' => 'ok',
         ]);
     }

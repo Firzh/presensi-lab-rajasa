@@ -3,23 +3,24 @@
 declare(strict_types=1);
 
 use FastRoute\Dispatcher;
-use Rajasa\PresensiLabBackend\Core\Response;
+use Rajasa\PresensiSiswa\Core\Request;
+use Rajasa\PresensiSiswa\Core\Response;
+use Rajasa\PresensiSiswa\Support\Config;
 
 require __DIR__ . '/../vendor/autoload.php';
+
+date_default_timezone_set(getenv('APP_TIMEZONE') ?: 'Asia/Jakarta');
+
+Config::load(require __DIR__ . '/config.php');
 
 $createContainer = require __DIR__ . '/container.php';
 $container = $createContainer();
 
 $dispatcher = require __DIR__ . '/routes.php';
 
-$httpMethod = $_SERVER['REQUEST_METHOD'] ?? 'GET';
-$uri = $_SERVER['REQUEST_URI'] ?? '/';
+$request = $container->get(Request::class);
 
-if (false !== $pos = strpos($uri, '?')) {
-    $uri = substr($uri, 0, $pos);
-}
-
-$routeInfo = $dispatcher->dispatch($httpMethod, $uri);
+$routeInfo = $dispatcher->dispatch($request->method(), $request->uri());
 
 switch ($routeInfo[0]) {
     case Dispatcher::NOT_FOUND:

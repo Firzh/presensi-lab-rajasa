@@ -6,9 +6,11 @@ namespace Rajasa\PresensiSiswa\Core;
 
 final class Request
 {
+    private ?array $cachedBody = null;
+
     public function method(): string
     {
-        return $_SERVER['REQUEST_METHOD'] ?? 'GET';
+        return strtoupper($_SERVER['REQUEST_METHOD'] ?? 'GET');
     }
 
     public function uri(): string
@@ -29,15 +31,31 @@ final class Request
 
     public function body(): array
     {
-        $raw = file_get_contents('php://input');
-
-        if (!$raw) {
-            return $_POST;
+        if ($this->cachedBody !== null) {
+            return $this->cachedBody;
         }
 
-        $decoded = json_decode($raw, true);
+        $contentType = $_SERVER['CONTENT_TYPE'] ?? '';
 
-        return is_array($decoded) ? $decoded : $_POST;
+        if (str_contains($contentType, 'application/json')) {
+            $raw = file_get_contents('php://input') ?: '';
+
+            if ($raw === '') {
+                return $this->cachedBody = [];
+            }
+
+            $decoded = json_decode($raw, true);
+
+            if (!is_array($decoded)) {
+                throw new HttpException('Body JSON tidak valid.', 422, [
+                    'body' => 'Format JSON tidak bisa dibaca.',
+                ]);
+            }
+
+            return $this->cachedBody = $decoded;
+        }
+
+        return $this->cachedBody = $_POST;
     }
 
     public function input(string $key, mixed $default = null): mixed

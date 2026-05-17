@@ -11,6 +11,15 @@ final class ExceptionHandler
 {
     public static function handle(Throwable $exception): void
     {
+        if ($exception instanceof HttpException) {
+            Response::error(
+                $exception->getMessage(),
+                $exception->errors(),
+                $exception->statusCode()
+            );
+            return;
+        }
+
         $debug = Config::get('app.debug', false);
 
         Response::error('Terjadi kesalahan sistem.', $debug ? [

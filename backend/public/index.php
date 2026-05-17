@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Dotenv\Dotenv;
 use Rajasa\PresensiSiswa\Core\ExceptionHandler;
 use Rajasa\PresensiSiswa\Support\Config;
 
@@ -10,7 +11,11 @@ try {
 } catch (Throwable $exception) {
     require __DIR__ . '/../vendor/autoload.php';
 
-    if (class_exists(Config::class) && method_exists(Config::class, 'load')) {
+    if (file_exists(__DIR__ . '/../.env')) {
+        Dotenv::createImmutable(__DIR__ . '/..')->safeLoad();
+    }
+
+    if (class_exists(Config::class)) {
         Config::load(require __DIR__ . '/../boilerplate/config.php');
     }
 

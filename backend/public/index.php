@@ -1,10 +1,13 @@
 <?php
 
-header('Content-Type: application/json');
+declare(strict_types=1);
 
-echo json_encode([
-    'success' => true,
-    'message' => 'Backend API masuk',
-    'path' => $_SERVER['REQUEST_URI'] ?? null,
-    'method' => $_SERVER['REQUEST_METHOD'] ?? null,
-]);
+use Rajasa\PresensiLabBackend\Core\ExceptionHandler;
+
+try {
+    require __DIR__ . '/../boilerplate/app.php';
+} catch (Throwable $exception) {
+    require __DIR__ . '/../vendor/autoload.php';
+
+    ExceptionHandler::handle($exception);
+}

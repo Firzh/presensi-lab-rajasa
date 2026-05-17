@@ -2,6 +2,21 @@
 
 Dokumen ini mengatur cara kerja kontribusi agar repo Presensi tidak kembali menjadi kumpulan branch fitur yang saling menimpa.
 
+## 0. Project User Pemission
+Sebelum menjalankan Docker di Linux, salin `.env.example` ke `.env`, lalu sesuaikan UID dan GID:
+
+```bash
+cp .env.example .env
+sed -i "s/^UID=.*/UID=$(id -u)/" .env
+sed -i "s/^GID=.*/GID=$(id -g)/" .env
+```
+
+lalu cek
+
+```bash
+grep -E "^(UID|GID)=" .env
+```
+
 ## 1. Branch policy
 
 Gunakan format branch berikut:

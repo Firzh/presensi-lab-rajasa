@@ -3,17 +3,15 @@ services:
   db:
     image: mysql:8.0
     restart: always
-    command: --defaults-extra-file=/etc/mysql/conf.d/my-optimasi.cnf
     environment:
       MYSQL_DATABASE: ${DB_NAME}
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
     volumes:
       - db_data:/var/lib/mysql
-      - ./mysql/my-optimasi.cnf:/etc/mysql/conf.d/my-optimasi.cnf # Mount config
     networks:
       - app-network
 
-  # Service Backend (Laravel)
+  # Service Backend (Custom PHP API / PHP-FPM)
   backend:
     build:
       context: ./backend
@@ -23,6 +21,8 @@ services:
     user: "${UID}:${GID}"
     volumes:
       - ./backend:/var/www
+    expose:
+      - "9000"
     depends_on:
       - db
     environment:
@@ -30,7 +30,7 @@ services:
     networks:
       - app-network
 
-  # Service Frontend (React)
+  # Service Frontend (Preact / Vite)
   frontend:
     build: ./frontend
     ports:
@@ -47,7 +47,7 @@ services:
   nginx:
     image: nginx:stable-alpine
     ports:
-      - "8080:80" # Akses API/Backend via http://localhost:8080
+      - "${NGINX_PORT}:80" # API via http://localhost:${NGINX_PORT}/api/...
     volumes:
       - ./backend:/var/www
       - ./nginx.conf:/etc/nginx/conf.d/default.conf

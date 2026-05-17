@@ -18,6 +18,7 @@ Thumbs.db
 .env.backup
 .env.production
 .phpunit.result.cache
+.phpunit.cache
 
 # Folder storage Laravel (jika ada komponen yang menggunakannya)
 /backend/storage/*.key

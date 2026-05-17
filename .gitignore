@@ -37,6 +37,7 @@ Thumbs.db
 /frontend/.env.development.local
 /frontend/.env.test.local
 /frontend/.env.production.local
+/frontend/node_modules/
 
 # Debug logs
 npm-debug.log*
@@ -56,10 +57,3 @@ docker-compose.override.yml
 *.pem
 *.key
 auth.json
-
-### Builder via Bootstrap
-bootstrap/.tmp/
-bootstrap/backups/
-presensi_contract_pack.zip
-# Frontend dependencies
-frontend/node_modules/

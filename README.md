@@ -1,85 +1,148 @@
-# Presensi Lab Rajasa — Contract-First Documentation Pack
+# Presensi Siswa Rajasa
 
-Paket ini adalah fondasi dokumentasi teknis untuk proyek `presensi-lab-rajasa` dengan gaya kerja yang meniru kedisiplinan dokumentasi `selfdev`, tetapi disesuaikan dengan kebutuhan aplikasi presensi sekolah.
+Aplikasi presensi siswa berbasis QR untuk SMKS Rajasa. Sistem dirancang untuk mendukung presensi rombel, presensi piket untuk siswa terlambat, rekap per jam pembelajaran, serta pengelolaan data siswa berdasarkan tahun ajaran.
 
-Tujuan paket ini adalah mengubah Presensi dari repo fitur yang masih rawan konflik menjadi repo yang memiliki:
+Repositori ini sedang dibersihkan dari dokumentasi dan file development lama. Dokumentasi di repo ini hanya boleh mengacu pada struktur kode, konfigurasi, schema database, dan kebutuhan MVP yang masih aktif.
 
-- kontrak stack;
-- kontrak branch dan integrasi;
-- kontrak API;
-- kontrak auth;
-- kontrak database;
-- kontrak frontend;
-- kontrak route;
-- kontrak error;
-- kontrak security boundary;
-- status implementasi;
-- test plan;
-- dev plan short term;
-- checklist dokumentasi per fase.
+## Status Project
 
-## Prinsip utama
+Status saat ini:
 
-Presensi harus dikembangkan dengan prinsip **contract-first, feature-second**.
+- Environment Docker sudah tersedia.
+- Nginx digunakan sebagai reverse proxy.
+- Backend memakai PHP 8.2 FPM.
+- Frontend memakai Vite.
+- Database memakai MySQL 8.0.
+- Backend API masih dalam tahap persiapan boilerplate.
+- Schema database MVP sudah disiapkan terpisah dari seed.
 
-Artinya, fitur baru tidak boleh langsung masuk ke `app.jsx`, controller, route, atau database tanpa memperbarui kontrak yang relevan terlebih dahulu.
+## Stack
 
-## Cara memakai paket ini
+| Bagian                  | Teknologi           |
+| ----------------------- | ------------------- |
+| Frontend                | Vite                |
+| Backend                 | PHP 8.2 FPM         |
+| Database                | MySQL 8.0           |
+| Web Server              | Nginx               |
+| Package Manager Backend | Composer            |
+| Routing Backend         | FastRoute           |
+| Dependency Injection    | PHP-DI              |
+| Database Layer          | Illuminate Database |
+| Testing Backend         | PHPUnit             |
 
-Salin seluruh isi folder ini ke root repo `presensi-lab-rajasa`.
+## Cara Menjalankan Development
 
-Struktur yang disarankan setelah disalin:
+Salin file environment:
 
-```text
-presensi-lab-rajasa/
-  README.md
-  CHANGELOG.md
-  CONTRIBUTING.md
-  docs/
-    SPECIFICATION.md
-    IMPLEMENTATION_STATUS.md
-    DEV_PLAN_SHORT_TERM.md
-    TEST_PLAN.md
-    ARCHITECTURE.md
-    CONTRACT_INDEX.md
-    contracts/
-      STACK_CONTRACT.md
-      BRANCH_INTEGRATION_CONTRACT.md
-      FRONTEND_CONTRACT.md
-      ROUTE_CONTRACT.md
-      API_CONTRACT.md
-      AUTH_CONTRACT.md
-      DATABASE_CONTRACT.md
-      ERROR_CONTRACT.md
-      ENV_DOCKER_CONTRACT.md
-      SECURITY_CONTRACT.md
-    dev-plans/
-      DEV_PLAN_PHASE_0_CONTRACT_BASELINE.md
-      DEV_PLAN_PHASE_1_FRONTEND_STABILIZATION.md
-      DEV_PLAN_PHASE_2_FEATURE_MODULARIZATION_ROUTING.md
-      DEV_PLAN_PHASE_3_API_BACKEND_FOUNDATION.md
-      DEV_PLAN_PHASE_4_DATA_MIGRATION_FINAL_DOCS.md
-    reviews/
-      CODE_QUALITY_REVIEW.md
-  examples/
-    api/
-      response-envelope.examples.json
-  scripts/
-    check_docs_contracts.py
+```bash
+cp .env.example .env
 ```
 
-## Aturan dokumentasi wajib
+Jalankan container:
 
-Setiap 10 commit atau setiap selesai 1 fase implementasi, dokumen berikut wajib diperbarui sebelum fitur baru dilanjutkan:
+```bash
+docker compose up -d --build
+```
 
-- `README.md`
-- `CHANGELOG.md`
-- `docs/SPECIFICATION.md`
-- `docs/IMPLEMENTATION_STATUS.md`
-- `docs/DEV_PLAN_SHORT_TERM.md`
-- `docs/TEST_PLAN.md`
-- semua dokumen kontrak yang terdampak di `docs/contracts/`
+Cek service:
 
-## Status paket
+```text
+http://localhost:8080
+http://localhost:8080/api/health
+```
 
-Paket ini adalah **baseline dokumentasi dan kontrak**, bukan source code implementasi final. Paket ini sengaja dibuat preskriptif agar tim memiliki batas teknis yang jelas sebelum refactor dan migrasi API dilakukan.
+## Struktur Project
+
+```text
+backend/
+frontend/
+docs/
+scripts/
+docker-compose.yml
+nginx.conf
+```
+
+## Struktur Dokumentasi
+
+```text
+docs/
+  ARCHITECTURE.md
+  API.md
+  DATABASE.md
+  TESTING.md
+```
+
+## Database
+
+Schema dan seed database akan diletakkan di:
+
+```text
+backend/database/schema/
+backend/database/seeds/
+```
+
+Urutan eksekusi database:
+
+```text
+1. Schema utama
+2. Seed permission MVP
+3. Seed akun demo
+```
+
+## Branch
+
+Prefix branch project ini memakai:
+
+```text
+alfy/
+```
+
+Contoh:
+
+```text
+alfy/nginx-configure
+alfy/cleanup-dev-sampah
+alfy/backend-boilerplate
+alfy/backend-phpunit
+alfy/backend-auth-permission
+alfy/backend-presensi-session
+alfy/backend-presensi-scan
+```
+
+## Prinsip Development
+
+1. Gunakan isi script nyata sebagai acuan.
+2. Jangan mengandalkan catatan lama jika tidak sesuai kode.
+3. Jangan menambah fitur di luar MVP tanpa alasan teknis.
+4. Setiap fitur backend wajib punya test.
+5. Schema database dan seed harus dipisah.
+6. Dokumentasi harus diperbarui jika struktur kode berubah.
+
+## Scope MVP
+
+MVP fokus pada:
+
+- login user,
+- role dan permission sederhana,
+- akun guru, staff, admin, intern, dan siswa,
+- presensi mode rombel,
+- presensi mode piket untuk siswa terlambat,
+- scan QR berbasis payload nama dan NISN,
+- presensi per jam pembelajaran,
+- warning jika kartu QR beda rombel,
+- laporan presensi,
+- import data siswa,
+- audit edit presensi,
+- error log sistem.
+
+Di luar MVP:
+
+- policy engine,
+- group engine,
+- ESP32,
+- plotting ruangan,
+- presensi berbasis ruang,
+- arsip media,
+- notifikasi kompleks,
+- multi sekolah,
+- integrasi orang tua.

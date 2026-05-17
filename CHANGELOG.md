@@ -1,37 +1,46 @@
 # Changelog
 
-Format changelog mengikuti prinsip dokumentasi kontrak. Setiap perubahan harus menjelaskan dampak terhadap frontend, backend, database, API, dan dokumentasi.
+Semua perubahan penting dalam project ini dicatat di file ini.
+
+Format mengikuti pola sederhana:
+
+```text
+Added
+Changed
+Fixed
+Removed
+```
 
 ## [Unreleased]
 
 ### Added
 
-- Menambahkan baseline dokumentasi contract-first untuk proyek Presensi Lab Rajasa.
-- Menambahkan kontrak stack backend, frontend, database, dan Docker.
-- Menambahkan kontrak branch integration untuk menyatukan branch fitur aktif.
-- Menambahkan kontrak API, auth, database, route, error, dan frontend module boundary.
-- Menambahkan dev plan fase 0 sampai fase 4.
-- Menambahkan test plan untuk kontrak, frontend, backend, database, dan manual acceptance.
-- Menambahkan script `scripts/check_docs_contracts.py` untuk memeriksa keberadaan dokumen wajib.
+- Menambahkan baseline dokumentasi baru untuk MVP presensi siswa QR.
+- Menambahkan dokumen arsitektur project.
+- Menambahkan dokumen API MVP.
+- Menambahkan dokumen database MVP.
+- Menambahkan aturan kontribusi project.
 
 ### Changed
 
-- Menetapkan arah backend sebagai custom PHP API dengan FastRoute, PHP-DI, Illuminate Database, dan Dotenv.
-- Menetapkan frontend sebagai Preact + Vite, bukan React penuh.
-- Menetapkan `VITE_API_BASE_URL` sebagai satu-satunya nama environment frontend untuk base API.
-- Menetapkan data bisnis siswa, jurusan, dan ruangan harus dimigrasikan dari `localStorage` ke backend API secara bertahap.
-
-### Deprecated
-
-- Penggunaan `app.jsx` sebagai tempat seluruh fitur, seed data, constants, helper storage, routing, layout, dan halaman.
-- Penggunaan `localStorage` sebagai database semu untuk data bisnis utama.
-- Penggunaan token palsu yang dibuat frontend saat backend tidak mengembalikan token.
-- Komentar dan konfigurasi yang menyebut backend sebagai Laravel apabila stack yang dipilih tetap custom PHP API.
+- Mengubah fokus project dari presensi lab menjadi presensi siswa berbasis rombel, piket, dan jam pembelajaran.
+- Menyesuaikan dokumentasi agar mengacu pada struktur kode, konfigurasi, dan schema database yang aktif.
+- Menetapkan prefix branch project dengan format `alfy/*`.
 
 ### Removed
 
-- Belum ada penghapusan source code. Paket ini hanya mengatur baseline dokumentasi dan kontrak.
+- Menghapus ketergantungan dokumentasi pada contract-first documentation pack lama.
+- Menghapus acuan terhadap folder root `bootstrap/` lama yang bukan bootstrap aplikasi backend.
+- Menghapus acuan terhadap scope lama seperti ruangan, perangkat ESP32, plotting rombel, policy engine, group engine, arsip, dan notifikasi kompleks.
 
-### Security
+## [0.1.0] - Baseline MVP
 
-- Menambahkan security boundary awal untuk auth, session, file sensitif, input validation, dan unsafe frontend token generation.
+### Added
+
+- Baseline environment Docker.
+- Backend PHP 8.2 FPM.
+- Frontend Vite.
+- MySQL 8.0.
+- Nginx reverse proxy.
+- Rancangan schema database MVP presensi siswa QR.
+- Pemisahan rencana schema dan seed database.

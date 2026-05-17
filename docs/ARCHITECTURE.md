@@ -1,125 +1,256 @@
 # Architecture
 
-## 1. Target Architecture
+Dokumen ini menjelaskan arsitektur MVP Presensi Siswa Rajasa.
 
-Presensi Lab Rajasa memakai arsitektur full-stack sederhana dengan pemisahan tanggung jawab yang jelas.
+## Tujuan Sistem
+
+Sistem dibuat untuk mencatat presensi siswa berbasis QR. Presensi dilakukan oleh guru, staff, admin, intern dengan akses khusus, atau user lain yang memiliki permission presensi.
+
+Sistem mendukung dua mode utama:
+
+1. Presensi rombel.
+2. Presensi piket untuk siswa terlambat.
+
+## Komponen Utama
 
 ```text
 Browser
   ↓
-Preact + Vite Frontend
+Nginx
   ↓
-apiClient
+Frontend Vite
   ↓
-Nginx reverse proxy
+Backend PHP API
   ↓
-PHP-FPM Backend
-  ↓
-FastRoute
-  ↓
-Controller
-  ↓
-Service
-  ↓
-Repository
-  ↓
-Illuminate Database / Eloquent
-  ↓
-MySQL 8.0
+MySQL
 ```
 
-## 2. Frontend Responsibility
+## Backend
 
-Frontend bertanggung jawab untuk:
+Backend memakai PHP 8.2 FPM dan Composer.
 
-- menampilkan halaman;
-- mengelola state UI;
-- mengelola form;
-- memvalidasi input dasar;
-- memanggil service;
-- menampilkan loading dan error state;
-- melakukan mapping data API ke bentuk UI.
-
-Frontend tidak bertanggung jawab untuk:
-
-- membuat data seed sebagai sumber utama;
-- menyimpan data bisnis di `localStorage`;
-- membuat token login palsu;
-- menentukan role tanpa validasi backend;
-- melakukan query database.
-
-## 3. Backend Responsibility
-
-Backend bertanggung jawab untuk:
-
-- menerima request API;
-- melakukan validasi;
-- menjalankan business rule;
-- mengakses database;
-- mengembalikan response sesuai envelope contract;
-- mengelola auth/session;
-- menjaga error handling konsisten.
-
-Backend tidak bertanggung jawab untuk:
-
-- menyimpan logic tampilan frontend;
-- mengembalikan HTML dashboard;
-- mencampur route frontend dan route API;
-- menjalankan fitur production yang belum dikontrak.
-
-## 4. Module Boundary
-
-### 4.1 Frontend Boundary
+Target komponen backend:
 
 ```text
-Page → Service → apiClient → Backend
+backend/
+  public/
+  bootstrap/
+  src/
+  routes/
+  database/
+  tests/
 ```
 
-Komponen UI tidak boleh memanggil `fetch` langsung.
+Stack backend:
 
-### 4.2 Backend Boundary
+| Komponen            | Fungsi                |
+| ------------------- | --------------------- |
+| PHP 8.2 FPM         | Runtime backend       |
+| Composer            | Dependency manager    |
+| FastRoute           | Routing HTTP          |
+| PHP-DI              | Dependency injection  |
+| Illuminate Database | Database layer        |
+| Dotenv              | Environment loader    |
+| PHPUnit             | Unit dan feature test |
+
+## Frontend
+
+Frontend memakai Vite.
+
+Frontend bertugas menampilkan:
+
+- halaman login,
+- dashboard,
+- halaman presensi,
+- scanner QR,
+- halaman laporan,
+- halaman data master,
+- halaman import.
+
+## Nginx
+
+Nginx menjadi reverse proxy.
+
+Target routing:
+
+| Path     | Tujuan      |
+| -------- | ----------- |
+| `/`      | Frontend    |
+| `/api/*` | Backend PHP |
+
+## Database
+
+Database memakai MySQL 8.0.
+
+Schema MVP fokus pada:
+
+- user,
+- role,
+- permission,
+- siswa,
+- guru atau staff,
+- jurusan,
+- rombel,
+- tahun ajaran,
+- penempatan siswa rombel,
+- wali kelas,
+- QR siswa,
+- sesi presensi,
+- presensi per jam,
+- log scan,
+- log edit,
+- notifikasi user,
+- import,
+- error log.
+
+## Auth dan Permission
+
+Sistem memakai role dan permission sederhana.
+
+Tabel inti:
 
 ```text
-Route → Controller → Service → Repository → Model/Database
+roles
+permissions
+role_permissions
+users
+user_roles
+user_permissions
 ```
 
-Controller tidak boleh berisi query panjang atau business rule kompleks.
-
-## 5. Data Flow Example
-
-Contoh alur tambah siswa:
+Tidak memakai:
 
 ```text
-SiswaFormPage
-  ↓ submit
-siswaService.create(payload)
-  ↓
-apiClient.post('/admin/siswa', payload)
-  ↓
-POST /api/admin/siswa
-  ↓
-SiswaController::store
-  ↓
-SiswaService::create
-  ↓
-SiswaRepository::create
-  ↓
-MySQL table siswa
-  ↓
-API envelope response
-  ↓
-Frontend redirect/list refresh
+policies
+groups
+user_access_tokens
 ```
 
-## 6. Deployment Boundary
+Akses custom cukup memakai `user_permissions`.
 
-Dalam development:
+## Mode Presensi
+
+### Mode Rombel
+
+Dipakai saat guru mengajar di kelas.
+
+Aturan:
+
+- wajib memilih rombel,
+- wajib memilih jam pembelajaran,
+- maksimal 3 jam,
+- jam harus berurutan,
+- satu scan berlaku untuk semua jam yang dipilih,
+- siswa beda rombel masuk warning.
+
+### Mode Piket
+
+Dipakai untuk siswa terlambat.
+
+Aturan:
+
+- tidak terikat rombel,
+- default status presensi adalah terlambat,
+- siswa bisa berasal dari semua rombel,
+- scan tetap dicatat ke log.
+
+## QR
+
+QR berasal dari vendor.
+
+Sistem tidak membuat QR dinamis.
+
+Isi QR minimal:
 
 ```text
-frontend: Vite dev server
-backend: PHP-FPM
-nginx: reverse proxy
-mysql: database
+nama
+NISN
 ```
 
-Dalam production, Vite harus dibuild menjadi static assets. Development proxy tidak boleh dianggap production architecture.
+Sistem hanya menyimpan dan mencocokkan payload QR.
+
+Tabel terkait:
+
+```text
+siswa_qr
+presensi_scan_log
+```
+
+## Presensi Per Jam
+
+Presensi disimpan per jam pembelajaran.
+
+Contoh:
+
+Guru memilih jam 1, 2, dan 3. Siswa discan satu kali. Sistem membuat tiga data presensi:
+
+```text
+jam 1 = hadir
+jam 2 = hadir
+jam 3 = hadir
+```
+
+Tabel utama:
+
+```text
+presensi_sesi
+presensi_sesi_jam
+presensi_jam_siswa
+```
+
+## Warning
+
+Warning terjadi saat QR siswa valid, tetapi rombel siswa tidak sesuai dengan rombel sesi.
+
+Warning tidak masuk ke tabel presensi utama.
+
+Warning masuk ke:
+
+```text
+presensi_scan_log
+```
+
+Wali kelas dapat melihat warning berdasarkan:
+
+```text
+rombel
+tahun ajaran
+semester
+```
+
+## Import
+
+Import dipakai untuk data siswa, rombel, guru, atau data akademik lain.
+
+Jika template sesuai, sistem langsung proses.
+
+Jika template tidak sesuai, sistem memakai fallback:
+
+```text
+import_column_mappings
+```
+
+Jika tetap gagal, error dicatat ke:
+
+```text
+import_row_logs
+system_error_logs
+```
+
+## Non Scope MVP
+
+Fitur berikut tidak masuk MVP:
+
+- ESP32,
+- ruangan,
+- plotting rombel,
+- presensi berbasis lokasi ruang,
+- policy engine,
+- group engine,
+- arsip media,
+- notifikasi kompleks,
+- multi sekolah,
+- integrasi orang tua,
+- queue worker,
+- Redis,
+- Laravel penuh.

@@ -38,7 +38,7 @@ final class Request
         $contentType = $_SERVER['CONTENT_TYPE'] ?? '';
 
         if (str_contains($contentType, 'application/json')) {
-            $raw = file_get_contents('php://input') ?: '';
+            $raw = $this->rawBody();
 
             if ($raw === '') {
                 return $this->cachedBody = [];
@@ -67,7 +67,9 @@ final class Request
     {
         $serverKey = 'HTTP_' . strtoupper(str_replace('-', '_', $key));
 
-        return $_SERVER[$serverKey] ?? $default;
+        return $_SERVER[$serverKey]
+            ?? $_SERVER['REDIRECT_' . $serverKey]
+            ?? $default;
     }
 
     public function bearerToken(): ?string
@@ -79,5 +81,14 @@ final class Request
         }
 
         return trim(substr($authorization, 7));
+    }
+
+    private function rawBody(): string
+    {
+        if (array_key_exists('__TEST_RAW_BODY', $GLOBALS)) {
+            return (string) $GLOBALS['__TEST_RAW_BODY'];
+        }
+
+        return file_get_contents('php://input') ?: '';
     }
 }

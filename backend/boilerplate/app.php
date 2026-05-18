@@ -18,6 +18,9 @@ date_default_timezone_set(getenv('APP_TIMEZONE') ?: 'Asia/Jakarta');
 
 Config::load(require __DIR__ . '/config.php');
 
+$bootDatabase = require __DIR__ . '/database.php';
+$bootDatabase();
+
 (new CorsMiddleware())->handle();
 
 $createContainer = require __DIR__ . '/container.php';

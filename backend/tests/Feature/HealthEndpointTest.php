@@ -12,6 +12,7 @@ final class HealthEndpointTest extends TestCase
     {
         $response = $this->runApp('GET', '/api/health');
 
+        $this->assertSame(200, $response['__status_code']);
         $this->assertTrue($response['success']);
         $this->assertSame('Backend API is running', $response['message']);
         $this->assertSame('presensi-siswa-api', $response['data']['service']);
@@ -23,6 +24,7 @@ final class HealthEndpointTest extends TestCase
     {
         $response = $this->runApp('GET', '/api/not-found');
 
+        $this->assertSame(404, $response['__status_code']);
         $this->assertFalse($response['success']);
         $this->assertSame('Endpoint tidak ditemukan.', $response['message']);
     }
@@ -31,6 +33,7 @@ final class HealthEndpointTest extends TestCase
     {
         $response = $this->runApp('POST', '/api/health');
 
+        $this->assertSame(405, $response['__status_code']);
         $this->assertFalse($response['success']);
         $this->assertSame('Method tidak diizinkan.', $response['message']);
     }

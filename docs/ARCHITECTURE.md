@@ -4,14 +4,14 @@ Dokumen ini menjelaskan arsitektur MVP Presensi Siswa Rajasa.
 
 ## Tujuan Sistem
 
-Sistem dibuat untuk mencatat presensi siswa berbasis QR. Presensi dilakukan oleh guru, staff, admin, intern dengan akses khusus, atau user lain yang memiliki permission presensi.
+Sistem dibuat untuk mencatat presensi siswa berbasis QR.
 
-Sistem mendukung dua mode utama:
+Mode utama:
 
 1. Presensi rombel.
 2. Presensi piket untuk siswa terlambat.
 
-## Komponen Utama
+## Diagram Ringkas
 
 ```text
 Browser
@@ -29,228 +29,186 @@ MySQL
 
 Backend memakai PHP 8.2 FPM dan Composer.
 
-Target komponen backend:
+Struktur utama:
 
 ```text
 backend/
+  boilerplate/
+    app.php
+    config.php
+    container.php
+    database.php
+    routes.php
+
   public/
-  bootstrap/
-  src/
+    index.php
+
   routes/
+    api.php
+
+  src/
+    Core/
+    Http/
+    Models/
+    Services/
+    Repositories/
+    Support/
+
   database/
+    schema/
+    seeds/
+
   tests/
+    Unit/
+    Feature/
+    Support/
 ```
 
-Stack backend:
+## Komponen Backend
 
-| Komponen            | Fungsi                |
-| ------------------- | --------------------- |
-| PHP 8.2 FPM         | Runtime backend       |
-| Composer            | Dependency manager    |
-| FastRoute           | Routing HTTP          |
-| PHP-DI              | Dependency injection  |
-| Illuminate Database | Database layer        |
-| Dotenv              | Environment loader    |
-| PHPUnit             | Unit dan feature test |
+| Komponen | Fungsi |
+|---|---|
+| `public/index.php` | Front controller |
+| `boilerplate/app.php` | Entry aplikasi backend |
+| `boilerplate/config.php` | Konfigurasi app, database, auth, CORS, presensi |
+| `boilerplate/container.php` | Dependency injection |
+| `boilerplate/database.php` | Boot Illuminate Database |
+| `boilerplate/routes.php` | Load FastRoute dispatcher |
+| `routes/api.php` | Daftar route API |
+| `src/Core/Request.php` | Baca method, URI, query, body, header |
+| `src/Core/Response.php` | Response JSON standar |
+| `src/Core/ExceptionHandler.php` | Error response standar |
+| `src/Core/RouteDispatcher.php` | Dispatch route ke handler |
+| `src/Http/Middleware/CorsMiddleware.php` | CORS development |
+| `src/Services/AuthService.php` | Login dan user aktif |
+| `src/Services/TokenService.php` | Token stateless |
+| `src/Services/PermissionService.php` | Role dan permission user |
+
+## Auth
+
+Auth memakai signed bearer token stateless.
+
+Token berisi:
+
+```text
+user_id
+iat
+exp
+```
+
+Signature memakai `SESSION_SECRET`.
+
+Tidak ada tabel token di MVP.
+
+Konsekuensi:
+
+- logout dilakukan di sisi client dengan menghapus token,
+- revoke token server side belum tersedia,
+- cukup untuk development dan MVP.
+
+## Permission
+
+Permission dibaca dari:
+
+```text
+user_roles
+role_permissions
+permissions
+user_permissions
+```
+
+Urutan logika:
+
+1. Ambil role aktif user.
+2. Ambil permission dari role aktif.
+3. Ambil custom permission user.
+4. Gabungkan permission.
+5. Hilangkan duplikasi.
+
+Kolom permission utama:
+
+```text
+permissions.perm_slug
+```
 
 ## Frontend
 
 Frontend memakai Vite.
 
-Frontend bertugas menampilkan:
+Frontend akan memakai endpoint:
 
-- halaman login,
-- dashboard,
-- halaman presensi,
-- scanner QR,
-- halaman laporan,
-- halaman data master,
-- halaman import.
+```text
+/api/auth/login
+/api/me
+/api/presensi/...
+```
 
 ## Nginx
 
-Nginx menjadi reverse proxy.
+Nginx membagi request:
 
-Target routing:
-
-| Path     | Tujuan      |
-| -------- | ----------- |
-| `/`      | Frontend    |
-| `/api/*` | Backend PHP |
+| Path | Tujuan |
+|---|---|
+| `/api/*` | Backend PHP-FPM |
+| selain `/api/*` | Frontend Vite |
 
 ## Database
 
 Database memakai MySQL 8.0.
 
-Schema MVP fokus pada:
+Kelompok utama:
 
-- user,
-- role,
-- permission,
-- siswa,
-- guru atau staff,
-- jurusan,
-- rombel,
-- tahun ajaran,
-- penempatan siswa rombel,
-- wali kelas,
+- IAM sederhana,
+- master akademik,
 - QR siswa,
-- sesi presensi,
-- presensi per jam,
-- log scan,
-- log edit,
-- notifikasi user,
+- presensi,
 - import,
-- error log.
+- notifikasi dan error log.
 
-## Auth dan Permission
+## Trigger
 
-Sistem memakai role dan permission sederhana.
+Trigger dipakai untuk mengganti beberapa `CHECK constraint` yang bentrok dengan foreign key MySQL.
 
-Tabel inti:
+Contoh aturan:
 
-```text
-roles
-permissions
-role_permissions
-users
-user_roles
-user_permissions
-```
+- user siswa wajib punya `siswa_id`,
+- user guru/staff/admin wajib punya `guru_id`,
+- mode presensi rombel wajib punya `rombel_id`,
+- mode presensi piket tidak boleh punya `rombel_id`.
 
-Tidak memakai:
+Trigger hanya dipakai untuk guard rail database, bukan untuk semua logic bisnis.
 
-```text
-policies
-groups
-user_access_tokens
-```
+## Testing
 
-Akses custom cukup memakai `user_permissions`.
+Testing memakai PHPUnit 11.
 
-## Mode Presensi
+Jenis test:
 
-### Mode Rombel
+- Unit test untuk service kecil,
+- Feature test untuk endpoint API.
 
-Dipakai saat guru mengajar di kelas.
+Current baseline mencakup:
 
-Aturan:
-
-- wajib memilih rombel,
-- wajib memilih jam pembelajaran,
-- maksimal 3 jam,
-- jam harus berurutan,
-- satu scan berlaku untuk semua jam yang dipilih,
-- siswa beda rombel masuk warning.
-
-### Mode Piket
-
-Dipakai untuk siswa terlambat.
-
-Aturan:
-
-- tidak terikat rombel,
-- default status presensi adalah terlambat,
-- siswa bisa berasal dari semua rombel,
-- scan tetap dicatat ke log.
-
-## QR
-
-QR berasal dari vendor.
-
-Sistem tidak membuat QR dinamis.
-
-Isi QR minimal:
-
-```text
-nama
-NISN
-```
-
-Sistem hanya menyimpan dan mencocokkan payload QR.
-
-Tabel terkait:
-
-```text
-siswa_qr
-presensi_scan_log
-```
-
-## Presensi Per Jam
-
-Presensi disimpan per jam pembelajaran.
-
-Contoh:
-
-Guru memilih jam 1, 2, dan 3. Siswa discan satu kali. Sistem membuat tiga data presensi:
-
-```text
-jam 1 = hadir
-jam 2 = hadir
-jam 3 = hadir
-```
-
-Tabel utama:
-
-```text
-presensi_sesi
-presensi_sesi_jam
-presensi_jam_siswa
-```
-
-## Warning
-
-Warning terjadi saat QR siswa valid, tetapi rombel siswa tidak sesuai dengan rombel sesi.
-
-Warning tidak masuk ke tabel presensi utama.
-
-Warning masuk ke:
-
-```text
-presensi_scan_log
-```
-
-Wali kelas dapat melihat warning berdasarkan:
-
-```text
-rombel
-tahun ajaran
-semester
-```
-
-## Import
-
-Import dipakai untuk data siswa, rombel, guru, atau data akademik lain.
-
-Jika template sesuai, sistem langsung proses.
-
-Jika template tidak sesuai, sistem memakai fallback:
-
-```text
-import_column_mappings
-```
-
-Jika tetap gagal, error dicatat ke:
-
-```text
-import_row_logs
-system_error_logs
-```
+- health endpoint,
+- 404,
+- 405,
+- login,
+- `/api/me`,
+- token service,
+- permission read.
 
 ## Non Scope MVP
 
-Fitur berikut tidak masuk MVP:
+Tidak masuk MVP:
 
 - ESP32,
 - ruangan,
 - plotting rombel,
-- presensi berbasis lokasi ruang,
+- presensi berbasis ruang,
+- Laravel penuh,
+- Redis,
+- queue worker,
 - policy engine,
 - group engine,
-- arsip media,
-- notifikasi kompleks,
 - multi sekolah,
-- integrasi orang tua,
-- queue worker,
-- Redis,
-- Laravel penuh.
+- integrasi orang tua.

@@ -1,18 +1,8 @@
 # API
 
-Dokumen ini menjelaskan rancangan API MVP Presensi Siswa Rajasa.
+Dokumen ini menjelaskan API MVP Presensi Siswa Rajasa.
 
-Status API:
-
-```text
-draft baseline
-```
-
-Dokumen ini menjadi acuan pengembangan backend. Endpoint yang belum dibuat harus ditandai sebagai planned saat implementasi dimulai.
-
-## Base URL
-
-Development:
+Base URL development:
 
 ```text
 http://localhost:8080/api
@@ -47,31 +37,64 @@ Response gagal:
 Status:
 
 ```text
-planned
+implemented
 ```
 
 Fungsi:
 
 Login user.
 
-Body:
+Request:
 
 ```json
 {
-  "username": "guru.demo",
-  "password": "password"
+  "username": "admin.demo",
+  "password": "Rajasa@123"
 }
 ```
 
-Response:
+Response sukses:
 
 ```json
 {
   "success": true,
-  "message": "Login berhasil",
+  "message": "Login berhasil.",
   "data": {
-    "user": {},
-    "permissions": []
+    "token": "...",
+    "user": {
+      "user_id": 2,
+      "username": "admin.demo",
+      "email": "admin.demo@smksrajasa.sch.id",
+      "user_type": "admin",
+      "siswa_id": null,
+      "guru_id": 2,
+      "status": "aktif"
+    },
+    "roles": ["Admin"],
+    "permissions": ["dashboard.read"]
+  }
+}
+```
+
+Response password salah:
+
+```json
+{
+  "success": false,
+  "message": "Username atau password salah.",
+  "errors": []
+}
+```
+
+Response validasi gagal:
+
+```json
+{
+  "success": false,
+  "message": "Validasi gagal.",
+  "errors": {
+    "username": "Username wajib diisi.",
+    "password": "Password wajib diisi."
   }
 }
 ```
@@ -81,36 +104,82 @@ Response:
 Status:
 
 ```text
-planned
+implemented
 ```
 
 Fungsi:
 
-Logout user aktif.
+Logout client-side.
 
-### GET `/me`
+Catatan:
 
-Status:
-
-```text
-planned
-```
-
-Fungsi:
-
-Mengambil data user aktif.
+Token masih stateless. Logout dilakukan dengan menghapus token di sisi client.
 
 Response:
 
 ```json
 {
   "success": true,
-  "message": "Data user aktif",
+  "message": "Logout berhasil.",
   "data": {
-    "user": {},
-    "roles": [],
-    "permissions": []
+    "note": "Token stateless. Hapus token di sisi client."
   }
+}
+```
+
+### GET `/me`
+
+Status:
+
+```text
+implemented
+```
+
+Fungsi:
+
+Mengambil user aktif, role, dan permission.
+
+Header:
+
+```text
+Authorization: Bearer TOKEN
+```
+
+Response sukses:
+
+```json
+{
+  "success": true,
+  "message": "Data user aktif.",
+  "data": {
+    "user": {
+      "username": "admin.demo",
+      "user_type": "admin",
+      "status": "aktif"
+    },
+    "roles": ["Admin"],
+    "permissions": ["dashboard.read"]
+  }
+}
+```
+
+Response tanpa token:
+
+```json
+{
+  "success": false,
+  "message": "Token tidak ditemukan.",
+  "errors": []
+}
+```
+
+Response token rusak:
+
+```json
+{
+  "success": false,
+  "message": "Token tidak valid.",
+  "errors": []
 }
 ```
 
@@ -121,7 +190,7 @@ Response:
 Status:
 
 ```text
-stub
+implemented
 ```
 
 Fungsi:
@@ -133,76 +202,33 @@ Response:
 ```json
 {
   "success": true,
-  "message": "Backend API is running"
+  "message": "Backend API is running",
+  "data": {
+    "service": "presensi-siswa-api",
+    "app": "Presensi Siswa Rajasa",
+    "env": "local",
+    "status": "ok"
+  }
 }
 ```
-
-## Rombel
-
-### GET `/rombel`
-
-Status:
-
-```text
-planned
-```
-
-Fungsi:
-
-Mengambil daftar rombel aktif.
-
-Query opsional:
-
-```text
-tahun_ajaran_id
-tingkat
-jurusan_id
-```
-
-### GET `/rombel/{id}/siswa`
-
-Status:
-
-```text
-planned
-```
-
-Fungsi:
-
-Mengambil daftar siswa aktif dalam rombel.
 
 ## Presensi Sesi
 
-### POST `/presensi/sesi`
-
 Status:
 
 ```text
 planned
 ```
 
-Fungsi:
+Rencana endpoint:
 
-Membuat sesi presensi.
-
-Body mode rombel:
-
-```json
-{
-  "mode_presensi": "rombel",
-  "rombel_id": 1,
-  "jam_ids": [1, 2]
-}
-```
-
-Body mode piket:
-
-```json
-{
-  "mode_presensi": "piket",
-  "jam_ids": [1]
-}
-```
+| Method | Endpoint | Fungsi |
+|---|---|---|
+| `POST` | `/presensi/sesi` | Membuat sesi presensi |
+| `GET` | `/presensi/sesi/aktif` | Melihat sesi aktif user |
+| `POST` | `/presensi/sesi/{id}/pause` | Pause sesi |
+| `POST` | `/presensi/sesi/{id}/resume` | Resume sesi |
+| `POST` | `/presensi/sesi/{id}/finish` | Menutup sesi |
 
 Aturan:
 
@@ -211,69 +237,21 @@ Aturan:
 - maksimal 3 jam,
 - jam harus berurutan.
 
-### GET `/presensi/sesi/aktif`
-
-Status:
-
-```text
-planned
-```
-
-Fungsi:
-
-Mengambil sesi aktif atau suspended milik user.
-
-### POST `/presensi/sesi/{id}/pause`
-
-Status:
-
-```text
-planned
-```
-
-Fungsi:
-
-Mengubah status sesi menjadi suspended.
-
-### POST `/presensi/sesi/{id}/resume`
-
-Status:
-
-```text
-planned
-```
-
-Fungsi:
-
-Melanjutkan sesi suspended.
-
-### POST `/presensi/sesi/{id}/finish`
-
-Status:
-
-```text
-planned
-```
-
-Fungsi:
-
-Menutup sesi presensi.
-
 ## Presensi Scan
 
-### POST `/presensi/scan`
-
 Status:
 
 ```text
 planned
 ```
 
-Fungsi:
+Rencana endpoint:
 
-Menerima hasil scan QR.
+| Method | Endpoint | Fungsi |
+|---|---|---|
+| `POST` | `/presensi/scan` | Menerima hasil scan QR |
 
-Body:
+Request rencana:
 
 ```json
 {
@@ -282,272 +260,48 @@ Body:
 }
 ```
 
-Response berhasil:
-
-```json
-{
-  "success": true,
-  "message": "Presensi berhasil",
-  "data": {
-    "status_scan": "berhasil",
-    "status_presensi": "hadir"
-  }
-}
-```
-
-Response warning:
-
-```json
-{
-  "success": true,
-  "message": "QR tidak sesuai rombel",
-  "data": {
-    "status_scan": "warning",
-    "payload_nama": "Nama Pemilik Kartu",
-    "payload_nisn": "1234567890",
-    "actual_rombel": "XI-TKJ-1",
-    "selected_rombel": "X-TKJ-1"
-  }
-}
-```
-
-Response invalid:
-
-```json
-{
-  "success": false,
-  "message": "QR tidak ditemukan",
-  "errors": {
-    "payload": "Payload QR tidak terdaftar"
-  }
-}
-```
-
-## Presensi Manual
-
-### PATCH `/presensi/{id}`
-
-Status:
-
-```text
-planned
-```
-
-Fungsi:
-
-Mengubah status presensi siswa secara manual.
-
-Body:
-
-```json
-{
-  "status": "izin",
-  "keterangan": "Izin mengikuti kegiatan sekolah",
-  "alasan_edit": "Dikonfirmasi oleh guru piket"
-}
-```
-
-Aturan:
-
-- hanya user dengan permission edit yang boleh mengakses,
-- semua edit masuk `presensi_edit_log`.
-
-## Warning
-
-### GET `/warnings`
-
-Status:
-
-```text
-planned
-```
-
-Fungsi:
-
-Mengambil daftar warning scan.
-
-Query opsional:
-
-```text
-tanggal
-rombel_id
-status_resolved
-```
-
-### GET `/warnings/wali-kelas`
-
-Status:
-
-```text
-planned
-```
-
-Fungsi:
-
-Mengambil warning untuk wali kelas aktif.
-
-Data dicocokkan berdasarkan:
-
-```text
-rombel
-tahun_ajaran
-semester
-```
-
-### PATCH `/warnings/{id}/resolve`
-
-Status:
-
-```text
-planned
-```
-
-Fungsi:
-
-Menandai warning sudah ditangani.
-
-Body:
-
-```json
-{
-  "catatan": "Sudah dikonfirmasi oleh wali kelas"
-}
-```
-
 ## Laporan
 
-### GET `/laporan/presensi`
-
 Status:
 
 ```text
 planned
 ```
 
-Fungsi:
+Rencana endpoint:
 
-Mengambil laporan presensi.
-
-Query:
-
-```text
-tanggal
-rombel_id
-jam_id
-status
-siswa_id
-```
-
-### GET `/laporan/presensi/export`
-
-Status:
-
-```text
-planned
-```
-
-Fungsi:
-
-Export laporan presensi.
-
-Format yang direncanakan:
-
-```text
-xlsx
-csv
-pdf
-docx
-```
+| Method | Endpoint | Fungsi |
+|---|---|---|
+| `GET` | `/laporan/presensi` | Laporan presensi |
+| `GET` | `/laporan/presensi/export` | Export laporan |
 
 ## Import
 
-### POST `/import/siswa`
-
 Status:
 
 ```text
 planned
 ```
 
-Fungsi:
+Rencana endpoint:
 
-Import data siswa.
+| Method | Endpoint | Fungsi |
+|---|---|---|
+| `POST` | `/import/siswa` | Import siswa |
+| `GET` | `/import/jobs` | Riwayat import |
+| `GET` | `/import/jobs/{id}/rows` | Log baris import |
 
-Body:
+## Error Code
 
-```text
-multipart/form-data
-```
-
-Field:
-
-```text
-file
-tahun_ajaran_id
-```
-
-Aturan:
-
-- sistem cek template standar,
-- jika tidak sesuai, sistem cek `import_column_mappings`,
-- jika tetap gagal, error dicatat.
-
-### GET `/import/jobs`
-
-Status:
-
-```text
-planned
-```
-
-Fungsi:
-
-Melihat riwayat import.
-
-### GET `/import/jobs/{id}/rows`
-
-Status:
-
-```text
-planned
-```
-
-Fungsi:
-
-Melihat log baris import.
-
-## Error Code Umum
-
-| HTTP Code | Arti                 |
-| --------- | -------------------- |
-| 200       | Berhasil             |
-| 201       | Data dibuat          |
-| 400       | Request tidak valid  |
-| 401       | Belum login          |
-| 403       | Tidak punya akses    |
-| 404       | Data tidak ditemukan |
-| 409       | Konflik data         |
-| 422       | Validasi gagal       |
-| 500       | Error sistem         |
-
-## Permission Endpoint
-
-Permission MVP yang direncanakan:
-
-```text
-attendance.read
-attendance.scan.rombel
-attendance.scan.piket
-attendance.edit
-attendance.warning.read
-attendance.warning.resolve
-attendance.report.read
-attendance.report.export
-student.attendance.view
-import.run
-import.read
-user.read
-master.read
-master.manage
-system.error.read
-```
+| HTTP Code | Arti |
+|---|---|
+| 200 | Berhasil |
+| 201 | Data dibuat |
+| 400 | Request tidak valid |
+| 401 | Belum login atau token tidak valid |
+| 403 | Tidak punya akses |
+| 404 | Endpoint/data tidak ditemukan |
+| 405 | Method tidak diizinkan |
+| 409 | Konflik data |
+| 422 | Validasi gagal |
+| 500 | Error sistem |

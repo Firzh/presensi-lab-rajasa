@@ -62,4 +62,22 @@ final class Request
     {
         return $this->body()[$key] ?? $this->query()[$key] ?? $default;
     }
+
+    public function header(string $key, mixed $default = null): mixed
+    {
+        $serverKey = 'HTTP_' . strtoupper(str_replace('-', '_', $key));
+
+        return $_SERVER[$serverKey] ?? $default;
+    }
+
+    public function bearerToken(): ?string
+    {
+        $authorization = $this->header('Authorization');
+
+        if (!$authorization || !str_starts_with($authorization, 'Bearer ')) {
+            return null;
+        }
+
+        return trim(substr($authorization, 7));
+    }
 }

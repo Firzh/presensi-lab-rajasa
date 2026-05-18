@@ -1,20 +1,23 @@
 # Presensi Siswa Rajasa
 
-Aplikasi presensi siswa berbasis QR untuk SMKS Rajasa. Sistem dirancang untuk mendukung presensi rombel, presensi piket untuk siswa terlambat, rekap per jam pembelajaran, serta pengelolaan data siswa berdasarkan tahun ajaran.
+Aplikasi presensi siswa berbasis QR untuk SMKS Rajasa.
 
-Repositori ini sedang dibersihkan dari dokumentasi dan file development lama. Dokumentasi di repo ini hanya boleh mengacu pada struktur kode, konfigurasi, schema database, dan kebutuhan MVP yang masih aktif.
+Sistem ini dirancang untuk mendukung presensi rombel, presensi piket untuk siswa terlambat, presensi per jam pembelajaran, warning kartu QR tidak sesuai rombel, laporan presensi, serta pengelolaan data berbasis tahun ajaran.
 
 ## Status Project
 
 Status saat ini:
 
-- Environment Docker sudah tersedia.
-- Nginx digunakan sebagai reverse proxy.
-- Backend memakai PHP 8.2 FPM.
-- Frontend memakai Vite.
-- Database memakai MySQL 8.0.
-- Backend API masih dalam tahap persiapan boilerplate.
-- Schema database MVP sudah disiapkan terpisah dari seed.
+- Dokumentasi lama berbasis contract pack sudah dibersihkan.
+- Folder `examples/api` sudah dihapus.
+- Script `check_docs_contracts.py` sudah dihapus.
+- Environment development Docker sudah dirapikan.
+- Backend boilerplate Composer based sudah dibuat.
+- PHPUnit baseline sudah berjalan.
+- Database MVP schema dan seed sudah masuk repo.
+- Auth dan permission baseline sudah berjalan.
+- Endpoint `/api/health`, `/api/auth/login`, `/api/auth/logout`, dan `/api/me` sudah tersedia.
+- Tahap berikutnya adalah Presensi Sesi.
 
 ## Stack
 
@@ -28,11 +31,12 @@ Status saat ini:
 | Routing Backend         | FastRoute           |
 | Dependency Injection    | PHP-DI              |
 | Database Layer          | Illuminate Database |
-| Testing Backend         | PHPUnit             |
+| Environment Loader      | vlucas/phpdotenv    |
+| Testing Backend         | PHPUnit 11          |
 
 ## Cara Menjalankan Development
 
-Salin file environment:
+Salin environment:
 
 ```bash
 cp .env.example .env
@@ -44,17 +48,94 @@ Jalankan container:
 docker compose up -d --build
 ```
 
-Cek service:
+Cek container:
+
+```bash
+docker compose ps
+```
+
+Cek backend:
+
+```bash
+curl http://localhost:8080/api/health
+```
+
+## Database Lokal
+
+Reset database demo:
+
+```bash
+./scripts/db-reset-demo.sh
+```
+
+Script ini menjalankan:
+
+1. Drop database lama.
+2. Buat database baru.
+3. Import schema MVP.
+4. Seed permission MVP.
+5. Seed akun demo.
+
+## Akun Demo
+
+Password demo:
 
 ```text
-http://localhost:8080
-http://localhost:8080/api/health
+Rajasa@123
+```
+
+Akun utama:
+
+| Username             | Tipe        |
+| -------------------- | ----------- |
+| `superadmin.demo`    | super_admin |
+| `admin.demo`         | admin       |
+| `guru.demo`          | guru        |
+| `staff.demo`         | staff       |
+| `intern.demo`        | intern      |
+| `siswa.demo`         | siswa       |
+| `siswa.warning.demo` | siswa       |
+
+## Testing
+
+Jalankan semua test backend:
+
+```bash
+./scripts/test-backend.sh
+```
+
+Jalankan unit test saja:
+
+```bash
+./scripts/test-backend-unit.sh
+```
+
+Jalankan feature test saja:
+
+```bash
+./scripts/test-backend-feature.sh
+```
+
+## Endpoint Penting
+
+```text
+GET  /api/health
+POST /api/auth/login
+POST /api/auth/logout
+GET  /api/me
 ```
 
 ## Struktur Project
 
 ```text
 backend/
+  boilerplate/
+  database/
+  public/
+  routes/
+  src/
+  tests/
+
 frontend/
 docs/
 scripts/
@@ -62,65 +143,28 @@ docker-compose.yml
 nginx.conf
 ```
 
-## Struktur Dokumentasi
-
-```text
-docs/
-  ARCHITECTURE.md
-  API.md
-  DATABASE.md
-  TESTING.md
-```
-
-## Database
-
-Schema dan seed database akan diletakkan di:
-
-```text
-backend/database/schema/
-backend/database/seeds/
-```
-
-Urutan eksekusi database:
-
-```text
-1. Schema utama
-2. Seed permission MVP
-3. Seed akun demo
-```
-
 ## Branch
 
-Prefix branch project ini memakai:
+Prefix branch project:
 
 ```text
-alfy/
+nama/feature
 ```
 
 Contoh:
 
 ```text
-alfy/nginx-configure
 alfy/cleanup-dev-sampah
 alfy/backend-boilerplate
 alfy/backend-phpunit
+alfy/backend-database-assets
 alfy/backend-auth-permission
 alfy/backend-presensi-session
-alfy/backend-presensi-scan
 ```
-
-## Prinsip Development
-
-1. Gunakan isi script nyata sebagai acuan.
-2. Jangan mengandalkan catatan lama jika tidak sesuai kode.
-3. Jangan menambah fitur di luar MVP tanpa alasan teknis.
-4. Setiap fitur backend wajib punya test.
-5. Schema database dan seed harus dipisah.
-6. Dokumentasi harus diperbarui jika struktur kode berubah.
 
 ## Scope MVP
 
-MVP fokus pada:
+Masuk MVP:
 
 - login user,
 - role dan permission sederhana,
@@ -131,18 +175,21 @@ MVP fokus pada:
 - presensi per jam pembelajaran,
 - warning jika kartu QR beda rombel,
 - laporan presensi,
-- import data siswa,
+- import data,
 - audit edit presensi,
 - error log sistem.
 
-Di luar MVP:
+Tidak masuk MVP:
 
+- ESP32,
+- ruangan,
+- plotting rombel,
 - policy engine,
 - group engine,
-- ESP32,
-- plotting ruangan,
-- presensi berbasis ruang,
 - arsip media,
 - notifikasi kompleks,
 - multi sekolah,
-- integrasi orang tua.
+- integrasi orang tua,
+- queue worker,
+- Redis,
+- Laravel penuh.

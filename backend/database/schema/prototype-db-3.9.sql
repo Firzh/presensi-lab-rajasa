@@ -235,10 +235,10 @@ CREATE TABLE `siswa` (
   KEY `idx_siswa_rombel` (`rombel_id_aktif`, `status`),
   CONSTRAINT `fk_siswa_jurusan_aktif`
     FOREIGN KEY (`jurusan_id_aktif`) REFERENCES `jurusan`(`jurusan_id`)
-    ON DELETE SET NULL ON UPDATE CASCADE,
+    ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `fk_siswa_rombel_aktif`
     FOREIGN KEY (`rombel_id_aktif`) REFERENCES `rombel`(`rombel_id`)
-    ON DELETE SET NULL ON UPDATE CASCADE
+    ON DELETE RESTRICT ON UPDATE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE `profil_siswa` (
@@ -418,16 +418,17 @@ CREATE TABLE `user_roles` (
   `assigned_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`user_role_id`),
   UNIQUE KEY `uk_user_roles_active` (`user_id`, `role_id`),
+  KEY `idx_user_roles_user_active` (`user_id`, `is_active`),
   KEY `idx_user_roles_role_active` (`role_id`, `is_active`),
   CONSTRAINT `fk_user_roles_user`
     FOREIGN KEY (`user_id`) REFERENCES `users`(`user_id`)
-    ON DELETE CASCADE ON UPDATE CASCADE,
+    ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `fk_user_roles_role`
     FOREIGN KEY (`role_id`) REFERENCES `roles`(`role_id`)
-    ON DELETE CASCADE ON UPDATE CASCADE,
+    ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `fk_user_roles_assigned_by`
     FOREIGN KEY (`assigned_by`) REFERENCES `users`(`user_id`)
-    ON DELETE SET NULL ON UPDATE CASCADE
+    ON DELETE RESTRICT ON UPDATE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE `user_permissions` (
@@ -439,17 +440,19 @@ CREATE TABLE `user_permissions` (
   `catatan` VARCHAR(255) DEFAULT NULL,
   `assigned_by` INT UNSIGNED DEFAULT NULL,
   `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`user_id`, `perm_id`, `resource_scope`),
   KEY `idx_user_permissions_perm` (`perm_id`),
+  KEY `idx_user_permissions_user_allowed` (`user_id`, `is_allowed`, `valid_until`),
   CONSTRAINT `fk_user_permissions_user`
     FOREIGN KEY (`user_id`) REFERENCES `users`(`user_id`)
-    ON DELETE CASCADE ON UPDATE CASCADE,
+    ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `fk_user_permissions_permission`
     FOREIGN KEY (`perm_id`) REFERENCES `permissions`(`perm_id`)
-    ON DELETE CASCADE ON UPDATE CASCADE,
+    ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `fk_user_permissions_assigned_by`
     FOREIGN KEY (`assigned_by`) REFERENCES `users`(`user_id`)
-    ON DELETE SET NULL ON UPDATE CASCADE
+    ON DELETE RESTRICT ON UPDATE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE `user_sessions` (
@@ -584,7 +587,7 @@ CREATE TABLE `presensi_sesi` (
     ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT `fk_presensi_sesi_closed_by`
     FOREIGN KEY (`closed_by_user_id`) REFERENCES `users`(`user_id`)
-    ON DELETE SET NULL ON UPDATE CASCADE
+    ON DELETE RESTRICT ON UPDATE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 DELIMITER $$
@@ -669,22 +672,22 @@ CREATE TABLE `presensi_scan_log` (
   KEY `idx_scan_log_laporan_warning` (`tanggal`, `selected_rombel_id`, `actual_rombel_id`, `status_scan`),
   CONSTRAINT `fk_scan_log_sesi`
     FOREIGN KEY (`presensi_sesi_id`) REFERENCES `presensi_sesi`(`presensi_sesi_id`)
-    ON DELETE SET NULL ON UPDATE CASCADE,
+    ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `fk_scan_log_scanned_by`
     FOREIGN KEY (`scanned_by_user_id`) REFERENCES `users`(`user_id`)
-    ON DELETE SET NULL ON UPDATE CASCADE,
+    ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `fk_scan_log_siswa`
     FOREIGN KEY (`siswa_id`) REFERENCES `siswa`(`siswa_id`)
-    ON DELETE SET NULL ON UPDATE CASCADE,
+    ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `fk_scan_log_selected_rombel`
     FOREIGN KEY (`selected_rombel_id`) REFERENCES `rombel`(`rombel_id`)
-    ON DELETE SET NULL ON UPDATE CASCADE,
+    ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `fk_scan_log_actual_rombel`
     FOREIGN KEY (`actual_rombel_id`) REFERENCES `rombel`(`rombel_id`)
-    ON DELETE SET NULL ON UPDATE CASCADE,
+    ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `fk_scan_log_resolved_by`
     FOREIGN KEY (`resolved_by_user_id`) REFERENCES `users`(`user_id`)
-    ON DELETE SET NULL ON UPDATE CASCADE,
+    ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `chk_scan_log_warning_reason`
     CHECK (
       (`status_scan` = 'warning' AND `warning_reason` <> 'none')
@@ -722,25 +725,25 @@ CREATE TABLE `presensi_jam_siswa` (
   KEY `idx_pjs_laporan_user_tanggal_mode` (`input_by_user_id`, `tanggal`, `mode_presensi`),
   CONSTRAINT `fk_presensi_jam_siswa_siswa`
     FOREIGN KEY (`siswa_id`) REFERENCES `siswa`(`siswa_id`)
-    ON DELETE RESTRICT ON UPDATE CASCADE,
+    ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `fk_presensi_jam_siswa_rombel`
     FOREIGN KEY (`rombel_id_snapshot`) REFERENCES `rombel`(`rombel_id`)
-    ON DELETE SET NULL ON UPDATE CASCADE,
+    ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `fk_presensi_jam_siswa_jam`
     FOREIGN KEY (`jam_id`) REFERENCES `jam_pembelajaran`(`jam_id`)
-    ON DELETE RESTRICT ON UPDATE CASCADE,
+    ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `fk_presensi_jam_siswa_sesi`
     FOREIGN KEY (`presensi_sesi_id`) REFERENCES `presensi_sesi`(`presensi_sesi_id`)
-    ON DELETE SET NULL ON UPDATE CASCADE,
+    ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `fk_presensi_jam_siswa_scan_log`
     FOREIGN KEY (`scan_log_id`) REFERENCES `presensi_scan_log`(`scan_log_id`)
-    ON DELETE SET NULL ON UPDATE CASCADE,
+    ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `fk_presensi_jam_siswa_input_by`
     FOREIGN KEY (`input_by_user_id`) REFERENCES `users`(`user_id`)
-    ON DELETE SET NULL ON UPDATE CASCADE,
+    ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `fk_presensi_jam_siswa_edited_by`
     FOREIGN KEY (`edited_by_user_id`) REFERENCES `users`(`user_id`)
-    ON DELETE SET NULL ON UPDATE CASCADE
+    ON DELETE RESTRICT ON UPDATE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE `presensi_edit_log` (
@@ -757,10 +760,10 @@ CREATE TABLE `presensi_edit_log` (
   KEY `idx_presensi_edit_log_user` (`edited_by_user_id`, `edited_at`),
   CONSTRAINT `fk_presensi_edit_log_presensi`
     FOREIGN KEY (`presensi_id`) REFERENCES `presensi_jam_siswa`(`presensi_id`)
-    ON DELETE CASCADE ON UPDATE CASCADE,
+    ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `fk_presensi_edit_log_user`
     FOREIGN KEY (`edited_by_user_id`) REFERENCES `users`(`user_id`)
-    ON DELETE SET NULL ON UPDATE CASCADE
+    ON DELETE RESTRICT ON UPDATE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- =========================================================
@@ -793,10 +796,10 @@ CREATE TABLE `import_jobs` (
   KEY `idx_import_jobs_tahun` (`tahun_ajaran_id`, `semester`),
   CONSTRAINT `fk_import_jobs_created_by`
     FOREIGN KEY (`created_by`) REFERENCES `users`(`user_id`)
-    ON DELETE SET NULL ON UPDATE CASCADE,
+    ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `fk_import_jobs_tahun_ajaran`
     FOREIGN KEY (`tahun_ajaran_id`) REFERENCES `tahun_ajaran`(`tahun_ajaran_id`)
-    ON DELETE RESTRICT ON UPDATE CASCADE
+    ON DELETE RESTRICT ON UPDATE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE `import_column_mappings` (
@@ -878,7 +881,7 @@ CREATE TABLE `user_activities` (
   KEY `idx_user_activities_module` (`module_name`, `created_at`),
   CONSTRAINT `fk_user_activities_user`
     FOREIGN KEY (`user_id`) REFERENCES `users`(`user_id`)
-    ON DELETE SET NULL ON UPDATE CASCADE
+    ON DELETE RESTRICT ON UPDATE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE `system_error_logs` (
@@ -900,11 +903,11 @@ CREATE TABLE `system_error_logs` (
 
   CONSTRAINT `fk_error_user`
     FOREIGN KEY (`user_id`) REFERENCES `users`(`user_id`)
-    ON DELETE SET NULL ON UPDATE CASCADE,
+    ON DELETE RESTRICT ON UPDATE RESTRICT,
 
   CONSTRAINT `fk_error_sesi`
     FOREIGN KEY (`presensi_sesi_id`) REFERENCES `presensi_sesi`(`presensi_sesi_id`)
-    ON DELETE SET NULL ON UPDATE CASCADE
+    ON DELETE RESTRICT ON UPDATE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- =========================================================

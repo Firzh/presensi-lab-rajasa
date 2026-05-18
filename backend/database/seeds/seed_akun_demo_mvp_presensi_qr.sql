@@ -206,17 +206,20 @@ ON DUPLICATE KEY UPDATE
 -- ---------------------------------------------------------
 -- 5. Akun user demo
 -- ---------------------------------------------------------
-INSERT INTO `users` (`username`, `password_hash`, `email`, `siswa_id`, `guru_id`, `status`) VALUES
-('superadmin.demo', @demo_password_hash, 'superadmin.demo@smksrajasa.sch.id', NULL, @superadmin_guru_id, 'aktif'),
-('admin.demo', @demo_password_hash, 'admin.demo@smksrajasa.sch.id', NULL, @admin_guru_id, 'aktif'),
-('guru.demo', @demo_password_hash, 'guru.demo@smksrajasa.sch.id', NULL, @guru_demo_id, 'aktif'),
-('staff.demo', @demo_password_hash, 'staff.demo@smksrajasa.sch.id', NULL, @staff_demo_id, 'aktif'),
-('intern.demo', @demo_password_hash, 'intern.demo@smksrajasa.sch.id', NULL, @intern_demo_id, 'aktif'),
-('siswa.demo', @demo_password_hash, 'siswa.demo@smksrajasa.sch.id', @siswa_demo_id, NULL, 'aktif'),
-('siswa.warning.demo', @demo_password_hash, 'siswa.warning.demo@smksrajasa.sch.id', @siswa_warning_id, NULL, 'aktif')
+INSERT INTO `users`
+(`username`, `password_hash`, `email`, `user_type`, `siswa_id`, `guru_id`, `status`)
+VALUES
+('superadmin.demo', @demo_password_hash, 'superadmin.demo@smksrajasa.sch.id', 'super_admin', NULL, @superadmin_guru_id, 'aktif'),
+('admin.demo', @demo_password_hash, 'admin.demo@smksrajasa.sch.id', 'admin', NULL, @admin_guru_id, 'aktif'),
+('guru.demo', @demo_password_hash, 'guru.demo@smksrajasa.sch.id', 'guru', NULL, @guru_demo_id, 'aktif'),
+('staff.demo', @demo_password_hash, 'staff.demo@smksrajasa.sch.id', 'staff', NULL, @staff_demo_id, 'aktif'),
+('intern.demo', @demo_password_hash, 'intern.demo@smksrajasa.sch.id', 'intern', NULL, @intern_demo_id, 'aktif'),
+('siswa.demo', @demo_password_hash, 'siswa.demo@smksrajasa.sch.id', 'siswa', @siswa_demo_id, NULL, 'aktif'),
+('siswa.warning.demo', @demo_password_hash, 'siswa.warning.demo@smksrajasa.sch.id', 'siswa', @siswa_warning_id, NULL, 'aktif')
 ON DUPLICATE KEY UPDATE
   `password_hash` = VALUES(`password_hash`),
   `email` = VALUES(`email`),
+  `user_type` = VALUES(`user_type`),
   `siswa_id` = VALUES(`siswa_id`),
   `guru_id` = VALUES(`guru_id`),
   `status` = 'aktif';

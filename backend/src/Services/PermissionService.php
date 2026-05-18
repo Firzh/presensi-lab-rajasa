@@ -63,8 +63,10 @@ final class PermissionService
 
     private function permissionKey(array $row): ?string
     {
-        return $row['permission_key']
+        return $row['perm_slug']
+            ?? $row['permission_key']
             ?? $row['perm_key']
+            ?? $row['permission_slug']
             ?? $row['permission_name']
             ?? $row['nama_permission']
             ?? null;
@@ -72,9 +74,10 @@ final class PermissionService
 
     private function roleKey(array $row): ?string
     {
-        return $row['role_key']
+        return $row['nama_role']
+            ?? $row['role_slug']
+            ?? $row['role_key']
             ?? $row['role_name']
-            ?? $row['nama_role']
             ?? null;
     }
 }

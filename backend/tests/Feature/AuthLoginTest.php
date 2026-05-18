@@ -20,6 +20,10 @@ final class AuthLoginTest extends TestCase
         $this->assertSame('Login berhasil.', $response['message']);
         $this->assertNotEmpty($response['data']['token']);
         $this->assertSame('admin.demo', $response['data']['user']['username']);
+        $this->assertSame('admin', $response['data']['user']['user_type']);
+        $this->assertNotEmpty($response['data']['roles']);
+        $this->assertNotEmpty($response['data']['permissions']);
+        $this->assertContains('dashboard.read', $response['data']['permissions']);
     }
 
     public function test_login_fails_with_wrong_password(): void

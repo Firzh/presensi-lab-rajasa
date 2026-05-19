@@ -16,87 +16,17 @@ backend/database/seeds/seed_akun_demo_mvp_presensi_qr.sql
 ./scripts/db-reset-demo.sh
 ```
 
-Script ini menjalankan:
-
-1. `db-fresh.sh`
-2. `db-seed-permissions.sh`
-3. `db-seed-demo.sh`
-
 ## Prinsip Database
 
 1. Fokus pada presensi siswa QR.
-2. Tidak memakai ruangan.
+2. Tidak memakai tabel ruangan lama.
 3. Tidak memakai perangkat ESP32.
 4. Tidak memakai plotting rombel.
-5. Tidak memakai policy engine.
-6. Tidak memakai group engine.
-7. Schema dan seed dipisah.
-8. Data audit dan histori dijaga dengan `RESTRICT`.
-9. Trigger dipakai hanya untuk aturan yang tidak cocok memakai `CHECK`.
-10. Tahun ajaran menjadi konteks akademik utama.
+5. Schema dan seed dipisah.
+6. Data audit dan histori dijaga dengan `RESTRICT`.
+7. Trigger dipakai hanya untuk aturan yang tidak cocok memakai `CHECK`.
 
-## Kelompok Tabel
-
-### IAM Sederhana
-
-```text
-roles
-permissions
-role_permissions
-users
-user_roles
-user_permissions
-```
-
-Fungsi:
-
-- login user,
-- role user,
-- permission role,
-- permission custom user.
-
-Kolom permission utama:
-
-```text
-permissions.perm_slug
-```
-
-### Master Akademik
-
-```text
-tahun_ajaran
-jurusan
-rombel
-siswa
-guru_staff
-penempatan_siswa_rombel
-rombel_wali_kelas
-siswa_mutasi
-```
-
-Fungsi:
-
-- menyimpan siswa,
-- menyimpan rombel,
-- menyimpan jurusan,
-- menyimpan guru/staff,
-- menyimpan wali kelas,
-- menyimpan histori penempatan siswa.
-
-### QR Siswa
-
-```text
-siswa_qr
-```
-
-Aturan:
-
-- satu siswa punya satu QR,
-- QR statis,
-- payload minimal berisi nama dan NISN,
-- tidak ada status aktif/nonaktif QR.
-
-### Presensi
+## Tabel Presensi
 
 ```text
 jam_pembelajaran
@@ -107,105 +37,122 @@ presensi_scan_log
 presensi_edit_log
 ```
 
-Fungsi:
+## Tabel `presensi_sesi`
 
-- membuat sesi presensi,
-- menyimpan jam yang dipilih,
-- menyimpan presensi per siswa per jam,
-- menyimpan log scan,
-- menyimpan log edit manual.
+Fungsi: menyimpan sesi presensi yang dibuat oleh guru, staff, admin, atau user dengan permission khusus.
 
-penambahan ruang_pilihan dan ruang_label_snapshot di bagian presensi_sesi.
+Kolom penting:
 
-### Import
+| Kolom | Fungsi |
+|---|---|
+| `session_uuid` | ID sesi publik/internal yang unik |
+| `mode_presensi` | `rombel` atau `piket` |
+| `rombel_id` | Rombel yang dipresensi, kosong untuk piket |
+| `tahun_ajaran_id` | Tahun ajaran sesi |
+| `semester` | Semester sesi |
+| `tanggal` | Tanggal sesi |
+| `status` | `aktif`, `suspended`, atau `selesai` |
+| `ruang_pilihan` | Pilihan ruang sesi |
+| `ruang_label_snapshot` | Label ruang yang disimpan sebagai histori |
+| `opened_by_user_id` | User yang membuka sesi |
+| `closed_by_user_id` | User yang menutup sesi |
 
-```text
-import_jobs
-import_column_mappings
-import_row_logs
-```
-
-Fungsi:
-
-- mencatat proses import,
-- fallback mapping kolom,
-- log error per baris.
-
-### Notifikasi dan Error
+Pilihan `ruang_pilihan`:
 
 ```text
-notifikasi_user
-system_error_logs
-user_activities
+kelas
+lab-tkj-1
+lab-tkj-2
+lab-tkj-3
+lab-tkj-4
+piket
 ```
 
-## Tahun Ajaran
+Aturan label:
 
-Tahun ajaran dipakai untuk:
+| ruang_pilihan | ruang_label_snapshot |
+|---|---|
+| `kelas` | `Kelas {label_rombel}` |
+| `lab-tkj-1` | `LAB-TKJ-1` |
+| `lab-tkj-2` | `LAB-TKJ-2` |
+| `lab-tkj-3` | `LAB-TKJ-3` |
+| `lab-tkj-4` | `LAB-TKJ-4` |
+| `piket` | `Piket` |
 
-- rombel,
-- penempatan siswa,
-- wali kelas,
-- sesi presensi,
-- import.
+Catatan:
 
-Aturan otomatis:
+- Tidak ada tabel ruangan.
+- Tidak ada plotting ruangan.
+- Ruangan hanya snapshot sesi.
+- Bentrok ruang lab dicek di backend, bukan dengan unique key database.
+- Kelas dianggap melekat pada rombel.
+
+## Tabel `presensi_sesi_jam`
+
+Fungsi: menyimpan daftar jam pembelajaran yang dipilih pada satu sesi.
+
+Kolom penting:
+
+| Kolom | Fungsi |
+|---|---|
+| `presensi_sesi_id` | ID sesi |
+| `jam_id` | Jam pembelajaran |
+| `urutan` | Urutan jam dalam sesi |
+| `created_at` | Waktu data dibuat |
+
+Aturan:
+
+- Satu sesi bisa punya 1 sampai 3 jam.
+- Jam harus berurutan.
+- `urutan` mengikuti urutan pilihan jam.
+- Tidak ada kolom ruang di tabel ini.
+- Tidak ada unique ruang per tanggal dan jam.
+
+## Guard Duplicate Sesi
+
+Duplicate sesi dicek di backend.
+
+### Guard rombel
+
+Rombel yang sama tidak boleh punya sesi aktif/suspended pada tanggal dan jam yang sama.
+
+Response:
 
 ```text
-Januari sampai Juni  = tahun lalu / tahun ini
-Juli sampai Desember = tahun ini / tahun depan
+Rombel sudah memiliki sesi aktif pada jam yang dipilih.
 ```
 
-Master `tahun_ajaran` harus tersedia sebelum import rombel.
+### Guard lab
 
-## Foreign Key Rule
+Lab yang sama tidak boleh dipakai sesi aktif/suspended pada tanggal dan jam yang sama.
 
-Untuk data histori dan audit, gunakan:
-
-```sql
-ON DELETE RESTRICT ON UPDATE RESTRICT
-```
-
-Contoh:
-
-- `presensi_jam_siswa`,
-- `presensi_scan_log`,
-- `presensi_edit_log`,
-- `penempatan_siswa_rombel`,
-- `user_roles`,
-- `user_permissions`.
-
-Alasan:
-
-- child harus tetap ada,
-- audit tidak boleh hilang,
-- ID parent tidak seharusnya berubah.
-
-`SET NULL` hanya dipakai jika relasi benar-benar opsional dan bukan audit.
-
-## Trigger
-
-Trigger dipakai karena beberapa `CHECK` ditolak MySQL jika membaca kolom yang juga dipakai foreign key.
-
-Contoh:
+Response:
 
 ```text
-users.siswa_id
-users.guru_id
-presensi_sesi.rombel_id
-rombel.tahun_ajaran_id
+Ruangan lab sedang digunakan pada jam yang dipilih.
 ```
 
-Contoh aturan trigger:
+Jika sesi lama sudah `selesai`, sesi baru boleh dibuat. Ini mendukung kondisi satu hari memiliki lebih dari satu kloter.
+
+## Tabel `presensi_jam_siswa`
+
+Fungsi: menyimpan presensi utama siswa per tanggal dan jam.
+
+Unique key utama:
 
 ```text
-mode rombel wajib punya rombel_id
-mode piket tidak boleh punya rombel_id
-user siswa wajib punya siswa_id
-user guru/staff/admin wajib punya guru_id
+tanggal
+siswa_id
+jam_id
 ```
 
-## Status Presensi
+Aturan:
+
+- Satu siswa hanya punya satu status pada tanggal dan jam yang sama.
+- Saat sesi rombel dibuat, sistem membuat baris awal `alpha` untuk siswa di rombel tersebut.
+- Status akan berubah pada tahap scan QR atau edit manual.
+
+Status:
 
 ```text
 alpha
@@ -215,86 +162,16 @@ izin
 sakit
 ```
 
-| Status | Arti |
-|---|---|
-| `alpha` | Belum presensi |
-| `hadir` | Hadir melalui sesi rombel |
-| `terlambat` | Hadir melalui piket |
-| `izin` | Diubah manual |
-| `sakit` | Diubah manual |
+## Foreign Key Rule
 
-## Status Scan
+Untuk data histori dan audit, gunakan:
 
-```text
-berhasil
-warning
-invalid
-ditolak
-error
+```sql
+ON DELETE RESTRICT ON UPDATE RESTRICT
 ```
 
-| Status | Arti |
-|---|---|
-| `berhasil` | QR valid dan sesuai sesi |
-| `warning` | QR valid tetapi rombel tidak sesuai |
-| `invalid` | Payload tidak ditemukan |
-| `ditolak` | Ditolak aturan sistem |
-| `error` | Error teknis |
+Alasan:
 
-## Warning
-
-Warning masuk ke:
-
-```text
-presensi_scan_log
-```
-
-Warning tidak langsung masuk ke:
-
-```text
-presensi_jam_siswa
-```
-
-View wali kelas harus mencocokkan:
-
-```text
-rombel
-tahun_ajaran
-semester
-```
-
-## Anti Presensi Ganda
-
-Presensi ganda dicegah dengan unique key:
-
-```text
-tanggal
-siswa_id
-jam_id
-```
-
-Satu siswa tidak boleh punya dua status presensi pada tanggal dan jam yang sama.
-
-## Seed
-
-Seed permission:
-
-```text
-backend/database/seeds/seed_permissions_mvp_presensi_qr.sql
-```
-
-Seed akun demo:
-
-```text
-backend/database/seeds/seed_akun_demo_mvp_presensi_qr.sql
-```
-
-Akun demo harus mengisi `user_type` dengan benar:
-
-| Username | user_type |
-|---|---|
-| `admin.demo` | admin |
-| `guru.demo` | guru |
-| `staff.demo` | staff |
-| `intern.demo` | intern |
-| `siswa.demo` | siswa |
+- child harus tetap ada,
+- audit tidak boleh hilang,
+- ID parent tidak seharusnya berubah.

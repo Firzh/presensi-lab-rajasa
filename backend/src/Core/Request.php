@@ -8,6 +8,11 @@ final class Request
 {
     private ?array $cachedBody = null;
 
+    public function file(string $key): ?array
+    {
+        return $_FILES[$key] ?? null;
+    }
+    
     public function method(): string
     {
         return strtoupper($_SERVER['REQUEST_METHOD'] ?? 'GET');

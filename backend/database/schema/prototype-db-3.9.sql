@@ -558,6 +558,8 @@ CREATE TABLE `presensi_sesi` (
   `semester` ENUM('ganjil','genap','pendek') NOT NULL DEFAULT 'ganjil',
   `tanggal` DATE NOT NULL,
   `status` ENUM('aktif','suspended','selesai','gagal','expired','terputus') NOT NULL DEFAULT 'aktif',
+  `ruang_pilihan` ENUM('kelas','lab-tkj-1','lab-tkj-2','lab-tkj-3','lab-tkj-4','piket') NOT NULL DEFAULT 'kelas',
+  `ruang_label_snapshot` VARCHAR(100) NOT NULL DEFAULT 'Kelas',
   `opened_by_user_id` INT UNSIGNED NOT NULL,
   `closed_by_user_id` INT UNSIGNED DEFAULT NULL,
   `started_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -576,6 +578,7 @@ CREATE TABLE `presensi_sesi` (
   KEY `idx_presensi_sesi_user_date` (`opened_by_user_id`, `tanggal`, `status`),
   KEY `idx_presensi_sesi_mode_rombel` (`mode_presensi`, `rombel_id`, `tanggal`, `status`),
   KEY `idx_presensi_sesi_tahun` (`tahun_ajaran_id`, `semester`),
+  KEY `idx_presensi_sesi_ruang` (`tanggal`, `ruang_pilihan`),
   CONSTRAINT `fk_presensi_sesi_rombel`
     FOREIGN KEY (`rombel_id`) REFERENCES `rombel`(`rombel_id`)
     ON DELETE RESTRICT ON UPDATE CASCADE,

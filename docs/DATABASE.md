@@ -115,6 +115,8 @@ Fungsi:
 - menyimpan log scan,
 - menyimpan log edit manual.
 
+penambahan ruang_pilihan dan ruang_label_snapshot di bagian presensi_sesi.
+
 ### Import
 
 ```text

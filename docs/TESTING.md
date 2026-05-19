@@ -63,9 +63,8 @@ docker compose exec backend composer dump-autoload
 
 ## Test Saat Ini
 
-Baseline test mencakup:
+test coverage:
 
-| Test | Jenis |
 |---|---|
 | Health endpoint | Feature |
 | Endpoint tidak ditemukan | Feature |
@@ -83,7 +82,9 @@ Baseline test mencakup:
 | Reject sesi lebih dari 3 jam | Feature |
 | Pause, resume, finish sesi | Feature |
 | Reject duplicate sesi rombel aktif pada jam yang sama | Feature |
-
+| Scan readiness import creates students and QR reference | Feature |
+| Scan readiness import logs invalid rows | Feature |
+| Scan readiness import requires token | Feature |
 
 Status terakhir yang diharapkan:
 
@@ -269,7 +270,61 @@ docker compose exec -e MYSQL_PWD="$DB_PASS" db mysql -uroot \
   -e "USE sistem_presensi_siswa_qr; SELECT COUNT(*) AS total_alpha FROM presensi_jam_siswa WHERE status = 'alpha';"
 ```
 
+## Import Test
+
+Import CSV real:
+
+```bash
+./scripts/import-scan-readiness.sh backend/database/data/NAMA-FILE-DATA.csv
+```
+
+Expected response:
+
+```json
+{
+  "success": true,
+  "message": "Import scan readiness selesai.",
+  "data": {
+    "summary": {
+      "total_rows": 1391,
+      "success_rows": 1391,
+      "failed_rows": 0
+    }
+  }
+}
+```
+
+Cek total siswa:
+
+```bash
+DB_PASS=$(grep '^DB_PASSWORD=' .env | cut -d '=' -f2-)
+
+docker compose exec -e MYSQL_PWD="$DB_PASS" db mysql -uroot   -e "USE sistem_presensi_siswa_qr; SELECT COUNT(*) AS total_siswa FROM siswa;"
+```
+
+Cek total QR reference:
+
+```bash
+docker compose exec -e MYSQL_PWD="$DB_PASS" db mysql -uroot   -e "USE sistem_presensi_siswa_qr; SELECT COUNT(*) AS total_qr FROM siswa_qr;"
+```
+
+Cek import job:
+
+```bash
+docker compose exec -e MYSQL_PWD="$DB_PASS" db mysql -uroot   -e "USE sistem_presensi_siswa_qr; SELECT import_id, import_type, status, total_rows, valid_rows, error_rows, inserted_rows, updated_rows FROM import_jobs ORDER BY import_id DESC LIMIT 3;"
+```
+
+Cek error row untuk import terbaru:
+
+```bash
+docker compose exec -e MYSQL_PWD="$DB_PASS" db mysql -uroot   -e "USE sistem_presensi_siswa_qr; SELECT import_id, \`row_number\`, row_status, \`message\` FROM import_row_logs WHERE import_id = 3 ORDER BY row_log_id DESC LIMIT 20;"
+```
+
+Jika hasil kosong, berarti import terbaru tidak punya error row.
+
 ## Catatan
+
+`db-reset-demo.sh` akan menghapus data hasil import real karena database dibuat ulang.
 
 Folder kosong harus punya `.gitkeep`.
 

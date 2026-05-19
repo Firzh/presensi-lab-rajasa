@@ -15,31 +15,49 @@ Removed
 
 ### Added
 
-- Menambahkan endpoint presensi sesi:
-  - `POST /api/presensi/sesi`
-  - `GET /api/presensi/sesi/aktif`
-  - `POST /api/presensi/sesi/{id}/pause`
-  - `POST /api/presensi/sesi/{id}/resume`
-  - `POST /api/presensi/sesi/{id}/finish`
-- Menambahkan service `PresensiSessionService`.
-- Menambahkan controller create, active, pause, resume, dan finish sesi.
-- Menambahkan pilihan ruang pada sesi presensi: `kelas`, `lab-tkj-1`, `lab-tkj-2`, `lab-tkj-3`, `lab-tkj-4`, dan `piket`.
-- Menambahkan `ruang_label_snapshot` untuk menyimpan label ruang sebagai histori sesi.
-- Menambahkan validasi maksimal 3 jam pembelajaran per sesi.
-- Menambahkan validasi jam pembelajaran harus berurutan.
-- Menambahkan guard duplicate sesi aktif/suspended untuk rombel dan jam yang sama.
-- Menambahkan guard bentrok ruang lab aktif/suspended pada tanggal dan jam yang sama.
-- Menambahkan inisialisasi presensi `alpha` untuk siswa pada sesi rombel.
-- Menambahkan test presensi sesi.
-- Menambahkan test duplicate sesi rombel aktif pada jam yang sama.
-- Menambahkan test pause, resume, dan finish sesi.
+- Menambahkan Tahap 7: Scan Readiness Import.
+- Menambahkan endpoint `POST /api/import/scan-readiness`.
+- Menambahkan endpoint `GET /api/import/jobs`.
+- Menambahkan endpoint `GET /api/import/jobs/{id}/rows`.
+- Menambahkan service `ScanReadinessImportService`.
+- Menambahkan controller import scan readiness.
+- Menambahkan import minimal data siswa dari CSV dengan kolom:
+  - `NISN`
+  - `NAMA`
+  - `KELAS`
+- Menambahkan parsing kelas dari format seperti `10 AKL`, `11 TKJ`, atau `12 TP 2`.
+- Menambahkan pembentukan atau update data:
+  - `siswa`
+  - `jurusan`
+  - `rombel`
+  - `penempatan_siswa_rombel`
+  - `siswa_qr`
+- Menambahkan pencatatan import ke `import_jobs`.
+- Menambahkan pencatatan baris error ke `import_row_logs`.
+- Menambahkan script `scripts/import-scan-readiness.sh`.
+- Menambahkan script `scripts/db-reset-import-demo.sh`.
+- Menambahkan test import scan readiness.
 
-### Changed
+### Fixed
 
-- Mengubah endpoint presensi sesi dari status `planned` menjadi `implemented`.
-- Mengubah dokumentasi database agar mencatat `ruang_pilihan`, `ruang_label_snapshot`, dan `presensi_sesi_jam.urutan`.
-- Mengubah dokumentasi testing dengan status terbaru `16 tests, 56 assertions`.
-- Menjaga logic ruang tetap ramping tanpa menghidupkan tabel ruangan lama.
+- Menyesuaikan `import_jobs` dengan schema nyata:
+  - `import_code`
+  - `import_type`
+  - `tahun_ajaran_id`
+  - `semester`
+  - `created_by`
+  - `valid_rows`
+  - `error_rows`
+  - `inserted_rows`
+  - `updated_rows`
+- Menyesuaikan `import_row_logs` dengan schema nyata:
+  - `import_id`
+  - `row_number`
+  - `row_status`
+  - `source_payload_json`
+  - `message`
+- Menjaga NISN tetap sebagai string agar nol depan tidak hilang.
+- Memastikan `siswa_qr` dipakai sebagai referensi pencocokan payload QR hasil scan, bukan untuk membuat gambar QR.
 
 ### Fixed
 
@@ -54,6 +72,18 @@ Removed
 - Menghapus folder `examples/api`.
 - Menghapus script `check_docs_contracts.py`.
 - Menghapus acuan terhadap ESP32, ruangan, plotting rombel, policy engine, group engine, arsip, dan notifikasi kompleks dari scope MVP.
+
+## [0.7.0] - Scan Readiness Import
+
+### Added
+
+- Import CSV siswa minimal untuk persiapan scan QR.
+- Auto create/update siswa.
+- Auto create/update jurusan dan rombel dari kolom `KELAS`.
+- Auto create/update `siswa_qr`.
+- Import jobs dan row logs.
+- Script import CSV dari folder `backend/database/data`.
+- Reset helper jika hasil import salah.
 
 ## [0.6.0] - Presensi Sesi
 

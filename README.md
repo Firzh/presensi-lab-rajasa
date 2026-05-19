@@ -240,3 +240,46 @@ Tidak masuk MVP:
 - queue worker,
 - Redis,
 - Laravel penuh.
+
+## Scan Readiness Import
+
+Tahap 7 menyiapkan data minimal agar scan QR pada Tahap 8 bisa mencocokkan payload QR dengan database.
+
+Input CSV minimal:
+
+```text
+NISN
+NAMA
+KELAS
+```
+
+Contoh:
+
+```csv
+N,NISN,NAMA,KELAS
+1,0096672112,NAMA,10 AKL
+2,0106325606,NAMA,10 AKL
+```
+
+Jalankan import:
+
+```bash
+./scripts/import-scan-readiness.sh backend/database/data/NAMA-FILE-DATA.csv
+```
+
+Reset jika import salah:
+
+```bash
+./scripts/db-reset-import-demo.sh
+```
+
+Catatan:
+
+`db-reset-demo.sh` akan menghapus data hasil import dan mengembalikan database ke seed demo.
+
+Status validasi terbaru:
+
+```text
+Import real: 1391 rows, 1391 success, 0 failed
+Backend test: OK (19 tests, 70 assertions)
+```

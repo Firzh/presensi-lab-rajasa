@@ -26,6 +26,9 @@ Thumbs.db
 /backend/storage/framework/views/*.php
 /backend/storage/framework/sessions/*
 /backend/storage/logs/*
+/backend/database/data/*.csv
+/backend/database/data/*.sqlite
+/backend/database/data/*.xlsx
 
 # Jika kamu menggunakan PHP-DI atau library DI yang meng-compile container
 /backend/cache/

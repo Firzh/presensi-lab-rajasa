@@ -12,6 +12,9 @@ use Rajasa\PresensiSiswa\Http\Controllers\PresensiSesiCreateController;
 use Rajasa\PresensiSiswa\Http\Controllers\PresensiSesiFinishController;
 use Rajasa\PresensiSiswa\Http\Controllers\PresensiSesiPauseController;
 use Rajasa\PresensiSiswa\Http\Controllers\PresensiSesiResumeController;
+use Rajasa\PresensiSiswa\Http\Controllers\ImportJobsController;
+use Rajasa\PresensiSiswa\Http\Controllers\ImportRowsController;
+use Rajasa\PresensiSiswa\Http\Controllers\ScanReadinessImportController;
 
 return function (RouteCollector $route): void {
     $route->get('/api/health', HealthController::class);
@@ -25,4 +28,8 @@ return function (RouteCollector $route): void {
     $route->post('/api/presensi/sesi/{id:\d+}/pause', PresensiSesiPauseController::class);
     $route->post('/api/presensi/sesi/{id:\d+}/resume', PresensiSesiResumeController::class);
     $route->post('/api/presensi/sesi/{id:\d+}/finish', PresensiSesiFinishController::class);
+
+    $route->post('/api/import/scan-readiness', ScanReadinessImportController::class);
+    $route->get('/api/import/jobs', ImportJobsController::class);
+    $route->get('/api/import/jobs/{id:\d+}/rows', ImportRowsController::class);
 };

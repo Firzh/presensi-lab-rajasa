@@ -67,11 +67,21 @@ Status: `implemented`
 
 ## Presensi Sesi
 
-### POST `/presensi/sesi`
+Status:
 
-Status: `implemented`
+```text
+implemented
+```
 
-Fungsi: membuat sesi presensi baru.
+Endpoint:
+
+| Method | Endpoint | Fungsi |
+|---|---|---|
+| `POST` | `/api/presensi/sesi` | Membuat sesi presensi |
+| `GET` | `/api/presensi/sesi/aktif` | Melihat sesi aktif |
+| `POST` | `/api/presensi/sesi/{id}/pause` | Menjeda sesi |
+| `POST` | `/api/presensi/sesi/{id}/resume` | Melanjutkan sesi |
+| `POST` | `/api/presensi/sesi/{id}/finish` | Menutup sesi |
 
 Permission:
 
@@ -246,13 +256,155 @@ Permission:
 attendance.session.update
 ```
 
+## Scan Readiness Import
+
+Status:
+
+```text
+implemented
+```
+
+Tujuan:
+
+Menyiapkan data siswa minimal agar Tahap 8 scan QR bisa mencocokkan payload QR dengan database.
+
+### POST `/import/scan-readiness`
+
+Permission:
+
+```text
+import.submit
+```
+
+Fungsi:
+
+Import CSV minimal yang berisi data siswa untuk persiapan scan QR.
+
+Kolom CSV yang dibaca:
+
+| Kolom | Wajib | Kegunaan |
+|---|---|---|
+| `NISN` | Ya | Kunci pencocokan siswa dan QR |
+| `NAMA` | Ya | Nama siswa dan validasi payload QR |
+| `KELAS` | Ya | Pembentukan jurusan, rombel, dan rombel aktif |
+| `N` | Tidak | Nomor urut, diabaikan |
+
+Contoh CSV:
+
+```csv
+N,NISN,NAMA,KELAS
+1,0096672112,AISYAH LISTYA NARISTA,10 AKL
+2,0106325606,AISYAH NUR AMALINA,10 AKL
+```
+
+Request JSON dengan file path di container:
+
+```json
+{
+  "file_path": "/var/www/database/data/data-siswa.csv"
+}
+```
+
+Request multipart dari host:
+
+```bash
+curl -i -X POST http://localhost:8080/api/import/scan-readiness   -H "Authorization: Bearer TOKEN"   -F "file=@backend/database/data/data-siswa.csv"
+```
+
+Response sukses:
+
+```json
+{
+  "success": true,
+  "message": "Import scan readiness selesai.",
+  "data": {
+    "import_job_id": 3,
+    "summary": {
+      "total_rows": 1391,
+      "success_rows": 1391,
+      "failed_rows": 0,
+      "created_students": 1389,
+      "updated_students": 2,
+      "created_qr": 1389,
+      "updated_qr": 2
+    }
+  }
+}
+```
+
+Validasi:
+
+| Kondisi | Response |
+|---|---|
+| Token tidak ada | `401` |
+| Tidak punya permission | `403` |
+| File tidak dikirim | `422` |
+| File tidak ditemukan | `422` |
+| Header `NISN`, `NAMA`, `KELAS` tidak ditemukan | `422` |
+| Baris tanpa NISN | Masuk `import_row_logs`, tidak menghentikan import |
+| Baris tanpa nama | Masuk `import_row_logs`, tidak menghentikan import |
+| Baris tanpa kelas | Masuk `import_row_logs`, tidak menghentikan import |
+
+### GET `/import/jobs`
+
+Status:
+
+```text
+implemented
+```
+
+Permission:
+
+```text
+import.read
+```
+
+Fungsi:
+
+Melihat riwayat import.
+
+### GET `/import/jobs/{id}/rows`
+
+Status:
+
+```text
+implemented
+```
+
+Permission:
+
+```text
+import.read
+```
+
+Fungsi:
+
+Melihat log baris import yang error, warning, skipped, inserted, atau updated.
+
 ## Presensi Scan
 
-Status: `planned`
+Status:
+
+```text
+planned
+```
+
+Rencana endpoint:
 
 | Method | Endpoint | Fungsi |
 |---|---|---|
-| `POST` | `/presensi/scan` | Menerima hasil scan QR |
+| `POST` | `/api/presensi/scan` | Menerima hasil scan QR |
+
+Tahap 8 akan memakai data dari:
+
+```text
+siswa
+siswa_qr
+rombel
+penempatan_siswa_rombel
+presensi_sesi
+presensi_sesi_jam
+```
 
 ## Error Code
 

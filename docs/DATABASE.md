@@ -26,6 +26,103 @@ backend/database/seeds/seed_akun_demo_mvp_presensi_qr.sql
 6. Data audit dan histori dijaga dengan `RESTRICT`.
 7. Trigger dipakai hanya untuk aturan yang tidak cocok memakai `CHECK`.
 
+## Tabel yang Dipakai Tahap 7
+
+Tahap 7 memakai tabel:
+
+```text
+siswa
+jurusan
+rombel
+penempatan_siswa_rombel
+siswa_qr
+import_jobs
+import_row_logs
+```
+
+## Import CSV Minimal
+
+Data CSV minimal:
+
+| Kolom CSV | Tujuan |
+|---|---|
+| `NISN` | `siswa.nisn`, `siswa_qr.payload_nisn` |
+| `NAMA` | `siswa.nama_lengkap`, `siswa_qr.payload_nama` |
+| `KELAS` | `siswa.kelas_aktif`, `rombel`, `jurusan`, `penempatan_siswa_rombel` |
+
+Kolom `N` hanya nomor urut dan tidak masuk database.
+
+## Parsing KELAS
+
+Contoh:
+
+```text
+10 AKL
+10 MP
+12 TP 2
+```
+
+Aturan:
+
+| Bagian | Hasil |
+|---|---|
+| Angka pertama | `tingkat_angka` |
+| `10` | `X` |
+| `11` | `XI` |
+| `12` | `XII` |
+| `13` | `XIII` |
+| Kode setelah angka | kode jurusan |
+| Nomor setelah jurusan | belum dipakai sebagai nomor rombel pada checkpoint ini |
+
+Catatan:
+
+- Untuk MVP, `nomor_rombel` default masih `1`.
+- `is_nomor_rombel_inferred = 1`.
+- `display_mode = tanpa_nomor`.
+- `label_rombel` menyimpan nilai kelas mentah, contoh `12 TP 2`.
+
+## Tabel `siswa`
+
+Tahap 7 mengisi atau update:
+
+| Kolom | Isi |
+|---|---|
+| `nisn` | Dari CSV |
+| `nama_lengkap` | Dari CSV, dinormalisasi uppercase |
+| `jurusan_id_aktif` | Dari parsing `KELAS` |
+| `rombel_id_aktif` | Dari parsing `KELAS` |
+| `kelas_aktif` | Nilai mentah kolom `KELAS` |
+| `status` | `aktif` |
+
+NISN harus diperlakukan sebagai string agar nol depan tidak hilang.
+
+## Tabel `siswa_qr`
+
+`siswa_qr` bukan tabel untuk membuat gambar QR.
+
+Fungsi:
+
+Menyimpan referensi pencocokan payload QR hasil scan dengan siswa.
+
+Isi utama:
+
+| Kolom | Isi |
+|---|---|
+| `siswa_id` | Pemilik QR |
+| `payload_raw` | Gabungan nama dan NISN |
+| `payload_normalized` | Payload yang sudah dibersihkan |
+| `payload_nama` | Nama dari sumber data |
+| `payload_nisn` | NISN dari sumber data |
+
+Contoh:
+
+```text
+payload_raw = AISYAH LISTYA NARISTA|0096672112
+payload_normalized = aisyahlistyanarista0096672112
+payload_nama = AISYAH LISTYA NARISTA
+payload_nisn = 0096672112
+```
+
 ## Tabel Presensi
 
 ```text

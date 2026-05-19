@@ -78,6 +78,12 @@ Baseline test mencakup:
 | Permission muncul saat login | Feature |
 | Token valid | Unit |
 | Token invalid | Unit |
+| Create sesi rombel ruang kelas | Feature |
+| Create sesi tanpa token | Feature |
+| Reject sesi lebih dari 3 jam | Feature |
+| Pause, resume, finish sesi | Feature |
+| Reject duplicate sesi rombel aktif pada jam yang sama | Feature |
+
 
 Status terakhir yang diharapkan:
 
@@ -164,6 +170,103 @@ Feature:
 - ScanWarningBedaRombelTest
 - ScanInvalidQrTest
 - ScanPiketTerlambatTest
+```
+
+## Validasi Manual Presensi Sesi
+
+Reset database:
+
+```bash
+./scripts/db-reset-demo.sh
+```
+
+Ambil token:
+
+```bash
+TOKEN=$(curl -s -X POST http://localhost:8080/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"username":"admin.demo","password":"Rajasa@123"}' \
+  | docker compose exec -T backend php -r '$j=json_decode(stream_get_contents(STDIN), true); echo $j["data"]["token"] ?? "";')
+```
+
+Create sesi rombel kelas:
+
+```bash
+curl -i -X POST http://localhost:8080/api/presensi/sesi \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $TOKEN" \
+  -d '{"mode_presensi":"rombel","rombel_id":1,"jam_ids":[1,2],"ruang_pilihan":"kelas"}'
+```
+
+Expected:
+
+```text
+HTTP/1.1 201 Created
+```
+
+Duplicate sesi rombel:
+
+```bash
+curl -i -X POST http://localhost:8080/api/presensi/sesi \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $TOKEN" \
+  -d '{"mode_presensi":"rombel","rombel_id":1,"jam_ids":[1,2],"ruang_pilihan":"kelas"}'
+```
+
+Expected:
+
+```text
+HTTP/1.1 409 Conflict
+```
+
+Create sesi lab:
+
+```bash
+curl -i -X POST http://localhost:8080/api/presensi/sesi \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $TOKEN" \
+  -d '{"mode_presensi":"rombel","rombel_id":1,"jam_ids":[3],"ruang_pilihan":"lab-tkj-1"}'
+```
+
+Create sesi piket:
+
+```bash
+curl -i -X POST http://localhost:8080/api/presensi/sesi \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $TOKEN" \
+  -d '{"mode_presensi":"piket","jam_ids":[1],"ruang_pilihan":"piket"}'
+```
+
+Cek sesi aktif:
+
+```bash
+curl -i http://localhost:8080/api/presensi/sesi/aktif \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+## Validasi Database Presensi Sesi
+
+Cek sesi:
+
+```bash
+DB_PASS=$(grep '^DB_PASSWORD=' .env | cut -d '=' -f2-)
+
+docker compose exec -e MYSQL_PWD="$DB_PASS" db mysql -uroot \
+  -e "USE sistem_presensi_siswa_qr; SELECT presensi_sesi_id, mode_presensi, rombel_id, tanggal, status, ruang_pilihan, ruang_label_snapshot FROM presensi_sesi ORDER BY presensi_sesi_id DESC LIMIT 10;"
+```
+
+Cek jam sesi:
+
+```bash
+docker compose exec -e MYSQL_PWD="$DB_PASS" db mysql -uroot \
+  -e "USE sistem_presensi_siswa_qr; SELECT presensi_sesi_id, jam_id, urutan FROM presensi_sesi_jam ORDER BY presensi_sesi_jam_id DESC LIMIT 20;"
+```
+
+Cek alpha rows:
+
+```bash
+docker compose exec -e MYSQL_PWD="$DB_PASS" db mysql -uroot \
+  -e "USE sistem_presensi_siswa_qr; SELECT COUNT(*) AS total_alpha FROM presensi_jam_siswa WHERE status = 'alpha';"
 ```
 
 ## Catatan

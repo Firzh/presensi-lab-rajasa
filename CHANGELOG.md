@@ -15,40 +15,37 @@ Removed
 
 ### Added
 
-- Menambahkan endpoint `POST /api/auth/login`.
-- Menambahkan endpoint `POST /api/auth/logout`.
-- Menambahkan endpoint `GET /api/me`.
-- Menambahkan signed bearer token stateless untuk auth MVP.
-- Menambahkan service auth, token, dan permission.
-- Menambahkan middleware auth dan permission baseline.
-- Menambahkan koneksi database memakai Illuminate Database.
-- Menambahkan model awal `User`.
-- Menambahkan PHPUnit baseline.
-- Menambahkan test auth, `/api/me`, token, health, 404, dan 405.
-- Menambahkan schema database MVP di `backend/database/schema`.
-- Menambahkan seed permission MVP dan akun demo.
-- Menambahkan script reset database demo.
-- Menambahkan `.gitkeep` agar folder test kosong tetap ikut Git.
-- Menambahkan room snapshot fields for presensi_sesi.
+- Menambahkan endpoint presensi sesi:
+  - `POST /api/presensi/sesi`
+  - `GET /api/presensi/sesi/aktif`
+  - `POST /api/presensi/sesi/{id}/pause`
+  - `POST /api/presensi/sesi/{id}/resume`
+  - `POST /api/presensi/sesi/{id}/finish`
+- Menambahkan service `PresensiSessionService`.
+- Menambahkan controller create, active, pause, resume, dan finish sesi.
+- Menambahkan pilihan ruang pada sesi presensi: `kelas`, `lab-tkj-1`, `lab-tkj-2`, `lab-tkj-3`, `lab-tkj-4`, dan `piket`.
+- Menambahkan `ruang_label_snapshot` untuk menyimpan label ruang sebagai histori sesi.
+- Menambahkan validasi maksimal 3 jam pembelajaran per sesi.
+- Menambahkan validasi jam pembelajaran harus berurutan.
+- Menambahkan guard duplicate sesi aktif/suspended untuk rombel dan jam yang sama.
+- Menambahkan guard bentrok ruang lab aktif/suspended pada tanggal dan jam yang sama.
+- Menambahkan inisialisasi presensi `alpha` untuk siswa pada sesi rombel.
+- Menambahkan test presensi sesi.
+- Menambahkan test duplicate sesi rombel aktif pada jam yang sama.
+- Menambahkan test pause, resume, dan finish sesi.
 
 ### Changed
 
-- Mengubah namespace backend dari `PresensiLabBackend` menjadi `PresensiSiswa`.
-- Mengubah dokumentasi project agar mengikuti implementasi nyata.
-- Mengubah database menjadi fokus presensi siswa, bukan presensi lab.
-- Mengubah constraint sensitif dari `CHECK` menjadi trigger jika kolom juga dipakai foreign key.
-- Mengubah banyak foreign key histori dan audit menjadi `ON DELETE RESTRICT ON UPDATE RESTRICT`.
-- Menyesuaikan seed akun demo agar `user_type` sesuai akun.
-- Menyesuaikan permission reader agar membaca kolom `perm_slug`.
+- Mengubah endpoint presensi sesi dari status `planned` menjadi `implemented`.
+- Mengubah dokumentasi database agar mencatat `ruang_pilihan`, `ruang_label_snapshot`, dan `presensi_sesi_jam.urutan`.
+- Mengubah dokumentasi testing dengan status terbaru `16 tests, 56 assertions`.
+- Menjaga logic ruang tetap ramping tanpa menghidupkan tabel ruangan lama.
 
 ### Fixed
 
-- Memperbaiki error schema pada `rombel`, `users`, `presensi_sesi`, `penempatan_siswa_rombel`, dan `rombel_wali_kelas`.
-- Memperbaiki seed yang masih mengarah ke database lama.
-- Memperbaiki seed akun demo yang masih memakai kolom lama.
-- Memperbaiki mapping permission kosong pada response login.
-- Memperbaiki test agar membaca environment testing dengan benar.
-- Memperbaiki script database runner agar memakai `.env`.
+- Memperbaiki insert sesi presensi dengan mengisi `session_uuid`.
+- Memperbaiki `presensi_sesi_jam.urutan` agar mengikuti urutan jam yang dipilih.
+- Memperbaiki test isolation agar sesi aktif dari test tidak mengganggu test berikutnya.
 
 ### Removed
 
@@ -57,6 +54,18 @@ Removed
 - Menghapus folder `examples/api`.
 - Menghapus script `check_docs_contracts.py`.
 - Menghapus acuan terhadap ESP32, ruangan, plotting rombel, policy engine, group engine, arsip, dan notifikasi kompleks dari scope MVP.
+
+## [0.6.0] - Presensi Sesi
+
+### Added
+
+- Sesi presensi mode `rombel`.
+- Sesi presensi mode `piket`.
+- Pilihan ruang `kelas`, `lab-tkj-1` sampai `lab-tkj-4`, dan `piket`.
+- Pause, resume, dan finish sesi.
+- Guard bentrok ruang lab.
+- Guard duplicate sesi rombel pada jam yang sama.
+- Test presensi sesi.
 
 ## [0.5.0] - Auth and Permission Baseline
 

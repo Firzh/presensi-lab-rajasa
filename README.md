@@ -19,6 +19,53 @@ Status saat ini:
 - Endpoint `/api/health`, `/api/auth/login`, `/api/auth/logout`, dan `/api/me` sudah tersedia.
 - Tahap berikutnya adalah Presensi Sesi.
 
+## Presensi Sesi
+
+Endpoint presensi sesi sudah tersedia:
+
+```text
+POST /api/presensi/sesi
+GET  /api/presensi/sesi/aktif
+POST /api/presensi/sesi/{id}/pause
+POST /api/presensi/sesi/{id}/resume
+POST /api/presensi/sesi/{id}/finish
+```
+
+Mode sesi:
+
+| Mode | Fungsi |
+|---|---|
+| `rombel` | Presensi untuk rombel tertentu |
+| `piket` | Presensi untuk siswa terlambat |
+
+Pilihan ruang:
+
+| Pilihan | Arti |
+|---|---|
+| `kelas` | Kelas rombel |
+| `lab-tkj-1` | LAB-TKJ-1 |
+| `lab-tkj-2` | LAB-TKJ-2 |
+| `lab-tkj-3` | LAB-TKJ-3 |
+| `lab-tkj-4` | LAB-TKJ-4 |
+| `piket` | Area piket |
+
+Aturan utama:
+
+- mode `rombel` wajib memilih rombel,
+- mode `piket` tidak boleh memilih rombel,
+- jam maksimal 3,
+- jam harus berurutan,
+- rombel tidak boleh punya dua sesi aktif/suspended pada tanggal dan jam yang sama,
+- lab tidak boleh dipakai dua sesi aktif/suspended pada tanggal dan jam yang sama,
+- sesi yang sudah `selesai` tidak memblokir sesi baru.
+
+Testing terakhir:
+
+```text
+OK (16 tests, 56 assertions)
+```
+
+
 ## Stack
 
 | Bagian                  | Teknologi           |

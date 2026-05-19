@@ -29,6 +29,7 @@ Removed
 - Menambahkan seed permission MVP dan akun demo.
 - Menambahkan script reset database demo.
 - Menambahkan `.gitkeep` agar folder test kosong tetap ikut Git.
+- Menambahkan room snapshot fields for presensi_sesi.
 
 ### Changed
 

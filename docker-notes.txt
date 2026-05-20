@@ -62,3 +62,7 @@ docker compose restart backend
 docker compose restart frontend
 docker compose restart nginx
 docker compose restart db
+
+
+# cloudflare start
+docker run --rm -it --network host cloudflare/cloudflared:latest tunnel --url http://localhost:3000

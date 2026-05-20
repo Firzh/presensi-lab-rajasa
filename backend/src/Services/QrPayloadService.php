@@ -6,26 +6,19 @@ namespace Rajasa\PresensiSiswa\Services;
 
 final class QrPayloadService
 {
-    private const GOOGLE_FORM_NAME_ENTRY = 'entry.1743651050';
-    private const GOOGLE_FORM_NISN_ENTRY = 'entry.178375719';
-
     public function parse(string $payloadRaw): array
     {
         $payloadRaw = trim($payloadRaw);
+
+        if ($payloadRaw === '') {
+            return $this->emptyParsedPayload($payloadRaw);
+        }
 
         if ($this->isGoogleFormPayload($payloadRaw)) {
             return $this->parseGoogleFormPayload($payloadRaw);
         }
 
-        $payloadNisn = $this->extractNisn($payloadRaw);
-        $payloadNama = $this->extractName($payloadRaw, $payloadNisn);
-
-        return [
-            'payload_raw' => $payloadRaw,
-            'payload_normalized' => $this->normalizePayload($payloadNama . '|' . $payloadNisn),
-            'payload_nisn' => $payloadNisn,
-            'payload_nama' => $payloadNama,
-        ];
+        return $this->parsePlainPayload($payloadRaw);
     }
 
     public function normalizePayload(string $value): string
@@ -35,9 +28,21 @@ final class QrPayloadService
 
     private function isGoogleFormPayload(string $payloadRaw): bool
     {
-        return str_contains($payloadRaw, 'docs.google.com/forms')
-            && str_contains($payloadRaw, self::GOOGLE_FORM_NAME_ENTRY)
-            && str_contains($payloadRaw, self::GOOGLE_FORM_NISN_ENTRY);
+        $query = parse_url($payloadRaw, PHP_URL_QUERY);
+
+        if (!is_string($query) || $query === '') {
+            return false;
+        }
+
+        $params = $this->parseQueryPreserveDots($query);
+
+        foreach (array_keys($params) as $key) {
+            if (preg_match('/^entry\.\d+$/', (string) $key) === 1) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private function parseGoogleFormPayload(string $payloadRaw): array
@@ -45,25 +50,64 @@ final class QrPayloadService
         $query = parse_url($payloadRaw, PHP_URL_QUERY);
 
         if (!is_string($query) || $query === '') {
-            return [
-                'payload_raw' => $payloadRaw,
-                'payload_normalized' => $this->normalizePayload($payloadRaw),
-                'payload_nisn' => '',
-                'payload_nama' => '',
-            ];
+            return $this->emptyParsedPayload($payloadRaw);
         }
 
         $params = $this->parseQueryPreserveDots($query);
+        $entries = $this->extractGoogleFormEntries($params);
 
-        $nama = strtoupper(trim((string) ($params[self::GOOGLE_FORM_NAME_ENTRY] ?? '')));
-        $nisn = preg_replace('/\D+/', '', (string) ($params[self::GOOGLE_FORM_NISN_ENTRY] ?? '')) ?? '';
+        $nama = '';
+        $nisn = '';
+
+        foreach ($entries as $value) {
+            $cleanValue = trim((string) $value);
+            $digitsOnly = preg_replace('/\D+/', '', $cleanValue) ?? '';
+
+            if ($nisn === '' && preg_match('/^\d{8,20}$/', $digitsOnly) === 1) {
+                $nisn = $digitsOnly;
+                continue;
+            }
+
+            if ($nama === '' && preg_match('/[A-Za-z]/', $cleanValue) === 1) {
+                $nama = strtoupper($cleanValue);
+            }
+        }
+
+        $nama = substr($nama, 0, 120);
 
         return [
             'payload_raw' => $payloadRaw,
-            'payload_normalized' => $this->normalizePayload($nama . '|' . $nisn),
+            'payload_normalized' => $this->normalizePayload($nama . $nisn),
             'payload_nisn' => $nisn,
             'payload_nama' => $nama,
         ];
+    }
+
+    private function parsePlainPayload(string $payloadRaw): array
+    {
+        $nisn = $this->extractNisn($payloadRaw);
+        $nama = $this->extractName($payloadRaw, $nisn);
+        $nama = substr($nama, 0, 120);
+
+        return [
+            'payload_raw' => $payloadRaw,
+            'payload_normalized' => $this->normalizePayload($nama . $nisn),
+            'payload_nisn' => $nisn,
+            'payload_nama' => $nama,
+        ];
+    }
+
+    private function extractGoogleFormEntries(array $params): array
+    {
+        $entries = [];
+
+        foreach ($params as $key => $value) {
+            if (preg_match('/^entry\.\d+$/', (string) $key) === 1) {
+                $entries[] = $value;
+            }
+        }
+
+        return $entries;
     }
 
     private function parseQueryPreserveDots(string $query): array
@@ -85,7 +129,7 @@ final class QrPayloadService
 
     private function extractNisn(string $payloadRaw): string
     {
-        if (preg_match('/\b(\d{10,20})\b/', $payloadRaw, $match)) {
+        if (preg_match('/\b(\d{8,20})\b/', $payloadRaw, $match)) {
             return $match[1];
         }
 
@@ -104,5 +148,15 @@ final class QrPayloadService
         $name = preg_replace('/\s+/', ' ', $name) ?? '';
 
         return strtoupper(trim($name));
+    }
+
+    private function emptyParsedPayload(string $payloadRaw): array
+    {
+        return [
+            'payload_raw' => $payloadRaw,
+            'payload_normalized' => $this->normalizePayload($payloadRaw),
+            'payload_nisn' => '',
+            'payload_nama' => '',
+        ];
     }
 }

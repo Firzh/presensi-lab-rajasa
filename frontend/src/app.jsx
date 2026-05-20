@@ -1,52 +1,40 @@
-import { useState } from 'preact/hooks';
-import preactLogo from './assets/preact.svg';
-import viteLogo from '/vite.svg';
 import './app.css';
-import { AppShell } from './components/layout/index.js';
-import { ROUTES } from './constants/index.js';
+import { DevScanPage } from './pages/dev/DevScanPage.jsx';
 
-const APP_NAV_ITEMS = [
-  { href: ROUTES.DASHBOARD, label: 'Dashboard' },
-  { href: ROUTES.SISWA, label: 'Siswa' },
-  { href: ROUTES.JURUSAN, label: 'Jurusan' },
-  { href: ROUTES.RUANGAN, label: 'Ruangan' },
-];
-
-export function App() {
-  const [count, setCount] = useState(0);
-
+function HomePage() {
   return (
-    <AppShell title="Dashboard" navItems={APP_NAV_ITEMS}>
-      {
-        <>
-          <div>
-            <a href="https://vite.dev" target="_blank">
-              <img src={viteLogo} class="logo" alt="Vite logo" />
-            </a>
-            <a href="https://preactjs.com" target="_blank">
-              <img src={preactLogo} class="logo preact" alt="Preact logo" />
-            </a>
-          </div>
-          <h1>Vite + Preact</h1>
-          <div class="card">
-            <button onClick={() => setCount((count) => count + 1)}>count is {count}</button>
-            <p>
-              Edit <code>src/app.jsx</code> and save to test HMR
-            </p>
-          </div>
-          <p>
-            Check out{' '}
-            <a
-              href="https://preactjs.com/guide/v10/getting-started#create-a-vite-powered-preact-app"
-              target="_blank"
-            >
-              create-preact
-            </a>
-            , the official Preact + Vite starter
-          </p>
-          <p class="read-the-docs">Click on the Vite and Preact logos to learn more</p>
-        </>
-      }
-    </AppShell>
+    <main className="min-h-screen bg-slate-100 px-4 py-10 text-slate-900">
+      <section className="mx-auto max-w-3xl rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <p className="text-sm font-semibold uppercase tracking-wide text-blue-700">
+          Presensi Lab Rajasa
+        </p>
+
+        <h1 className="mt-2 text-3xl font-bold">Frontend Baseline</h1>
+
+        <p className="mt-3 text-slate-600">
+          Halaman utama frontend masih baseline. Untuk demo scan QR Tahap 8.1,
+          buka halaman dev scanner.
+        </p>
+
+        <a
+          className="mt-5 inline-flex rounded-xl bg-blue-600 px-4 py-2 font-semibold text-white"
+          href="/dev/scan"
+        >
+          Buka Dev Scanner
+        </a>
+      </section>
+    </main>
   );
 }
+
+export function App() {
+  const path = window.location.pathname;
+
+  if (path === '/dev/scan') {
+    return <DevScanPage />;
+  }
+
+  return <HomePage />;
+}
+
+export default App;

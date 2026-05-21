@@ -16,7 +16,7 @@ const JAM_OPTIONS = [
   { id: 3, label: 'Jam 3' },
 ];
 
-  function sortJamIds(jamIds) {
+function sortJamIds(jamIds) {
   return [...jamIds].sort((a, b) => a - b);
 }
 
@@ -43,8 +43,7 @@ function getSelectedJamLabel(selectedJamIds) {
     return 'Pilih jam presensi';
   }
 
-  return JAM_OPTIONS
-    .filter((item) => selectedJamIds.includes(item.id))
+  return JAM_OPTIONS.filter((item) => selectedJamIds.includes(item.id))
     .map((item) => item.label)
     .join(', ');
 }
@@ -85,6 +84,7 @@ export function DevScanPage() {
   const [selectedRombelId, setSelectedRombelId] = useState('');
   const [isLoadingRombel, setIsLoadingRombel] = useState(false);
   const [selectedJamIds, setSelectedJamIds] = useState([1]);
+  const [isJamDropdownOpen, setIsJamDropdownOpen] = useState(false);
   const [ruangPilihan, setRuangPilihan] = useState('kelas');
   const [presensiSesiId, setPresensiSesiId] = useState('');
   const [sessionLabel, setSessionLabel] = useState('');
@@ -99,7 +99,9 @@ export function DevScanPage() {
   });
 
   const selectedRombel = useMemo(() => {
-    return rombelOptions.find((item) => String(item.rombel_id) === String(selectedRombelId)) || null;
+    return (
+      rombelOptions.find((item) => String(item.rombel_id) === String(selectedRombelId)) || null
+    );
   }, [rombelOptions, selectedRombelId]);
 
   const rombelId = useMemo(() => {
@@ -226,13 +228,13 @@ export function DevScanPage() {
       return;
     }
 
-  const jamIds = sortJamIds(selectedJamIds);
+    const jamIds = sortJamIds(selectedJamIds);
 
-  if (jamIds.length === 0) {
-    setStatusType('error');
-    setStatusMessage('Pilih minimal satu jam presensi.');
-    return;
-  }
+    if (jamIds.length === 0) {
+      setStatusType('error');
+      setStatusMessage('Pilih minimal satu jam presensi.');
+      return;
+    }
 
     if (modePresensi === 'rombel' && !rombelId) {
       setStatusType('error');
@@ -505,13 +507,13 @@ export function DevScanPage() {
               <Field label="Rombel">
                 <select
                   className="w-full rounded-xl border border-slate-300 px-3 py-2 disabled:bg-slate-100"
-                  disabled={modePresensi === 'piket' || isLoadingRombel || rombelOptions.length === 0}
+                  disabled={
+                    modePresensi === 'piket' || isLoadingRombel || rombelOptions.length === 0
+                  }
                   value={selectedRombelId}
                   onInput={(event) => setSelectedRombelId(event.currentTarget.value)}
                 >
-                  {rombelOptions.length === 0 && (
-                    <option value="">Belum ada data rombel</option>
-                  )}
+                  {rombelOptions.length === 0 && <option value="">Belum ada data rombel</option>}
 
                   {rombelOptions.map((item) => (
                     <option key={item.rombel_id} value={String(item.rombel_id)}>
@@ -586,8 +588,7 @@ export function DevScanPage() {
                     Nomor: {selectedRombel.nomor_rombel || '-'}
                   </p>
                   <p>
-                    Jurusan:{' '}
-                    {selectedRombel.kode_jurusan || selectedRombel.nama_jurusan || '-'}
+                    Jurusan: {selectedRombel.kode_jurusan || selectedRombel.nama_jurusan || '-'}
                   </p>
                 </div>
               )}

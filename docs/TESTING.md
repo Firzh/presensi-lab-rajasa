@@ -1,100 +1,128 @@
 # Testing
 
-Dokumen ini menjelaskan testing backend Presensi Siswa Rajasa.
+Dokumen ini menjelaskan test otomatis, test manual, dan validasi database untuk MVP Presensi QR Rajasa sampai Tahap 8.3c.
 
 ## Stack
 
-Backend memakai:
-
 ```text
-PHPUnit 11
-PHP 8.2
+Backend  : PHP 8.2, PHPUnit 11
+Frontend : Vite, Preact, Tailwind via @tailwindcss/vite
+Database : MySQL 8
 ```
 
-Konfigurasi:
+Konfigurasi utama:
 
 ```text
 backend/phpunit.xml
+frontend/vite.config.js
 ```
 
-Folder test:
+Folder test backend:
 
 ```text
-backend/tests/
-  Unit/
-  Feature/
-  Support/
+backend/tests/Unit/
+backend/tests/Feature/
+backend/tests/Support/
 ```
 
-## Script Test
+## Script Utama
 
-Jalankan semua test:
+Backend full test:
 
 ```bash
 ./scripts/test-backend.sh
 ```
 
-Unit test:
+Backend unit test:
 
 ```bash
 ./scripts/test-backend-unit.sh
 ```
 
-Feature test:
+Backend feature test:
 
 ```bash
 ./scripts/test-backend-feature.sh
 ```
 
-## Persiapan Test
+Frontend build test:
 
-Sebelum test fitur yang memakai database:
+```bash
+docker compose exec frontend npm run build
+```
+
+Reset database demo:
 
 ```bash
 ./scripts/db-reset-demo.sh
 ```
 
-Lalu:
+Import data siswa real:
 
 ```bash
-docker compose exec backend composer dump-autoload
-./scripts/test-backend.sh
+./scripts/import-scan-readiness.sh backend/database/data/data-siswa.csv
 ```
 
-## Test Saat Ini
+Audit hasil import:
 
-test coverage:
+```bash
+./scripts/check-import-table-fill.sh
+```
 
-|---|---|
-| Health endpoint | Feature |
-| Endpoint tidak ditemukan | Feature |
-| Method tidak diizinkan | Feature |
-| Login sukses | Feature |
-| Login password salah | Feature |
-| Login payload kosong | Feature |
-| `/api/me` tanpa token | Feature |
-| `/api/me` dengan token | Feature |
-| Permission muncul saat login | Feature |
-| Token valid | Unit |
-| Token invalid | Unit |
-| Create sesi rombel ruang kelas | Feature |
-| Create sesi tanpa token | Feature |
-| Reject sesi lebih dari 3 jam | Feature |
-| Pause, resume, finish sesi | Feature |
-| Reject duplicate sesi rombel aktif pada jam yang sama | Feature |
-| Scan readiness import creates students and QR reference | Feature |
-| Scan readiness import logs invalid rows | Feature |
-| Scan readiness import requires token | Feature |
+Audit presensi berhasil setelah import fresh:
+
+```bash
+./scripts/check-successful-attendance.sh
+```
+
+## Baseline Test Terbaru
 
 Status terakhir yang diharapkan:
 
 ```text
-OK (11 tests, 43 assertions)
+Backend full test passed
+Frontend build passed
+Manual scan via /dev/scan passed
+Cloudflare Quick Tunnel demo passed
 ```
 
-Jumlah assertion bisa bertambah seiring development.
+Contoh output backend terbaru:
 
-## Validasi Manual Auth
+```text
+OK (28 tests, 135 assertions)
+```
+
+Jumlah test dan assertion boleh bertambah. Yang wajib dijaga adalah status `OK`.
+
+## Coverage Otomatis Saat Ini
+
+| Area                       | Jenis   | Status      |
+| -------------------------- | ------- | ----------- |
+| Health endpoint            | Feature | implemented |
+| 404 dan 405                | Feature | implemented |
+| Login demo                 | Feature | implemented |
+| `/api/me`                  | Feature | implemented |
+| Token stateless            | Unit    | implemented |
+| Permission read            | Feature | implemented |
+| Create sesi rombel         | Feature | implemented |
+| Create sesi piket          | Feature | implemented |
+| Pause, resume, finish sesi | Feature | implemented |
+| Duplicate sesi rombel      | Feature | implemented |
+| Bentrok lab                | Feature | implemented |
+| Import scan readiness      | Feature | implemented |
+| Import invalid rows        | Feature | implemented |
+| Import audit table fill    | Bash    | implemented |
+| QR parser Google Form      | Unit    | implemented |
+| QR parser plain payload    | Unit    | implemented |
+| Scan valid rombel          | Feature | implemented |
+| Scan beda rombel           | Feature | implemented |
+| Scan invalid QR            | Feature | implemented |
+| Scan piket terlambat       | Feature | implemented |
+| Duplicate scan guard       | Feature | implemented |
+| Dynamic rombel options     | Feature | implemented |
+| Frontend `/dev/scan` build | Build   | implemented |
+
+## Test Auth Manual
 
 Login:
 
@@ -113,7 +141,7 @@ TOKEN=$(curl -s -X POST http://localhost:8080/api/auth/login \
   | docker compose exec -T backend php -r '$j=json_decode(stream_get_contents(STDIN), true); echo $j["data"]["token"] ?? "";')
 ```
 
-Cek `/api/me`:
+Cek user aktif:
 
 ```bash
 curl -i http://localhost:8080/api/me \
@@ -126,107 +154,15 @@ Expected:
 HTTP/1.1 200 OK
 ```
 
-Cek tanpa token:
+## Test Presensi Sesi Manual
 
-```bash
-curl -i http://localhost:8080/api/me
-```
-
-Expected:
-
-```text
-HTTP/1.1 401 Unauthorized
-```
-
-## Aturan Test untuk Fitur Baru
-
-Setiap fitur backend minimal punya:
-
-1. Unit test untuk logic utama.
-2. Feature test untuk endpoint.
-3. Test untuk error case.
-
-Contoh untuk tahap Presensi Sesi:
-
-```text
-Unit:
-- JamPembelajaranValidatorTest
-- PresensiSessionRuleTest
-
-Feature:
-- CreateRombelSessionTest
-- CreatePiketSessionTest
-- PauseResumeFinishSessionTest
-```
-
-Contoh untuk tahap Presensi Scan:
-
-```text
-Unit:
-- QrPayloadServiceTest
-- PresensiScanRuleTest
-
-Feature:
-- ScanValidRombelQrTest
-- ScanWarningBedaRombelTest
-- ScanInvalidQrTest
-- ScanPiketTerlambatTest
-```
-
-## Validasi Manual Presensi Sesi
-
-Reset database:
-
-```bash
-./scripts/db-reset-demo.sh
-```
-
-Ambil token:
-
-```bash
-TOKEN=$(curl -s -X POST http://localhost:8080/api/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{"username":"admin.demo","password":"Rajasa@123"}' \
-  | docker compose exec -T backend php -r '$j=json_decode(stream_get_contents(STDIN), true); echo $j["data"]["token"] ?? "";')
-```
-
-Create sesi rombel kelas:
+Create sesi rombel:
 
 ```bash
 curl -i -X POST http://localhost:8080/api/presensi/sesi \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer $TOKEN" \
   -d '{"mode_presensi":"rombel","rombel_id":1,"jam_ids":[1,2],"ruang_pilihan":"kelas"}'
-```
-
-Expected:
-
-```text
-HTTP/1.1 201 Created
-```
-
-Duplicate sesi rombel:
-
-```bash
-curl -i -X POST http://localhost:8080/api/presensi/sesi \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer $TOKEN" \
-  -d '{"mode_presensi":"rombel","rombel_id":1,"jam_ids":[1,2],"ruang_pilihan":"kelas"}'
-```
-
-Expected:
-
-```text
-HTTP/1.1 409 Conflict
-```
-
-Create sesi lab:
-
-```bash
-curl -i -X POST http://localhost:8080/api/presensi/sesi \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer $TOKEN" \
-  -d '{"mode_presensi":"rombel","rombel_id":1,"jam_ids":[3],"ruang_pilihan":"lab-tkj-1"}'
 ```
 
 Create sesi piket:
@@ -235,7 +171,7 @@ Create sesi piket:
 curl -i -X POST http://localhost:8080/api/presensi/sesi \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer $TOKEN" \
-  -d '{"mode_presensi":"piket","jam_ids":[1],"ruang_pilihan":"piket"}'
+  -d '{"mode_presensi":"piket","jam_ids":[1,2],"ruang_pilihan":"piket"}'
 ```
 
 Cek sesi aktif:
@@ -245,102 +181,346 @@ curl -i http://localhost:8080/api/presensi/sesi/aktif \
   -H "Authorization: Bearer $TOKEN"
 ```
 
-## Validasi Database Presensi Sesi
+Expected create sesi sukses:
 
-Cek sesi:
+```text
+HTTP/1.1 201 Created
+```
+
+## Test Import Real
+
+Urutan wajib:
 
 ```bash
-DB_PASS=$(grep '^DB_PASSWORD=' .env | cut -d '=' -f2-)
-
-docker compose exec -e MYSQL_PWD="$DB_PASS" db mysql -uroot \
-  -e "USE sistem_presensi_siswa_qr; SELECT presensi_sesi_id, mode_presensi, rombel_id, tanggal, status, ruang_pilihan, ruang_label_snapshot FROM presensi_sesi ORDER BY presensi_sesi_id DESC LIMIT 10;"
+./scripts/db-reset-demo.sh
+./scripts/import-scan-readiness.sh backend/database/data/data-siswa.csv
+./scripts/check-import-table-fill.sh
 ```
 
-Cek jam sesi:
+Expected import real:
 
-```bash
-docker compose exec -e MYSQL_PWD="$DB_PASS" db mysql -uroot \
-  -e "USE sistem_presensi_siswa_qr; SELECT presensi_sesi_id, jam_id, urutan FROM presensi_sesi_jam ORDER BY presensi_sesi_jam_id DESC LIMIT 20;"
+```text
+total_rows = 1391
+success_rows = 1391
+failed_rows = 0
 ```
-
-Cek alpha rows:
-
-```bash
-docker compose exec -e MYSQL_PWD="$DB_PASS" db mysql -uroot \
-  -e "USE sistem_presensi_siswa_qr; SELECT COUNT(*) AS total_alpha FROM presensi_jam_siswa WHERE status = 'alpha';"
-```
-
-## Import Test
-
-Import CSV real:
-
-```bash
-./scripts/import-scan-readiness.sh backend/database/data/NAMA-FILE-DATA.csv
-```
-
-Expected response:
-
-```json
-{
-  "success": true,
-  "message": "Import scan readiness selesai.",
-  "data": {
-    "summary": {
-      "total_rows": 1391,
-      "success_rows": 1391,
-      "failed_rows": 0
-    }
-  }
-}
-```
-
-Cek total siswa:
-
-```bash
-DB_PASS=$(grep '^DB_PASSWORD=' .env | cut -d '=' -f2-)
-
-docker compose exec -e MYSQL_PWD="$DB_PASS" db mysql -uroot   -e "USE sistem_presensi_siswa_qr; SELECT COUNT(*) AS total_siswa FROM siswa;"
-```
-
-Cek total QR reference:
-
-```bash
-docker compose exec -e MYSQL_PWD="$DB_PASS" db mysql -uroot   -e "USE sistem_presensi_siswa_qr; SELECT COUNT(*) AS total_qr FROM siswa_qr;"
-```
-
-Cek import job:
-
-```bash
-docker compose exec -e MYSQL_PWD="$DB_PASS" db mysql -uroot   -e "USE sistem_presensi_siswa_qr; SELECT import_id, import_type, status, total_rows, valid_rows, error_rows, inserted_rows, updated_rows FROM import_jobs ORDER BY import_id DESC LIMIT 3;"
-```
-
-Cek error row untuk import terbaru:
-
-```bash
-docker compose exec -e MYSQL_PWD="$DB_PASS" db mysql -uroot   -e "USE sistem_presensi_siswa_qr; SELECT import_id, \`row_number\`, row_status, \`message\` FROM import_row_logs WHERE import_id = 3 ORDER BY row_log_id DESC LIMIT 20;"
-```
-
-Jika hasil kosong, berarti import terbaru tidak punya error row.
-
-## Catatan
 
 Catatan validasi:
 
-- Setelah reset bersih dan import real, import `data-siswa.csv` berhasil 1391 baris, 0 gagal.
-- Total siswa menjadi 1393 karena seed akun demo memang menambahkan 2 siswa demo:
-  - Siswa Demo X TKJ 1 dengan `kelas_aktif = X-TKJ-1`
-  - Siswa Warning Demo X TKJ 2 dengan `kelas_aktif = X-TKJ-2`
-- Sisa output `ROMBEL COLLAPSE CHECK` pada `rombel_id = 1` dan `rombel_id = 2` bukan berasal dari gagal mapping CSV, tetapi dari data seed demo yang memakai label kelas lama `X-TKJ-1` dan `X-TKJ-2`.
-- Mapping import real untuk rombel bernomor sudah valid. Contoh `10 TKRO 1` sampai `10 TKRO 5` sudah masuk ke rombel_id berbeda.
+```text
+Total siswa setelah reset dan import = 1393
+1391 siswa berasal dari data-siswa.csv
+2 siswa berasal dari seed demo
+```
 
-`db-reset-demo.sh` akan menghapus data hasil import real karena database dibuat ulang.
+Seed demo yang sengaja tidak di-exclude:
+
+```text
+Siswa Demo X TKJ 1
+Siswa Warning Demo X TKJ 2
+```
+
+Karena seed demo memakai label lama `X-TKJ-1` dan `X-TKJ-2`, `ROMBEL COLLAPSE CHECK` masih boleh menampilkan rombel_id 1 dan 2. Itu bukan bukti gagal mapping CSV.
+
+Mapping import real valid jika kelas bernomor sudah terpisah, misalnya:
+
+```text
+10 TKRO 1 -> rombel_id berbeda
+10 TKRO 2 -> rombel_id berbeda
+10 TKRO 3 -> rombel_id berbeda
+10 TKRO 4 -> rombel_id berbeda
+10 TKRO 5 -> rombel_id berbeda
+```
+
+## Test Fresh Import Tidak Membuat Presensi Berhasil
+
+Jalankan tepat setelah reset dan import, sebelum test scan:
+
+```bash
+./scripts/db-reset-demo.sh
+./scripts/import-scan-readiness.sh backend/database/data/data-siswa.csv
+./scripts/check-successful-attendance.sh
+```
+
+Expected:
+
+```text
+presensi_scan_log berhasil: 0
+presensi_jam_siswa with scan_log_id: 0
+presensi_jam_siswa scanned hadir/terlambat: 0
+RESULT: PASSED
+```
+
+Jika script gagal, berarti sudah ada scan/test/manual action setelah import.
+
+## Test Rombel Options
+
+Endpoint:
+
+```text
+GET /api/rombel/options
+```
+
+Test:
+
+```bash
+docker compose exec backend ./vendor/bin/phpunit --filter RombelOptionsTest
+```
+
+Expected:
+
+```text
+OK
+```
+
+Manual:
+
+```bash
+curl -i http://localhost:8080/api/rombel/options \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+Valid jika response berisi daftar rombel aktif dengan `rombel_id` dan label rombel.
+
+## Test Scan QR Manual
+
+Contoh scan valid:
+
+```bash
+curl -i -X POST http://localhost:8080/api/presensi/scan \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $TOKEN" \
+  -d '{
+    "presensi_sesi_id": 1,
+    "payload_raw": "https://docs.google.com/forms/d/e/demo/formResponse?entry.1743651050=MUHAMMAD+SOBRI&entry.178375719=0088556888"
+  }'
+```
+
+Expected untuk rombel sesuai:
+
+```text
+status_scan = berhasil
+attendance_status = hadir
+affected_rows > 0
+```
+
+Expected untuk mode piket:
+
+```text
+status_scan = berhasil
+attendance_status = terlambat
+affected_rows > 0
+```
+
+Expected untuk beda rombel:
+
+```text
+status_scan = warning
+warning_reason = siswa_tidak_sesuai_rombel
+affected_rows = 0
+```
+
+Expected untuk QR tidak dikenal:
+
+```text
+status_scan = invalid
+affected_rows = 0
+```
+
+Expected untuk scan ulang:
+
+```text
+status_scan = ditolak
+affected_rows = 0
+```
+
+## Cek Scan di Database
+
+Cek log scan:
+
+```bash
+DB_NAME="$(grep '^DB_DATABASE=' .env | cut -d '=' -f2-)"
+DB_PASS="$(grep '^DB_PASSWORD=' .env | cut -d '=' -f2-)"
+
+docker compose exec -T -e MYSQL_PWD="$DB_PASS" db mysql -uroot "$DB_NAME" <<'SQL'
+SELECT
+  scan_log_id,
+  presensi_sesi_id,
+  payload_nama,
+  payload_nisn,
+  status_scan,
+  warning_reason,
+  siswa_id,
+  selected_rombel_id,
+  actual_rombel_id,
+  created_at
+FROM presensi_scan_log
+ORDER BY scan_log_id DESC
+LIMIT 10;
+SQL
+```
+
+Cek presensi yang berubah karena scan:
+
+```bash
+docker compose exec -T -e MYSQL_PWD="$DB_PASS" db mysql -uroot "$DB_NAME" <<'SQL'
+SELECT
+  p.presensi_id,
+  p.presensi_sesi_id,
+  p.scan_log_id,
+  p.siswa_id,
+  s.nisn,
+  s.nama_lengkap,
+  s.kelas_aktif,
+  p.tanggal,
+  p.jam_id,
+  p.status,
+  p.mode_presensi,
+  p.scanned_at
+FROM presensi_jam_siswa p
+LEFT JOIN siswa s ON s.siswa_id = p.siswa_id
+WHERE p.scan_log_id IS NOT NULL
+ORDER BY p.presensi_id DESC
+LIMIT 10;
+SQL
+```
+
+Valid jika `scan_log_id` di `presensi_jam_siswa` sama dengan `scan_log_id` di `presensi_scan_log`.
+
+## Test Dev Scanner `/dev/scan`
+
+Jalankan frontend:
+
+```bash
+docker compose exec frontend npm run dev -- --host
+```
+
+Buka:
+
+```text
+http://localhost:3000/dev/scan
+```
+
+Alur test:
+
+```text
+Login demo
+Muat daftar rombel
+Pastikan dropdown rombel berasal dari database
+Pilih mode rombel atau piket
+Pilih jam lewat dropdown multi-select
+Buat sesi
+Scan QR dari kamera atau paste payload manual
+Cek response JSON
+Cek database
+```
+
+Validasi terbaru:
+
+```text
+MUHAMMAD SOBRI
+NISN 0088556888
+kelas_aktif 12 TKRO 1
+rombel_id 38
+status_scan berhasil
+presensi_jam_siswa.status hadir
+```
+
+## Test Cloudflare Quick Tunnel
+
+Gunakan untuk demo kamera HP:
+
+```bash
+docker run --rm -it --network host cloudflare/cloudflared:latest tunnel --url http://localhost:3000
+```
+
+Buka URL `https://xxxxx.trycloudflare.com/dev/scan` dari HP.
+
+Expected:
+
+```text
+Halaman /dev/scan terbuka
+Kamera HP bisa meminta izin
+Dropdown rombel tampil
+Scan QR berhasil
+```
+
+Catatan:
+
+```text
+frontend/vite.config.js memakai server.allowedHosts: true
+Konfigurasi ini hanya untuk dev/demo
+```
+
+## Test Frontend Build
+
+```bash
+docker compose exec frontend npm run build
+```
+
+Expected:
+
+```text
+✓ built in ...
+```
+
+Tailwind harus diproses lokal dari Vite. Pastikan tidak ada CDN:
+
+```bash
+grep -RIn "cdn.tailwindcss.com\|tailwindcss.com" frontend --exclude-dir=node_modules --exclude-dir=dist
+```
+
+Expected:
+
+```text
+tidak ada output
+```
+
+## Urutan Validasi Sebelum Commit
+
+```bash
+docker compose exec backend ./vendor/bin/phpunit --filter QrPayloadServiceTest
+docker compose exec backend ./vendor/bin/phpunit --filter PresensiScanTest
+docker compose exec backend ./vendor/bin/phpunit --filter RombelOptionsTest
+./scripts/test-backend.sh
+docker compose exec frontend npm run build
+```
+
+Untuk perubahan import atau database, tambah:
+
+```bash
+./scripts/db-reset-demo.sh
+./scripts/import-scan-readiness.sh backend/database/data/data-siswa.csv
+./scripts/check-import-table-fill.sh
+./scripts/check-successful-attendance.sh
+```
+
+## Aturan Test Fitur Baru
+
+Setiap fitur backend baru minimal punya:
+
+```text
+Unit test untuk logic utama
+Feature test untuk endpoint
+Test auth/permission
+Test error case
+Manual curl jika menyentuh API
+Query DB jika menyentuh database
+```
+
+Setiap fitur frontend baru minimal punya:
+
+```text
+npm run build passed
+Manual browser test
+Console browser bersih dari runtime error
+Jika pakai kamera HP, test via HTTPS tunnel
+```
+
+## Catatan Operasional
+
+`db-reset-demo.sh` menghapus data hasil import real dan hasil scan manual.
 
 Folder kosong harus punya `.gitkeep`.
 
-Contoh:
-
-```text
-backend/tests/Unit/.gitkeep
-```
-
-Tanpa `.gitkeep`, Git tidak menyimpan folder kosong dan PHPUnit bisa gagal di mesin lain.
+Jangan menganggap database fresh jika sebelumnya sudah menjalankan PHPUnit scan, manual scan, atau demo `/dev/scan`.

@@ -1,9 +1,17 @@
 # API
 
+Branch acuan: `alfy/backend-presensi-scan`
+
 Base URL development:
 
 ```text
 http://localhost:8080/api
+```
+
+Jika frontend berjalan lewat Vite dev server, request API dari browser memakai proxy:
+
+```text
+/api
 ```
 
 ## Format Response
@@ -28,6 +36,24 @@ Response gagal:
 }
 ```
 
+## Auth Header
+
+Endpoint yang membutuhkan login wajib memakai header:
+
+```text
+Authorization: Bearer TOKEN
+```
+
+## Health
+
+### GET `/health`
+
+Status: `implemented`
+
+Fungsi: cek layanan backend aktif.
+
+Auth: tidak perlu.
+
 ## Auth
 
 ### POST `/auth/login`
@@ -43,6 +69,8 @@ Request:
 }
 ```
 
+Response sukses mengembalikan token, user, role, dan permission.
+
 ### POST `/auth/logout`
 
 Status: `implemented`
@@ -53,43 +81,70 @@ Catatan: token masih stateless. Logout dilakukan dengan menghapus token di sisi 
 
 Status: `implemented`
 
-Header:
+Fungsi: membaca user aktif, role, dan permission dari token.
 
-```text
-Authorization: Bearer TOKEN
-```
+## Rombel Options
 
-## Health
-
-### GET `/health`
+### GET `/rombel/options`
 
 Status: `implemented`
 
-## Presensi Sesi
-
-Status:
-
-```text
-implemented
-```
-
-Endpoint:
-
-| Method | Endpoint | Fungsi |
-|---|---|---|
-| `POST` | `/api/presensi/sesi` | Membuat sesi presensi |
-| `GET` | `/api/presensi/sesi/aktif` | Melihat sesi aktif |
-| `POST` | `/api/presensi/sesi/{id}/pause` | Menjeda sesi |
-| `POST` | `/api/presensi/sesi/{id}/resume` | Melanjutkan sesi |
-| `POST` | `/api/presensi/sesi/{id}/finish` | Menutup sesi |
+Fungsi: mengambil daftar rombel aktif dari database untuk dropdown demo scan.
 
 Permission:
 
 ```text
-attendance.session.create
+attendance.session.read
 ```
 
-#### Request mode rombel dengan ruang kelas
+Response data:
+
+```json
+{
+  "success": true,
+  "message": "Daftar rombel aktif.",
+  "data": {
+    "rombel": [
+      {
+        "rombel_id": 38,
+        "label": "12 TKRO 1",
+        "label_rombel": "12 TKRO 1",
+        "label_rombel_raw": "12 TKRO 1",
+        "tingkatan": "XII",
+        "tingkat_angka": 12,
+        "nomor_rombel": 1,
+        "jurusan_id": 5,
+        "kode_jurusan": "TKRO",
+        "nama_jurusan": "TKRO",
+        "status": "aktif"
+      }
+    ]
+  }
+}
+```
+
+Catatan:
+
+- `label` dipakai langsung oleh frontend.
+- Jika `label_rombel` kosong, backend memakai `label_rombel_raw`.
+- Jika keduanya kosong, backend memakai fallback `Rombel #{rombel_id}`.
+- Endpoint ini tidak mengecualikan seed demo.
+
+## Presensi Sesi
+
+Status: `implemented`
+
+Endpoint:
+
+| Method | Endpoint                     | Fungsi                                             | Permission                  |
+| ------ | ---------------------------- | -------------------------------------------------- | --------------------------- |
+| `POST` | `/presensi/sesi`             | Membuat sesi presensi                              | `attendance.session.create` |
+| `GET`  | `/presensi/sesi/aktif`       | Melihat sesi aktif atau suspended milik user aktif | `attendance.session.read`   |
+| `POST` | `/presensi/sesi/{id}/pause`  | Menjeda sesi                                       | `attendance.session.update` |
+| `POST` | `/presensi/sesi/{id}/resume` | Melanjutkan sesi                                   | `attendance.session.update` |
+| `POST` | `/presensi/sesi/{id}/finish` | Menutup sesi                                       | `attendance.session.update` |
+
+### Request mode rombel dengan ruang kelas
 
 ```json
 {
@@ -107,7 +162,7 @@ ruang_pilihan = kelas
 ruang_label_snapshot = Kelas {label_rombel}
 ```
 
-#### Request mode rombel dengan ruang lab
+### Request mode rombel dengan ruang lab
 
 ```json
 {
@@ -127,18 +182,12 @@ lab-tkj-3
 lab-tkj-4
 ```
 
-Backend mengisi:
-
-```text
-ruang_label_snapshot = LAB-TKJ-1
-```
-
-#### Request mode piket
+### Request mode piket
 
 ```json
 {
   "mode_presensi": "piket",
-  "jam_ids": [1],
+  "jam_ids": [1, 2],
   "ruang_pilihan": "piket"
 }
 ```
@@ -146,12 +195,12 @@ ruang_label_snapshot = LAB-TKJ-1
 Backend mengisi:
 
 ```text
-rombel_id = NULL
+rombel_id = null
 ruang_pilihan = piket
 ruang_label_snapshot = Piket
 ```
 
-#### Response sukses
+### Response sukses create sesi
 
 ```json
 {
@@ -159,114 +208,40 @@ ruang_label_snapshot = Piket
   "message": "Sesi presensi berhasil dibuat.",
   "data": {
     "session": {
-      "presensi_sesi_id": 3,
+      "presensi_sesi_id": 9,
       "session_uuid": "fdcbcc06-e89b-4532-94d4-db26a561a9db",
       "mode_presensi": "rombel",
-      "rombel_id": 1,
-      "tanggal": "2026-05-19",
+      "rombel_id": 38,
+      "tanggal": "2026-05-21",
       "status": "aktif",
       "ruang_pilihan": "kelas",
-      "ruang_label_snapshot": "Kelas X-TKJ-1"
+      "ruang_label_snapshot": "Kelas 12 TKRO 1"
     },
     "jam_ids": [1, 2]
   }
 }
 ```
 
-#### Validasi create sesi
+### Validasi create sesi
 
-| Aturan | Response |
-|---|---|
-| Token tidak ada | `401` |
-| Tidak punya permission | `403` |
-| Mode tidak valid | `422` |
-| Rombel wajib untuk mode `rombel` | `422` |
-| Mode `piket` tidak boleh memilih rombel | `422` |
-| Jam kosong | `422` |
-| Jam lebih dari 3 | `422` |
-| Jam tidak berurutan | `422` |
-| Rombel punya sesi aktif/suspended pada jam yang sama | `409` |
-| Lab sama dipakai sesi aktif/suspended pada jam yang sama | `409` |
-
-Response duplicate rombel:
-
-```json
-{
-  "success": false,
-  "message": "Rombel sudah memiliki sesi aktif pada jam yang dipilih.",
-  "errors": []
-}
-```
-
-Response bentrok lab:
-
-```json
-{
-  "success": false,
-  "message": "Ruangan lab sedang digunakan pada jam yang dipilih.",
-  "errors": []
-}
-```
-
-### GET `/presensi/sesi/aktif`
-
-Status: `implemented`
-
-Fungsi: melihat sesi aktif atau suspended milik user aktif.
-
-Permission:
-
-```text
-attendance.session.read
-```
-
-### POST `/presensi/sesi/{id}/pause`
-
-Status: `implemented`
-
-Fungsi: menjeda sesi presensi.
-
-Permission:
-
-```text
-attendance.session.update
-```
-
-### POST `/presensi/sesi/{id}/resume`
-
-Status: `implemented`
-
-Fungsi: melanjutkan sesi presensi yang dijeda.
-
-Permission:
-
-```text
-attendance.session.update
-```
-
-### POST `/presensi/sesi/{id}/finish`
-
-Status: `implemented`
-
-Fungsi: menutup sesi presensi.
-
-Permission:
-
-```text
-attendance.session.update
-```
+| Aturan                                                        | Response |
+| ------------------------------------------------------------- | -------- |
+| Token tidak ada                                               | `401`    |
+| Tidak punya permission                                        | `403`    |
+| Mode tidak valid                                              | `422`    |
+| Rombel wajib untuk mode `rombel`                              | `422`    |
+| Mode `piket` tidak boleh memilih rombel                       | `422`    |
+| Jam kosong                                                    | `422`    |
+| Jam lebih dari 3                                              | `422`    |
+| Jam tidak berurutan                                           | `422`    |
+| Rombel punya sesi aktif atau suspended pada jam yang sama     | `409`    |
+| Lab sama dipakai sesi aktif atau suspended pada jam yang sama | `409`    |
 
 ## Scan Readiness Import
 
-Status:
+Status: `implemented`
 
-```text
-implemented
-```
-
-Tujuan:
-
-Menyiapkan data siswa minimal agar Tahap 8 scan QR bisa mencocokkan payload QR dengan database.
+Tujuan: menyiapkan data siswa, rombel, penempatan rombel, dan referensi QR untuk scan presensi.
 
 ### POST `/import/scan-readiness`
 
@@ -276,25 +251,21 @@ Permission:
 import.submit
 ```
 
-Fungsi:
-
-Import CSV minimal yang berisi data siswa untuk persiapan scan QR.
-
 Kolom CSV yang dibaca:
 
-| Kolom | Wajib | Kegunaan |
-|---|---|---|
-| `NISN` | Ya | Kunci pencocokan siswa dan QR |
-| `NAMA` | Ya | Nama siswa dan validasi payload QR |
-| `KELAS` | Ya | Pembentukan jurusan, rombel, dan rombel aktif |
-| `N` | Tidak | Nomor urut, diabaikan |
+| Kolom   | Wajib | Kegunaan                                      |
+| ------- | ----- | --------------------------------------------- |
+| `NISN`  | Ya    | Kunci pencocokan siswa dan QR                 |
+| `NAMA`  | Ya    | Nama siswa dan payload QR                     |
+| `KELAS` | Ya    | Pembentukan jurusan, rombel, dan rombel aktif |
+| `N`     | Tidak | Nomor urut, diabaikan                         |
 
 Contoh CSV:
 
 ```csv
 N,NISN,NAMA,KELAS
 1,0096672112,AISYAH LISTYA NARISTA,10 AKL
-2,0106325606,AISYAH NUR AMALINA,10 AKL
+2,0088556888,MUHAMMAD SOBRI,12 TKRO 1
 ```
 
 Request JSON dengan file path di container:
@@ -308,7 +279,9 @@ Request JSON dengan file path di container:
 Request multipart dari host:
 
 ```bash
-curl -i -X POST http://localhost:8080/api/import/scan-readiness   -H "Authorization: Bearer TOKEN"   -F "file=@backend/database/data/data-siswa.csv"
+curl -i -X POST http://localhost:8080/api/import/scan-readiness \
+  -H "Authorization: Bearer TOKEN" \
+  -F "file=@backend/database/data/data-siswa.csv"
 ```
 
 Response sukses:
@@ -318,40 +291,30 @@ Response sukses:
   "success": true,
   "message": "Import scan readiness selesai.",
   "data": {
-    "import_job_id": 3,
+    "import_job_id": 1,
     "summary": {
       "total_rows": 1391,
       "success_rows": 1391,
       "failed_rows": 0,
-      "created_students": 1389,
-      "updated_students": 2,
-      "created_qr": 1389,
-      "updated_qr": 2
+      "created_students": 1391,
+      "updated_students": 0,
+      "created_qr": 1391,
+      "updated_qr": 0
     }
   }
 }
 ```
 
-Validasi:
+Catatan:
 
-| Kondisi | Response |
-|---|---|
-| Token tidak ada | `401` |
-| Tidak punya permission | `403` |
-| File tidak dikirim | `422` |
-| File tidak ditemukan | `422` |
-| Header `NISN`, `NAMA`, `KELAS` tidak ditemukan | `422` |
-| Baris tanpa NISN | Masuk `import_row_logs`, tidak menghentikan import |
-| Baris tanpa nama | Masuk `import_row_logs`, tidak menghentikan import |
-| Baris tanpa kelas | Masuk `import_row_logs`, tidak menghentikan import |
+- Import terbaru sudah memetakan rombel bernomor secara dinamis.
+- Contoh `10 TKRO 1` sampai `10 TKRO 5` masuk ke `rombel_id` berbeda.
+- Seed demo tidak di-exclude dari database.
+- Jika setelah reset dan import total siswa menjadi `1393`, itu karena seed demo menambah 2 siswa demo.
 
 ### GET `/import/jobs`
 
-Status:
-
-```text
-implemented
-```
+Status: `implemented`
 
 Permission:
 
@@ -359,17 +322,11 @@ Permission:
 import.read
 ```
 
-Fungsi:
-
-Melihat riwayat import.
+Fungsi: melihat riwayat import.
 
 ### GET `/import/jobs/{id}/rows`
 
-Status:
-
-```text
-implemented
-```
+Status: `implemented`
 
 Permission:
 
@@ -377,45 +334,165 @@ Permission:
 import.read
 ```
 
-Fungsi:
-
-Melihat log baris import yang error, warning, skipped, inserted, atau updated.
+Fungsi: melihat log baris import.
 
 ## Presensi Scan
 
-Status:
+### POST `/presensi/scan`
+
+Status: `implemented`
+
+Fungsi: menerima payload QR, mencocokkan ke `siswa_qr`, lalu mencatat hasil scan.
+
+Permission:
 
 ```text
-planned
+attendance.scan
 ```
 
-Rencana endpoint:
+Request:
 
-| Method | Endpoint | Fungsi |
-|---|---|---|
-| `POST` | `/api/presensi/scan` | Menerima hasil scan QR |
+```json
+{
+  "presensi_sesi_id": 9,
+  "payload_raw": "https://docs.google.com/forms/d/e/demo/formResponse?entry.1743651050=MUHAMMAD+SOBRI&entry.178375719=0088556888"
+}
+```
 
-Tahap 8 akan memakai data dari:
+Format payload yang didukung:
+
+| Format                                     | Status                      |
+| ------------------------------------------ | --------------------------- |
+| URL Google Form dengan parameter `entry.*` | Didukung                    |
+| Payload plain berisi nama dan NISN         | Didukung                    |
+| NISN dengan nol depan                      | Tetap dibaca sebagai string |
+
+Aturan parser Google Form:
+
+- Parser membaca semua parameter `entry.*` secara dinamis.
+- Field yang berisi huruf dipakai sebagai nama.
+- Field angka 8 sampai 20 digit dipakai sebagai NISN.
+- `+` dibaca sebagai spasi.
+- NISN seperti `0088556888` tidak boleh berubah menjadi angka.
+
+### Hasil scan
+
+| Kondisi                                 | `status_scan` | Efek DB                                                             |
+| --------------------------------------- | ------------- | ------------------------------------------------------------------- |
+| QR valid dan siswa sesuai rombel        | `berhasil`    | `presensi_scan_log` masuk, `presensi_jam_siswa` menjadi `hadir`     |
+| QR valid pada mode piket                | `berhasil`    | `presensi_scan_log` masuk, `presensi_jam_siswa` menjadi `terlambat` |
+| QR valid tetapi siswa beda rombel       | `warning`     | Hanya masuk `presensi_scan_log`                                     |
+| QR tidak dikenal                        | `invalid`     | Hanya masuk `presensi_scan_log`                                     |
+| Siswa sudah presensi pada jam yang sama | `ditolak`     | Masuk `presensi_scan_log`, tidak mengubah presensi                  |
+
+Response sukses scan rombel:
+
+```json
+{
+  "success": true,
+  "message": "Scan berhasil.",
+  "data": {
+    "status_scan": "berhasil",
+    "attendance_status": "hadir",
+    "affected_rows": 1,
+    "warning_reason": "none",
+    "siswa": {
+      "siswa_id": 1202,
+      "nisn": "0088556888",
+      "nama_lengkap": "MUHAMMAD SOBRI",
+      "kelas_aktif": "12 TKRO 1"
+    }
+  }
+}
+```
+
+Response warning beda rombel:
+
+```json
+{
+  "success": true,
+  "message": "Siswa tidak sesuai rombel sesi.",
+  "data": {
+    "status_scan": "warning",
+    "warning_reason": "siswa_tidak_sesuai_rombel",
+    "attendance_status": null,
+    "affected_rows": 0
+  }
+}
+```
+
+Response invalid QR:
+
+```json
+{
+  "success": true,
+  "message": "QR tidak dikenal.",
+  "data": {
+    "status_scan": "invalid",
+    "attendance_status": null,
+    "affected_rows": 0
+  }
+}
+```
+
+Response duplicate scan:
+
+```json
+{
+  "success": true,
+  "message": "Siswa sudah presensi pada jam ini.",
+  "data": {
+    "status_scan": "ditolak",
+    "attendance_status": null,
+    "affected_rows": 0
+  }
+}
+```
+
+Tabel yang dipakai:
 
 ```text
 siswa
 siswa_qr
-rombel
-penempatan_siswa_rombel
 presensi_sesi
 presensi_sesi_jam
+presensi_scan_log
+presensi_jam_siswa
 ```
+
+## Endpoint untuk Dev Scanner
+
+Route frontend:
+
+```text
+/dev/scan
+```
+
+Endpoint API yang dipakai:
+
+| Endpoint              | Fungsi                            |
+| --------------------- | --------------------------------- |
+| `POST /auth/login`    | Login demo                        |
+| `GET /rombel/options` | Isi dropdown rombel dari database |
+| `POST /presensi/sesi` | Membuat sesi                      |
+| `POST /presensi/scan` | Mengirim hasil scan               |
+
+Catatan:
+
+- `/dev/scan` hanya halaman demo.
+- Vite memakai `server.allowedHosts: true` agar Cloudflare Quick Tunnel dapat memakai host dinamis.
+- Konfigurasi ini untuk demo, bukan production.
 
 ## Error Code
 
-| HTTP Code | Arti |
-|---|---|
-| 200 | Berhasil |
-| 201 | Data dibuat |
-| 401 | Belum login atau token tidak valid |
-| 403 | Tidak punya akses |
-| 404 | Endpoint/data tidak ditemukan |
-| 405 | Method tidak diizinkan |
-| 409 | Konflik data |
-| 422 | Validasi gagal |
-| 500 | Error sistem |
+| HTTP Code | Arti                               |
+| --------- | ---------------------------------- |
+| `200`     | Berhasil                           |
+| `201`     | Data dibuat                        |
+| `401`     | Belum login atau token tidak valid |
+| `403`     | Tidak punya akses                  |
+| `404`     | Endpoint atau data tidak ditemukan |
+| `405`     | Method tidak diizinkan             |
+| `409`     | Konflik data                       |
+| `422`     | Validasi gagal                     |
+| `500`     | Error sistem                       |

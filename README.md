@@ -8,16 +8,19 @@ Sistem ini dirancang untuk mendukung presensi rombel, presensi piket untuk siswa
 
 Status saat ini:
 
-- Dokumentasi lama berbasis contract pack sudah dibersihkan.
-- Folder `examples/api` sudah dihapus.
-- Script `check_docs_contracts.py` sudah dihapus.
-- Environment development Docker sudah dirapikan.
-- Backend boilerplate Composer based sudah dibuat.
-- PHPUnit baseline sudah berjalan.
+- Environment development Docker sudah berjalan.
+- Backend Composer based sudah berjalan.
+- Frontend Vite sudah berjalan.
 - Database MVP schema dan seed sudah masuk repo.
 - Auth dan permission baseline sudah berjalan.
-- Endpoint `/api/health`, `/api/auth/login`, `/api/auth/logout`, dan `/api/me` sudah tersedia.
-- Tahap berikutnya adalah Presensi Sesi.
+- Endpoint presensi sesi sudah implemented.
+- Endpoint scan readiness import sudah implemented.
+- Endpoint presensi scan QR sudah implemented.
+- Endpoint dynamic rombel options sudah implemented.
+- Halaman demo scanner `/dev/scan` sudah tersedia untuk demo HP.
+- Cloudflare Quick Tunnel dapat dipakai untuk demo kamera HP via HTTPS.
+- Tailwind sudah memakai plugin Vite, bukan CDN.
+- Tahap 8.3c sudah fokus pada dynamic rombel dropdown dan polish demo scanner.
 
 ## Presensi Sesi
 
@@ -31,23 +34,57 @@ POST /api/presensi/sesi/{id}/resume
 POST /api/presensi/sesi/{id}/finish
 ```
 
+## Presensi Scan QR
+
+Endpoint scan QR sudah tersedia:
+
+```text
+POST /api/presensi/scan
+```
+
+Flow utama:
+
+- User login dan membuat sesi presensi.
+- User scan QR siswa.
+- Backend parse payload QR.
+- Backend cocokkan payload ke siswa_qr.
+- Backend validasi sesi aktif.
+- Backend mencatat hasil scan ke presensi_scan_log.
+- Jika valid, backend update presensi_jam_siswa.
+
+Status Scan:
+
+| Status     | Arti                                             |
+| ---------- | ------------------------------------------------ |
+| `berhasil` | QR valid dan presensi masuk                      |
+| `warning`  | QR valid, tetapi siswa beda rombel               |
+| `invalid`  | QR tidak dikenal                                 |
+| `ditolak`  | Scan duplikat atau tidak boleh mengubah presensi |
+
 Mode sesi:
 
-| Mode | Fungsi |
-|---|---|
+| Mode     | Fungsi                         |
+| -------- | ------------------------------ |
 | `rombel` | Presensi untuk rombel tertentu |
-| `piket` | Presensi untuk siswa terlambat |
+| `piket`  | Presensi untuk siswa terlambat |
+
+Aturan Mode:
+
+| Mode     | Hasil presensi                      |
+| -------- | ----------------------------------- |
+| `rombel` | siswa sesuai rombel menjadi `hadir` |
+| `piket`  | siswa valid menjadi `terlambat`     |
 
 Pilihan ruang:
 
-| Pilihan | Arti |
-|---|---|
-| `kelas` | Kelas rombel |
-| `lab-tkj-1` | LAB-TKJ-1 |
-| `lab-tkj-2` | LAB-TKJ-2 |
-| `lab-tkj-3` | LAB-TKJ-3 |
-| `lab-tkj-4` | LAB-TKJ-4 |
-| `piket` | Area piket |
+| Pilihan     | Arti         |
+| ----------- | ------------ |
+| `kelas`     | Kelas rombel |
+| `lab-tkj-1` | LAB-TKJ-1    |
+| `lab-tkj-2` | LAB-TKJ-2    |
+| `lab-tkj-3` | LAB-TKJ-3    |
+| `lab-tkj-4` | LAB-TKJ-4    |
+| `piket`     | Area piket   |
 
 Aturan utama:
 
@@ -64,7 +101,6 @@ Testing terakhir:
 ```text
 OK (16 tests, 56 assertions)
 ```
-
 
 ## Stack
 

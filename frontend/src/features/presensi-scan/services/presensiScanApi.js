@@ -27,6 +27,18 @@ export async function loginDev({ username, password }) {
   return parseJsonResponse(response);
 }
 
+export async function fetchRombelOptions({ token }) {
+  const response = await fetch('/api/rombel/options', {
+    method: 'GET',
+    headers: {
+      ...JSON_HEADERS,
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  return parseJsonResponse(response);
+}
+
 export async function createPresensiSession({ token, modePresensi, rombelId, jamIds, ruangPilihan }) {
   const body = {
     mode_presensi: modePresensi,

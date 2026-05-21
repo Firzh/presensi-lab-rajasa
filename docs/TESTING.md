@@ -324,6 +324,15 @@ Jika hasil kosong, berarti import terbaru tidak punya error row.
 
 ## Catatan
 
+Catatan validasi:
+
+- Setelah reset bersih dan import real, import `data-siswa.csv` berhasil 1391 baris, 0 gagal.
+- Total siswa menjadi 1393 karena seed akun demo memang menambahkan 2 siswa demo:
+  - Siswa Demo X TKJ 1 dengan `kelas_aktif = X-TKJ-1`
+  - Siswa Warning Demo X TKJ 2 dengan `kelas_aktif = X-TKJ-2`
+- Sisa output `ROMBEL COLLAPSE CHECK` pada `rombel_id = 1` dan `rombel_id = 2` bukan berasal dari gagal mapping CSV, tetapi dari data seed demo yang memakai label kelas lama `X-TKJ-1` dan `X-TKJ-2`.
+- Mapping import real untuk rombel bernomor sudah valid. Contoh `10 TKRO 1` sampai `10 TKRO 5` sudah masuk ke rombel_id berbeda.
+
 `db-reset-demo.sh` akan menghapus data hasil import real karena database dibuat ulang.
 
 Folder kosong harus punya `.gitkeep`.

@@ -1,6 +1,7 @@
 import { useCallback, useMemo, useRef, useState } from 'preact/hooks';
 import {
   createPresensiSession,
+  fetchRombelOptions,
   loginDev,
   submitQrScan,
 } from '../../features/presensi-scan/services/presensiScanApi.js';
@@ -9,33 +10,43 @@ import { useQrScanner } from '../../features/presensi-scan/hooks/useQrScanner.js
 const DEFAULT_PAYLOAD =
   'https://docs.google.com/forms/d/e/1FAIpQLSdld41u92r5hCQUzp_HeGNnPN7StSC9LcAlixa9Ymzg4ixkRw/formResponse?usp=pp_url&entry.1743651050=RENDY+PRAWIRA&entry.178375719=0099662619';
 
-const DEMO_ROMBEL_OPTIONS = [
-  {
-    id: '1',
-    label: '10 TKJ 1',
-    hint: 'Demo Rendy Prawira',
-  },
-  {
-    id: '18',
-    label: '12 TKRO 1',
-    hint: 'Demo Muhammad Sobri',
-  },
-  {
-    id: 'custom',
-    label: 'Custom rombel ID',
-    hint: 'Isi manual jika rombel belum ada di opsi demo',
-  },
+const JAM_OPTIONS = [
+  { id: 1, label: 'Jam 1' },
+  { id: 2, label: 'Jam 2' },
+  { id: 3, label: 'Jam 3' },
 ];
 
-function parseJamIds(value) {
-  return value
-    .split(',')
-    .map((item) => Number(item.trim()))
-    .filter((item) => Number.isInteger(item) && item > 0);
+  function sortJamIds(jamIds) {
+  return [...jamIds].sort((a, b) => a - b);
 }
 
 function getQrFingerprint(payload) {
   return payload.trim().toLowerCase();
+}
+
+function getRombelLabel(item) {
+  if (!item) {
+    return 'Belum memilih rombel';
+  }
+
+  const label = String(item.label || item.label_rombel || item.label_rombel_raw || '').trim();
+
+  if (label !== '') {
+    return label;
+  }
+
+  return `Rombel #${item.rombel_id}`;
+}
+
+function getSelectedJamLabel(selectedJamIds) {
+  if (selectedJamIds.length === 0) {
+    return 'Pilih jam presensi';
+  }
+
+  return JAM_OPTIONS
+    .filter((item) => selectedJamIds.includes(item.id))
+    .map((item) => item.label)
+    .join(', ');
 }
 
 function StatusBox({ message, type = 'info' }) {
@@ -70,9 +81,10 @@ export function DevScanPage() {
   const [token, setToken] = useState('');
 
   const [modePresensi, setModePresensi] = useState('rombel');
-  const [selectedRombelOption, setSelectedRombelOption] = useState('1');
-  const [customRombelId, setCustomRombelId] = useState('');
-  const [jamIdsText, setJamIdsText] = useState('1');
+  const [rombelOptions, setRombelOptions] = useState([]);
+  const [selectedRombelId, setSelectedRombelId] = useState('');
+  const [isLoadingRombel, setIsLoadingRombel] = useState(false);
+  const [selectedJamIds, setSelectedJamIds] = useState([1]);
   const [ruangPilihan, setRuangPilihan] = useState('kelas');
   const [presensiSesiId, setPresensiSesiId] = useState('');
   const [sessionLabel, setSessionLabel] = useState('');
@@ -83,37 +95,28 @@ export function DevScanPage() {
   const [responseJson, setResponseJson] = useState({
     status: 'ready',
     page: 'DevScanPage',
+    tahap: '8.3c',
   });
 
   const selectedRombel = useMemo(() => {
-    return (
-      DEMO_ROMBEL_OPTIONS.find((item) => item.id === selectedRombelOption) || DEMO_ROMBEL_OPTIONS[0]
-    );
-  }, [selectedRombelOption]);
+    return rombelOptions.find((item) => String(item.rombel_id) === String(selectedRombelId)) || null;
+  }, [rombelOptions, selectedRombelId]);
 
   const rombelId = useMemo(() => {
     if (modePresensi === 'piket') {
       return '';
     }
 
-    if (selectedRombelOption === 'custom') {
-      return customRombelId;
-    }
-
-    return selectedRombelOption;
-  }, [customRombelId, modePresensi, selectedRombelOption]);
+    return selectedRombelId;
+  }, [modePresensi, selectedRombelId]);
 
   const rombelLabel = useMemo(() => {
     if (modePresensi === 'piket') {
       return 'Piket';
     }
 
-    if (selectedRombelOption === 'custom') {
-      return customRombelId ? `Custom rombel ID ${customRombelId}` : 'Custom rombel';
-    }
-
-    return selectedRombel.label;
-  }, [customRombelId, modePresensi, selectedRombel, selectedRombelOption]);
+    return getRombelLabel(selectedRombel);
+  }, [modePresensi, selectedRombel]);
 
   const secureContextMessage = useMemo(() => {
     const isLocalhost = ['localhost', '127.0.0.1'].includes(window.location.hostname);
@@ -144,6 +147,49 @@ export function DevScanPage() {
     return true;
   };
 
+  const handleLoadRombelOptions = async (activeToken = token) => {
+    if (!activeToken) {
+      setStatusType('error');
+      setStatusMessage('Login dulu sebelum memuat daftar rombel.');
+      return false;
+    }
+
+    setIsLoadingRombel(true);
+    setStatusType('info');
+    setStatusMessage('Memuat daftar rombel dari database...');
+
+    const result = await fetchRombelOptions({ token: activeToken });
+
+    setIsLoadingRombel(false);
+
+    if (!showResponse(result)) {
+      return false;
+    }
+
+    const items = result.data?.data?.rombel || [];
+
+    setRombelOptions(items);
+
+    if (items.length === 0) {
+      setSelectedRombelId('');
+      setStatusType('warning');
+      setStatusMessage('Daftar rombel aktif kosong.');
+      return true;
+    }
+
+    const selectedStillExists = items.some(
+      (item) => String(item.rombel_id) === String(selectedRombelId)
+    );
+
+    if (!selectedRombelId || !selectedStillExists) {
+      setSelectedRombelId(String(items[0].rombel_id));
+    }
+
+    setStatusType('success');
+    setStatusMessage(`Daftar rombel berhasil dimuat. Total: ${items.length} rombel aktif.`);
+    return true;
+  };
+
   const handleLogin = async () => {
     setStatusType('info');
     setStatusMessage('Login diproses...');
@@ -154,9 +200,23 @@ export function DevScanPage() {
       return;
     }
 
-    setToken(result.data.data.token || '');
+    const nextToken = result.data.data.token || '';
+
+    setToken(nextToken);
     setStatusType('success');
     setStatusMessage('Login berhasil. Token tersimpan.');
+
+    await handleLoadRombelOptions(nextToken);
+  };
+
+  const handleToggleJam = (jamId) => {
+    setSelectedJamIds((current) => {
+      if (current.includes(jamId)) {
+        return current.filter((id) => id !== jamId);
+      }
+
+      return sortJamIds([...current, jamId]);
+    });
   };
 
   const handleCreateSession = async () => {
@@ -166,17 +226,17 @@ export function DevScanPage() {
       return;
     }
 
-    const jamIds = parseJamIds(jamIdsText);
+  const jamIds = sortJamIds(selectedJamIds);
 
-    if (jamIds.length === 0) {
-      setStatusType('error');
-      setStatusMessage('Jam IDs wajib diisi, contoh: 1 atau 1,2.');
-      return;
-    }
+  if (jamIds.length === 0) {
+    setStatusType('error');
+    setStatusMessage('Pilih minimal satu jam presensi.');
+    return;
+  }
 
     if (modePresensi === 'rombel' && !rombelId) {
       setStatusType('error');
-      setStatusMessage('Pilih rombel atau isi custom rombel ID.');
+      setStatusMessage('Pilih rombel dari dropdown terlebih dahulu.');
       return;
     }
 
@@ -354,20 +414,23 @@ export function DevScanPage() {
 
     if (value === 'piket') {
       setRuangPilihan('piket');
+      setSelectedJamIds([1, 2]);
       return;
     }
 
     setRuangPilihan('kelas');
+    setSelectedJamIds([1]);
   };
 
   return (
     <main className="min-h-screen bg-slate-100 px-4 py-6 text-slate-900">
       <div className="mx-auto max-w-5xl space-y-4">
         <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-          <p className="text-sm font-semibold uppercase tracking-wide text-blue-700">Tahap 8.2</p>
+          <p className="text-sm font-semibold uppercase tracking-wide text-blue-700">Tahap 8.3c</p>
           <h1 className="mt-1 text-2xl font-bold">Demo Scan QR Presensi</h1>
           <p className="mt-2 text-sm text-slate-600">
-            Halaman ini untuk demo alur presensi via HP. Ini belum frontend final.
+            Halaman ini untuk demo alur presensi via HP. Dropdown rombel sudah mengambil data dari
+            database.
           </p>
           <div className="mt-4">
             <StatusBox message={secureContextMessage.message} type={secureContextMessage.type} />
@@ -402,7 +465,16 @@ export function DevScanPage() {
               type="button"
               onClick={handleLogin}
             >
-              Login
+              Login dan Muat Rombel
+            </button>
+
+            <button
+              className="mt-3 w-full rounded-xl border border-blue-200 bg-blue-50 px-4 py-2 font-semibold text-blue-700 disabled:opacity-50"
+              type="button"
+              disabled={!token || isLoadingRombel}
+              onClick={() => handleLoadRombelOptions()}
+            >
+              {isLoadingRombel ? 'Memuat Rombel...' : 'Refresh Daftar Rombel'}
             </button>
 
             <Field label="Token">
@@ -433,37 +505,57 @@ export function DevScanPage() {
               <Field label="Rombel">
                 <select
                   className="w-full rounded-xl border border-slate-300 px-3 py-2 disabled:bg-slate-100"
-                  disabled={modePresensi === 'piket'}
-                  value={selectedRombelOption}
-                  onInput={(event) => setSelectedRombelOption(event.currentTarget.value)}
+                  disabled={modePresensi === 'piket' || isLoadingRombel || rombelOptions.length === 0}
+                  value={selectedRombelId}
+                  onInput={(event) => setSelectedRombelId(event.currentTarget.value)}
                 >
-                  {DEMO_ROMBEL_OPTIONS.map((item) => (
-                    <option key={item.id} value={item.id}>
-                      {item.label}
+                  {rombelOptions.length === 0 && (
+                    <option value="">Belum ada data rombel</option>
+                  )}
+
+                  {rombelOptions.map((item) => (
+                    <option key={item.rombel_id} value={String(item.rombel_id)}>
+                      {getRombelLabel(item)}
                     </option>
                   ))}
                 </select>
               </Field>
 
-              {selectedRombelOption === 'custom' && modePresensi === 'rombel' && (
-                <Field label="Custom rombel ID">
-                  <input
-                    className="w-full rounded-xl border border-slate-300 px-3 py-2"
-                    type="number"
-                    value={customRombelId}
-                    onInput={(event) => setCustomRombelId(event.currentTarget.value)}
-                    placeholder="Contoh: 18"
-                  />
-                </Field>
-              )}
+              <Field label="Jam Presensi">
+                <div className="relative">
+                  <button
+                    type="button"
+                    className="flex w-full items-center justify-between rounded-xl border border-slate-300 bg-white px-3 py-2 text-left text-sm"
+                    onClick={() => setIsJamDropdownOpen((value) => !value)}
+                  >
+                    <span>{getSelectedJamLabel(selectedJamIds)}</span>
+                    <span className="text-slate-500">▾</span>
+                  </button>
 
-              <Field label="Jam IDs">
-                <input
-                  className="w-full rounded-xl border border-slate-300 px-3 py-2"
-                  value={jamIdsText}
-                  onInput={(event) => setJamIdsText(event.currentTarget.value)}
-                  placeholder="Contoh: 1 atau 1,2"
-                />
+                  {isJamDropdownOpen && (
+                    <div className="absolute z-20 mt-2 w-full rounded-xl border border-slate-200 bg-white p-2 shadow-lg">
+                      {JAM_OPTIONS.map((jam) => {
+                        const checked = selectedJamIds.includes(jam.id);
+
+                        return (
+                          <button
+                            key={jam.id}
+                            type="button"
+                            className={`flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm ${
+                              checked
+                                ? 'bg-blue-50 font-semibold text-blue-700'
+                                : 'bg-white text-slate-700 hover:bg-slate-50'
+                            }`}
+                            onClick={() => handleToggleJam(jam.id)}
+                          >
+                            <span>{jam.label}</span>
+                            <span>{checked ? '✓' : ''}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
               </Field>
 
               <Field label="Ruang">
@@ -485,8 +577,19 @@ export function DevScanPage() {
             <div className="mt-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700">
               <p className="font-semibold">Sesi akan dibuat untuk:</p>
               <p>{rombelLabel}</p>
-              {selectedRombel.hint && selectedRombelOption !== 'custom' && (
-                <p className="text-slate-500">{selectedRombel.hint}</p>
+
+              {selectedRombel && modePresensi === 'rombel' && (
+                <div className="mt-2 text-xs text-slate-500">
+                  <p>Rombel ID: {selectedRombel.rombel_id}</p>
+                  <p>
+                    Tingkat: {selectedRombel.tingkat_angka || selectedRombel.tingkatan || '-'} |
+                    Nomor: {selectedRombel.nomor_rombel || '-'}
+                  </p>
+                  <p>
+                    Jurusan:{' '}
+                    {selectedRombel.kode_jurusan || selectedRombel.nama_jurusan || '-'}
+                  </p>
+                </div>
               )}
             </div>
 

@@ -6,14 +6,16 @@ use FastRoute\RouteCollector;
 use Rajasa\PresensiSiswa\Http\Controllers\AuthLoginController;
 use Rajasa\PresensiSiswa\Http\Controllers\AuthLogoutController;
 use Rajasa\PresensiSiswa\Http\Controllers\HealthController;
+use Rajasa\PresensiSiswa\Http\Controllers\ImportJobsController;
+use Rajasa\PresensiSiswa\Http\Controllers\ImportRowsController;
 use Rajasa\PresensiSiswa\Http\Controllers\MeController;
+use Rajasa\PresensiSiswa\Http\Controllers\PresensiScanController;
 use Rajasa\PresensiSiswa\Http\Controllers\PresensiSesiActiveController;
 use Rajasa\PresensiSiswa\Http\Controllers\PresensiSesiCreateController;
 use Rajasa\PresensiSiswa\Http\Controllers\PresensiSesiFinishController;
 use Rajasa\PresensiSiswa\Http\Controllers\PresensiSesiPauseController;
 use Rajasa\PresensiSiswa\Http\Controllers\PresensiSesiResumeController;
-use Rajasa\PresensiSiswa\Http\Controllers\ImportJobsController;
-use Rajasa\PresensiSiswa\Http\Controllers\ImportRowsController;
+use Rajasa\PresensiSiswa\Http\Controllers\RombelController;
 use Rajasa\PresensiSiswa\Http\Controllers\ScanReadinessImportController;
 
 return function (RouteCollector $route): void {
@@ -22,6 +24,8 @@ return function (RouteCollector $route): void {
     $route->post('/api/auth/login', AuthLoginController::class);
     $route->post('/api/auth/logout', AuthLogoutController::class);
     $route->get('/api/me', MeController::class);
+
+    $route->get('/api/rombel/options', RombelController::class);
 
     $route->post('/api/presensi/sesi', PresensiSesiCreateController::class);
     $route->get('/api/presensi/sesi/aktif', PresensiSesiActiveController::class);
@@ -32,4 +36,6 @@ return function (RouteCollector $route): void {
     $route->post('/api/import/scan-readiness', ScanReadinessImportController::class);
     $route->get('/api/import/jobs', ImportJobsController::class);
     $route->get('/api/import/jobs/{id:\d+}/rows', ImportRowsController::class);
+
+    $route->post('/api/presensi/scan', PresensiScanController::class);
 };

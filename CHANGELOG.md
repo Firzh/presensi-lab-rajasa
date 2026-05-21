@@ -73,6 +73,76 @@ Removed
 - Menghapus script `check_docs_contracts.py`.
 - Menghapus acuan terhadap ESP32, ruangan, plotting rombel, policy engine, group engine, arsip, dan notifikasi kompleks dari scope MVP.
 
+## [0.8.3] - Dynamic Rombel and Dev Scanner Polish
+
+### Added
+
+- Menambahkan endpoint `GET /api/rombel/options` untuk mengambil daftar rombel aktif dari database.
+- Menambahkan dynamic rombel dropdown pada halaman demo scanner `/dev/scan`.
+- Menambahkan pilihan jam presensi berbentuk dropdown multi-select dengan tanda centang.
+- Menambahkan dukungan Cloudflare Quick Tunnel dinamis melalui `server.allowedHosts: true` pada Vite.
+- Menambahkan validasi manual bahwa scan Sobri berhasil masuk ke `presensi_scan_log` dan `presensi_jam_siswa`.
+
+### Changed
+
+- Mengubah pilihan rombel di `/dev/scan` dari hardcode menjadi data dari backend.
+- Mengubah input `Jam IDs` manual menjadi UI pilihan jam yang lebih aman untuk demo.
+- Menghapus Tailwind Play CDN dari `frontend/index.html`.
+- Menggunakan Tailwind lokal melalui plugin Vite dan `@import 'tailwindcss'`.
+
+### Fixed
+
+- Memperbaiki blank page `/dev/scan` akibat state dropdown jam yang belum didefinisikan.
+- Memastikan cache browser/Vite tidak disalahartikan sebagai error backend.
+- Memastikan warning Tailwind CDN hilang setelah CDN dihapus dari `index.html`.
+
+## [0.8.2] - Dynamic Importer Rombel Mapping Fix
+
+### Added
+
+- Menambahkan mapping rombel bernomor dari kolom CSV `KELAS`.
+- Menambahkan pengisian `tingkat_angka`, `nomor_rombel`, `label_rombel`, `label_rombel_raw`, `display_mode`, dan `is_inferred_from_import`.
+- Menambahkan audit hasil import melalui `scripts/check-import-table-fill.sh`.
+
+### Changed
+
+- Mengubah importer agar `10 TKRO 1`, `10 TKRO 2`, `10 TKRO 3`, dan seterusnya tidak lagi masuk ke satu rombel yang sama.
+- Mengubah mapping `siswa.rombel_id_aktif` agar mengikuti kelas aktual dari CSV.
+- Mengubah relasi `penempatan_siswa_rombel` agar menunjuk rombel yang benar.
+
+### Fixed
+
+- Memperbaiki masalah rombel collapse pada hasil import real.
+- Memastikan `10 TKRO 1` sampai `10 TKRO 5` memiliki `rombel_id` berbeda.
+- Memastikan data seed demo `X-TKJ-1` dan `X-TKJ-2` tetap tidak di-exclude dari validasi.
+
+## [0.8.1] - Dev Scanner and Mobile QR Demo
+
+### Added
+
+- Menambahkan halaman demo scanner `/dev/scan`.
+- Menambahkan fitur login demo dari halaman scanner.
+- Menambahkan fitur buat sesi presensi dari halaman scanner.
+- Menambahkan fitur scan QR memakai kamera browser.
+- Menambahkan fallback paste payload manual untuk pengujian tanpa kamera.
+- Menambahkan dukungan demo HP melalui Cloudflare Quick Tunnel.
+- Menambahkan parser QR Google Form dengan `entry.*` dinamis.
+
+### Changed
+
+- Mengubah parser QR agar tidak bergantung pada entry ID tetap.
+- Mengubah parser agar bisa membaca field nama dan NISN dari parameter Google Form secara dinamis.
+- Mengubah flow demo agar scan bisa diuji dari HP melalui HTTPS tunnel.
+
+### Fixed
+
+- Memperbaiki parser QR Google Form yang sebelumnya hanya cocok untuk payload tertentu.
+- Memastikan QR Sobri bisa diparse menjadi:
+  - `payload_nama = MUHAMMAD SOBRI`
+  - `payload_nisn = 0088556888`
+- Memastikan duplicate scan guard tetap berjalan pada demo scanner.
+- Memastikan scan beda rombel tetap menghasilkan `warning`.
+
 ## [0.7.0] - Scan Readiness Import
 
 ### Added

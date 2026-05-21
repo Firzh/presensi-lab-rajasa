@@ -10,6 +10,9 @@ use Rajasa\PresensiSiswa\Http\Controllers\ImportJobsController;
 use Rajasa\PresensiSiswa\Http\Controllers\ImportRowsController;
 use Rajasa\PresensiSiswa\Http\Controllers\MeController;
 use Rajasa\PresensiSiswa\Http\Controllers\PresensiScanController;
+use Rajasa\PresensiSiswa\Http\Controllers\PresensiEditReasonController;
+use Rajasa\PresensiSiswa\Http\Controllers\PresensiJamSiswaController;
+use Rajasa\PresensiSiswa\Http\Controllers\PresensiManualEditController;
 use Rajasa\PresensiSiswa\Http\Controllers\PresensiSesiActiveController;
 use Rajasa\PresensiSiswa\Http\Controllers\PresensiSesiCreateController;
 use Rajasa\PresensiSiswa\Http\Controllers\PresensiSesiFinishController;
@@ -38,4 +41,7 @@ return function (RouteCollector $route): void {
     $route->get('/api/import/jobs/{id:\d+}/rows', ImportRowsController::class);
 
     $route->post('/api/presensi/scan', PresensiScanController::class);
+    $route->get('/api/presensi/jam-siswa', PresensiJamSiswaController::class);
+    $route->patch('/api/presensi/jam-siswa/{id:\d+}', PresensiManualEditController::class);
+    $route->get('/api/presensi/edit-reasons', PresensiEditReasonController::class);
 };

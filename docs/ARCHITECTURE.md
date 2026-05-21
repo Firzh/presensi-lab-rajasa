@@ -120,26 +120,34 @@ Backend memakai pola custom PHP API.
 
 Komponen utama:
 
-| Komponen                                       | Fungsi                                          |
-| ---------------------------------------------- | ----------------------------------------------- |
-| `public/index.php`                             | Front controller                                |
-| `boilerplate/app.php`                          | Bootstrap aplikasi                              |
-| `boilerplate/config.php`                       | Konfigurasi app, database, auth, CORS, presensi |
-| `boilerplate/container.php`                    | Dependency injection                            |
-| `boilerplate/database.php`                     | Boot database                                   |
-| `boilerplate/routes.php`                       | Load FastRoute dispatcher                       |
-| `routes/api.php`                               | Definisi route API                              |
-| `src/Core/Request.php`                         | Baca request                                    |
-| `src/Core/Response.php`                        | Response JSON standar                           |
-| `src/Core/ExceptionHandler.php`                | Error handler                                   |
-| `src/Core/RouteDispatcher.php`                 | Dispatch route ke controller                    |
-| `src/Http/Middleware/PermissionMiddleware.php` | Guard permission                                |
-| `src/Services/AuthService.php`                 | Login dan user aktif                            |
-| `src/Services/TokenService.php`                | Bearer token stateless                          |
-| `src/Services/PermissionService.php`           | Role dan permission                             |
-| `src/Services/QrPayloadService.php`            | Parse QR Google Form atau payload plain         |
-| `src/Services/ScanReadinessImportService.php`  | Import siswa, rombel, dan referensi QR          |
-| `src/Services/PresensiScanService.php`         | Proses scan QR ke presensi                      |
+| Komponen                                                | Fungsi                                                             |
+| ------------------------------------------------------- | ------------------------------------------------------------------ |
+| `public/index.php`                                      | Front controller                                                   |
+| `boilerplate/app.php`                                   | Bootstrap aplikasi                                                 |
+| `boilerplate/config.php`                                | Konfigurasi app, database, auth, CORS, presensi                    |
+| `boilerplate/container.php`                             | Dependency injection                                               |
+| `boilerplate/database.php`                              | Boot database                                                      |
+| `boilerplate/routes.php`                                | Load FastRoute dispatcher                                          |
+| `routes/api.php`                                        | Definisi route API                                                 |
+| `src/Core/Request.php`                                  | Baca request                                                       |
+| `src/Core/Response.php`                                 | Response JSON standar                                              |
+| `src/Core/ExceptionHandler.php`                         | Error handler                                                      |
+| `src/Core/RouteDispatcher.php`                          | Dispatch route ke controller                                       |
+| `src/Http/Middleware/PermissionMiddleware.php`          | Guard permission                                                   |
+| `src/Services/AuthService.php`                          | Login dan user aktif                                               |
+| `src/Services/TokenService.php`                         | Bearer token stateless                                             |
+| `src/Services/PermissionService.php`                    | Role dan permission                                                |
+| `src/Services/QrPayloadService.php`                     | Parse QR Google Form atau payload plain                            |
+| `src/Services/ScanReadinessImportService.php`           | Import siswa, rombel, dan referensi QR                             |
+| `src/Services/PresensiScanService.php`                  | Proses scan QR ke presensi                                         |
+| `src/Http/Controllers/PresensiJamSiswaController.php`   | Menampilkan daftar presensi siswa untuk edit manual                |
+| `src/Http/Controllers/PresensiManualEditController.php` | Menerima request perubahan status presensi manual                  |
+| `src/Http/Controllers/PresensiEditReasonController.php` | Menyediakan daftar alasan edit presensi                            |
+| `src/Services/PresensiManualEditService.php`            | Logic edit status, validasi alasan, update presensi, dan audit log |
+| `presensi_jam_siswa`                                    | Tabel status presensi utama siswa per tanggal dan jam              |
+| `presensi_edit_log`                                     | Tabel audit perubahan status presensi manual                       |
+
+Tahap 9 menambahkan alur manual edit presensi. Warning beda rombel tidak di-resolve, tetapi tetap menjadi log kejadian di `presensi_scan_log`. Perubahan status presensi manual dicatat di `presensi_edit_log`.
 
 ## 6. Frontend
 

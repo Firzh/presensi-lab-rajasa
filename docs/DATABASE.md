@@ -32,6 +32,7 @@ Import data siswa real:
 6. Ruang tidak memakai tabel khusus. Ruang disimpan sebagai snapshot sesi.
 7. Presensi final siswa tersimpan di `presensi_jam_siswa`.
 8. Semua percobaan scan tercatat di `presensi_scan_log`.
+9. Semua percobaan edit presensi di `presensi_edit_log`.
 
 ## Kelompok Tabel
 
@@ -350,6 +351,36 @@ Aturan:
 - Scan duplicate tidak mengubah status lagi.
 - `scan_log_id` terisi jika perubahan berasal dari scan.
 
+## Tabel `presensi_edit_log`
+
+Fungsi: mencatat audit setiap perubahan presensi manual.
+
+Kolom utama:
+
+| Kolom               | Fungsi                    |
+| ------------------- | ------------------------- |
+| `presensi_id`       | Data presensi yang diedit |
+| `field_name`        | Field yang berubah        |
+| `old_value`         | Nilai sebelum edit        |
+| `new_value`         | Nilai sesudah edit        |
+| `edited_by_user_id` | User editor               |
+| `edited_at`         | Waktu edit                |
+| `alasan_edit`       | Alasan perubahan          |
+
+### Edit Manual
+
+Tahap 9 memakai tabel ini untuk perubahan status presensi manual.
+
+Kolom yang dipakai:
+
+| Kolom               | Fungsi                  |
+| ------------------- | ----------------------- |
+| `status`            | Status baru hasil edit  |
+| `mode_presensi`     | Diubah menjadi `manual` |
+| `edited_by_user_id` | User yang mengedit      |
+| `edited_at`         | Waktu edit              |
+| `keterangan`        | Alasan edit             |
+
 ## Tabel `presensi_scan_log`
 
 Fungsi: mencatat semua percobaan scan.
@@ -495,6 +526,19 @@ LEFT JOIN siswa s ON s.siswa_id = p.siswa_id
 WHERE p.scan_log_id IS NOT NULL
 ORDER BY p.presensi_id DESC
 LIMIT 10;
+```
+
+## Permission Tahap 9
+
+Permission manual edit disimpan di tabel `permissions`.
+
+Permission baru:
+
+```text
+attendance.manual.read
+attendance.manual.update
+attendance.manual.audit.read
+attendance.edit_reasons.read
 ```
 
 ## Foreign Key Rule

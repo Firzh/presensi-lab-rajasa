@@ -460,6 +460,40 @@ presensi_scan_log
 presensi_jam_siswa
 ```
 
+## Manual Edit Presensi
+
+Status: `implemented`
+
+Endpoint:
+
+| Method  | Endpoint                       | Fungsi                          |
+| ------- | ------------------------------ | ------------------------------- |
+| `GET`   | `/api/presensi/jam-siswa`      | Melihat daftar presensi siswa   |
+| `PATCH` | `/api/presensi/jam-siswa/{id}` | Mengubah status presensi manual |
+| `GET`   | `/api/presensi/edit-reasons`   | Melihat daftar alasan edit      |
+
+Permission:
+
+```text
+attendance.manual.read
+attendance.manual.update
+attendance.edit_reasons.read
+attendance.manual.audit.read
+```
+
+### GET `/presensi/edit-reasons`
+
+Response berisi alasan edit siap pakai:
+
+```text
+siswa_sakit
+siswa_izin
+siswa_tidak_bawa_kartu
+siswa_memakai_kartu_teman
+koreksi_input
+lainnya
+```
+
 ## Endpoint untuk Dev Scanner
 
 Route frontend:

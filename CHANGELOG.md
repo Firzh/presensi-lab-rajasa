@@ -73,6 +73,28 @@ Removed
 - Menghapus script `check_docs_contracts.py`.
 - Menghapus acuan terhadap ESP32, ruangan, plotting rombel, policy engine, group engine, arsip, dan notifikasi kompleks dari scope MVP.
 
+## [0.9.0] - Manual Attendance Edit Manual
+
+### Added
+
+- Menambahkan Tahap 9: Manual Edit Presensi.
+- Menambahkan endpoint `GET /api/presensi/jam-siswa`.
+- Menambahkan endpoint `PATCH /api/presensi/jam-siswa/{id}`.
+- Menambahkan endpoint `GET /api/presensi/edit-reasons`.
+- Menambahkan service `PresensiManualEditService`.
+- Menambahkan audit edit ke `presensi_edit_log`.
+- Menambahkan permission `attendance.manual.read`, `attendance.manual.update`, `attendance.manual.audit.read`, dan `attendance.edit_reasons.read`.
+
+### Changed
+
+- Mengubah flow warning beda rombel: warning tidak di-resolve dan tetap menjadi log di `presensi_scan_log`.
+
+### Removed
+
+- Menghapus dummy siswa seed `X-TKJ-1` dan `X-TKJ-2`.
+- Menghapus user seed `siswa.demo` dan `siswa.warning.demo`.
+- Menghapus permission `attendance.warning.resolve`.
+
 ## [0.8.3] - Dynamic Rombel and Dev Scanner Polish
 
 ### Added

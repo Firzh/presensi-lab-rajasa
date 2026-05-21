@@ -21,6 +21,14 @@ Status saat ini:
 - Cloudflare Quick Tunnel dapat dipakai untuk demo kamera HP via HTTPS.
 - Tailwind sudah memakai plugin Vite, bukan CDN.
 - Tahap 8.3c sudah fokus pada dynamic rombel dropdown dan polish demo scanner.
+- Tahap 8 sudah selesai dan merge ke `development`.
+- Scan QR, dynamic rombel dropdown, dan dev scanner `/dev/scan` sudah berjalan.
+- Tahap 9 dimulai untuk manual edit presensi.
+- Warning beda rombel tidak di-resolve, tetap menjadi log di `presensi_scan_log`.
+- Dummy seed `X-TKJ-1`, `X-TKJ-2`, `siswa.demo`, dan `siswa.warning.demo` sudah dihapus.
+- Permission manual edit sudah tersedia.
+- Endpoint manual edit presensi sudah ditambahkan.
+- Setiap edit presensi wajib tercatat di `presensi_edit_log`.
 
 ## Presensi Sesi
 
@@ -206,6 +214,9 @@ GET  /api/health
 POST /api/auth/login
 POST /api/auth/logout
 GET  /api/me
+GET   /api/presensi/jam-siswa
+PATCH /api/presensi/jam-siswa/{id}
+GET   /api/presensi/edit-reasons
 ```
 
 ## Struktur Project

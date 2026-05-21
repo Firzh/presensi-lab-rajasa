@@ -96,31 +96,38 @@ Jumlah test dan assertion boleh bertambah. Yang wajib dijaga adalah status `OK`.
 
 ## Coverage Otomatis Saat Ini
 
-| Area                       | Jenis   | Status      |
-| -------------------------- | ------- | ----------- |
-| Health endpoint            | Feature | implemented |
-| 404 dan 405                | Feature | implemented |
-| Login demo                 | Feature | implemented |
-| `/api/me`                  | Feature | implemented |
-| Token stateless            | Unit    | implemented |
-| Permission read            | Feature | implemented |
-| Create sesi rombel         | Feature | implemented |
-| Create sesi piket          | Feature | implemented |
-| Pause, resume, finish sesi | Feature | implemented |
-| Duplicate sesi rombel      | Feature | implemented |
-| Bentrok lab                | Feature | implemented |
-| Import scan readiness      | Feature | implemented |
-| Import invalid rows        | Feature | implemented |
-| Import audit table fill    | Bash    | implemented |
-| QR parser Google Form      | Unit    | implemented |
-| QR parser plain payload    | Unit    | implemented |
-| Scan valid rombel          | Feature | implemented |
-| Scan beda rombel           | Feature | implemented |
-| Scan invalid QR            | Feature | implemented |
-| Scan piket terlambat       | Feature | implemented |
-| Duplicate scan guard       | Feature | implemented |
-| Dynamic rombel options     | Feature | implemented |
-| Frontend `/dev/scan` build | Build   | implemented |
+| Area                                    | Jenis   | Status      |
+| --------------------------------------- | ------- | ----------- |
+| Health endpoint                         | Feature | implemented |
+| 404 dan 405                             | Feature | implemented |
+| Login demo                              | Feature | implemented |
+| `/api/me`                               | Feature | implemented |
+| Token stateless                         | Unit    | implemented |
+| Permission read                         | Feature | implemented |
+| Create sesi rombel                      | Feature | implemented |
+| Create sesi piket                       | Feature | implemented |
+| Pause, resume, finish sesi              | Feature | implemented |
+| Duplicate sesi rombel                   | Feature | implemented |
+| Bentrok lab                             | Feature | implemented |
+| Import scan readiness                   | Feature | implemented |
+| Import invalid rows                     | Feature | implemented |
+| Import audit table fill                 | Bash    | implemented |
+| QR parser Google Form                   | Unit    | implemented |
+| QR parser plain payload                 | Unit    | implemented |
+| Scan valid rombel                       | Feature | implemented |
+| Scan beda rombel                        | Feature | implemented |
+| Scan invalid QR                         | Feature | implemented |
+| Scan piket terlambat                    | Feature | implemented |
+| Duplicate scan guard                    | Feature | implemented |
+| Dynamic rombel options                  | Feature | implemented |
+| Frontend `/dev/scan` build              | Build   | implemented |
+| Edit reasons requires token             | Feature | implemented |
+| Edit reasons returns reason options     | Feature | implemented |
+| List presensi jam siswa                 | Feature | implemented |
+| Manual edit updates status              | Feature | implemented |
+| Manual edit writes audit log            | Feature | implemented |
+| Manual edit requires text for `lainnya` | Feature | implemented |
+| Manual edit rejects same status         | Feature | implemented |
 
 ## Test Auth Manual
 
@@ -426,6 +433,19 @@ status_scan berhasil
 presensi_jam_siswa.status hadir
 ```
 
+Contoh untuk tahap Manual Edit Presensi:
+
+```text
+Feature:
+- PresensiManualEditTest
+- edit reasons harus login
+- list presensi bisa dibaca
+- edit status mengubah presensi_jam_siswa
+- edit status mencatat presensi_edit_log
+- reason lainnya wajib reason_text
+- status sama ditolak
+```
+
 ## Test Cloudflare Quick Tunnel
 
 Gunakan untuk demo kamera HP:
@@ -517,6 +537,26 @@ Console browser bersih dari runtime error
 Jika pakai kamera HP, test via HTTPS tunnel
 ```
 
+## Validasi Manual Edit Presensi
+
+Jalankan test khusus:
+
+```bash
+docker compose exec backend ./vendor/bin/phpunit --filter PresensiManualEditTest
+./scripts/test-backend.sh
+```
+
+Yang divalidasi:
+
+```text
+GET /api/presensi/edit-reasons
+GET /api/presensi/jam-siswa
+PATCH /api/presensi/jam-siswa/{id}
+presensi_jam_siswa.status berubah
+presensi_jam_siswa.mode_presensi = manual
+presensi_edit_log terisi
+```
+
 ## Catatan Operasional
 
 `db-reset-demo.sh` menghapus data hasil import real dan hasil scan manual.
@@ -524,3 +564,7 @@ Jika pakai kamera HP, test via HTTPS tunnel
 Folder kosong harus punya `.gitkeep`.
 
 Jangan menganggap database fresh jika sebelumnya sudah menjalankan PHPUnit scan, manual scan, atau demo `/dev/scan`.
+
+```
+
+```

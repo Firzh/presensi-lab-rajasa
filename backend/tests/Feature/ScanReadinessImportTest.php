@@ -80,6 +80,65 @@ final class ScanReadinessImportTest extends TestCase
         $this->assertFalse($response['success']);
     }
 
+    public function test_scan_readiness_import_separates_rombel_by_class_number(): void
+    {
+        $token = $this->loginAndGetToken();
+
+        $file = $this->makeCsv([
+            ['N', 'NISN', 'NAMA', 'KELAS'],
+            ['1', '1111111111', 'SISWA TKRO SATU', '10 TKRO 1'],
+            ['2', '2222222222', 'SISWA TKRO DUA', '10 TKRO 2'],
+            ['3', '3333333333', 'SISWA TKRO TANPA NOMOR', '10 TKRO'],
+        ]);
+
+        $response = $this->runApp('POST', '/api/import/scan-readiness', [
+            'file_path' => $file,
+        ], [
+            'Authorization' => 'Bearer ' . $token,
+        ]);
+
+        $this->assertSame(
+            201,
+            $response['__status_code'],
+            json_encode($response, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)
+        );
+        $this->assertTrue($response['success']);
+        $this->assertSame(3, $response['data']['summary']['success_rows']);
+
+        $siswaSatu = DB::table('siswa')->where('nisn', '1111111111')->first();
+        $siswaDua = DB::table('siswa')->where('nisn', '2222222222')->first();
+        $siswaTanpaNomor = DB::table('siswa')->where('nisn', '3333333333')->first();
+
+        $this->assertNotNull($siswaSatu);
+        $this->assertNotNull($siswaDua);
+        $this->assertNotNull($siswaTanpaNomor);
+
+        $this->assertNotSame((int) $siswaSatu->rombel_id_aktif, (int) $siswaDua->rombel_id_aktif);
+        $this->assertSame((int) $siswaSatu->rombel_id_aktif, (int) $siswaTanpaNomor->rombel_id_aktif);
+
+        $rombelSatu = DB::table('rombel')->where('rombel_id', $siswaSatu->rombel_id_aktif)->first();
+        $rombelDua = DB::table('rombel')->where('rombel_id', $siswaDua->rombel_id_aktif)->first();
+
+        $this->assertNotNull($rombelSatu);
+        $this->assertNotNull($rombelDua);
+
+        $this->assertSame('X', $rombelSatu->tingkatan);
+        $this->assertSame(10, (int) $rombelSatu->tingkat_angka);
+        $this->assertSame(1, (int) $rombelSatu->nomor_rombel);
+        $this->assertSame('10 TKRO 1', $rombelSatu->label_rombel);
+        $this->assertSame('10 TKRO 1', $rombelSatu->label_rombel_raw);
+        $this->assertSame('dengan_nomor', $rombelSatu->display_mode);
+        $this->assertSame(0, (int) $rombelSatu->is_nomor_rombel_inferred);
+
+        $this->assertSame('X', $rombelDua->tingkatan);
+        $this->assertSame(10, (int) $rombelDua->tingkat_angka);
+        $this->assertSame(2, (int) $rombelDua->nomor_rombel);
+        $this->assertSame('10 TKRO 2', $rombelDua->label_rombel);
+        $this->assertSame('10 TKRO 2', $rombelDua->label_rombel_raw);
+        $this->assertSame('dengan_nomor', $rombelDua->display_mode);
+        $this->assertSame(0, (int) $rombelDua->is_nomor_rombel_inferred);
+    }
+
     private function importCsvPath(): string
     {
         $files = glob(__DIR__ . '/../../database/data/*.csv');

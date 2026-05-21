@@ -269,58 +269,105 @@ final class ScanReadinessImportService
             ->where('tahun_ajaran_id', $tahunAjaranId)
             ->where('tingkatan', $kelas['tingkatan_romawi'])
             ->where('jurusan_id', $jurusanId)
-            ->where('nomor_rombel', 1)
+            ->where('nomor_rombel', $kelas['nomor_rombel'])
             ->first();
-
-        if ($existing) {
-            return (int) $existing->rombel_id;
-        }
 
         $payload = $this->filterPayload('rombel', [
             'tahun_ajaran_id' => $tahunAjaranId,
             'tingkatan' => $kelas['tingkatan_romawi'],
             'tingkat_angka' => $kelas['tingkat_angka'],
             'jurusan_id' => $jurusanId,
-            'nomor_rombel' => 1,
-            'is_nomor_rombel_inferred' => 1,
-            'label_rombel' => $kelasRaw,
+            'nomor_rombel' => $kelas['nomor_rombel'],
+            'is_nomor_rombel_inferred' => $kelas['is_nomor_rombel_inferred'],
+            'label_rombel' => $kelas['label_rombel'],
             'label_rombel_raw' => $kelasRaw,
-            'display_mode' => 'tanpa_nomor',
+            'display_mode' => $kelas['display_mode'],
             'is_inferred_from_import' => 1,
             'status' => 'aktif',
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s'),
         ]);
 
-        return (int) DB::table('rombel')->insertGetId($payload);
+        if (!$existing) {
+            return (int) DB::table('rombel')->insertGetId($payload);
+        }
+
+        $existingIsInferred = (int) ($existing->is_nomor_rombel_inferred ?? 1) === 1;
+        $incomingIsExplicit = (int) $kelas['is_nomor_rombel_inferred'] === 0;
+
+        unset($payload['created_at']);
+
+        if (!$incomingIsExplicit && !$existingIsInferred) {
+            unset(
+                $payload['label_rombel'],
+                $payload['label_rombel_raw'],
+                $payload['display_mode'],
+                $payload['is_nomor_rombel_inferred']
+            );
+        }
+
+        DB::table('rombel')
+            ->where('rombel_id', $existing->rombel_id)
+            ->update($payload);
+
+        return (int) $existing->rombel_id;
     }
 
     private function parseKelas(string $kelasRaw): array
     {
-        $parts = preg_split('/\\s+/', trim($kelasRaw));
+        $normalized = strtoupper($this->normalizeText(str_replace(['-', '_'], ' ', $kelasRaw)));
 
-        if (!$parts || count($parts) < 2) {
-            throw new \RuntimeException('Format kelas tidak valid. Contoh benar: 10 AKL.');
+        if (!preg_match('/^(10|11|12|13|X|XI|XII|XIII)\s+([A-Z0-9]+)(?:\s+(\d+))?$/', $normalized, $match)) {
+            throw new \RuntimeException('Format kelas tidak valid. Contoh benar: 10 TKRO 1 atau 10 AKL.');
         }
 
-        $tingkatAngka = (int) $parts[0];
-        $jurusan = strtoupper($parts[1]);
+        $tingkatRaw = $match[1];
+        $jurusan = strtoupper($match[2]);
+        $nomorRombelRaw = $match[3] ?? '';
 
-        $map = [
+        $romanToNumber = [
+            'X' => 10,
+            'XI' => 11,
+            'XII' => 12,
+            'XIII' => 13,
+        ];
+
+        $numberToRoman = [
             10 => 'X',
             11 => 'XI',
             12 => 'XII',
             13 => 'XIII',
         ];
 
-        if (!isset($map[$tingkatAngka])) {
+        $tingkatAngka = is_numeric($tingkatRaw)
+            ? (int) $tingkatRaw
+            : ($romanToNumber[$tingkatRaw] ?? 0);
+
+        if (!isset($numberToRoman[$tingkatAngka])) {
             throw new \RuntimeException('Tingkat kelas tidak valid.');
+        }
+
+        $hasExplicitNomorRombel = $nomorRombelRaw !== '';
+        $nomorRombel = $hasExplicitNomorRombel ? (int) $nomorRombelRaw : 1;
+
+        if ($nomorRombel < 1 || $nomorRombel > 99) {
+            throw new \RuntimeException('Nomor rombel tidak valid.');
+        }
+
+        $labelRombel = (string) $tingkatAngka . ' ' . $jurusan;
+
+        if ($hasExplicitNomorRombel) {
+            $labelRombel .= ' ' . $nomorRombel;
         }
 
         return [
             'tingkat_angka' => $tingkatAngka,
-            'tingkatan_romawi' => $map[$tingkatAngka],
+            'tingkatan_romawi' => $numberToRoman[$tingkatAngka],
             'jurusan' => $jurusan,
+            'nomor_rombel' => $nomorRombel,
+            'is_nomor_rombel_inferred' => $hasExplicitNomorRombel ? 0 : 1,
+            'label_rombel' => $labelRombel,
+            'display_mode' => $hasExplicitNomorRombel ? 'dengan_nomor' : 'tanpa_nomor',
         ];
     }
 

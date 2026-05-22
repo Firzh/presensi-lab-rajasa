@@ -21,18 +21,25 @@ Status saat ini:
 - Cloudflare Quick Tunnel dapat dipakai untuk demo kamera HP via HTTPS.
 - Tailwind sudah memakai plugin Vite, bukan CDN.
 - Tahap 8.3c sudah fokus pada dynamic rombel dropdown dan polish demo scanner.
-- Tahap 8 sudah selesai dan merge ke `development`.
 - Scan QR, dynamic rombel dropdown, dan dev scanner `/dev/scan` sudah berjalan.
-- Tahap 9 dimulai untuk manual edit presensi.
+- Tahap 9 add manual edit presensi.
 - Warning beda rombel tidak di-resolve, tetap menjadi log di `presensi_scan_log`.
 - Dummy seed `X-TKJ-1`, `X-TKJ-2`, `siswa.demo`, dan `siswa.warning.demo` sudah dihapus.
 - Permission manual edit sudah tersedia.
 - Endpoint manual edit presensi sudah ditambahkan.
 - Setiap edit presensi wajib tercatat di `presensi_edit_log`.
+- Tahap 9.1 add timeout sesi presensi 5 menit.
+- Sesi aktif harus mengirim heartbeat agar tidak `expired`.
+- User bisa mengakhiri sesi dari tombol `Akhiri Sesi`.
+- Sistem memberi warning jika jam pelajaran sudah pernah dipakai hari ini.
+- User bisa memilih `Batal Buat` atau `Lanjut Buat`.
+- Halaman `/dev/attendance-audit` menampilkan hasil presensi terkini.
+- Scanner HP diperbaiki untuk membaca QR kecil lebih stabil.
+- Script audit presensi ikut mengecek scan `warning`.
 
-## Presensi Sesi
+## Endpoints
 
-Endpoint presensi sesi sudah tersedia:
+Endpoint presensi yang sudah tersedia:
 
 ```text
 POST /api/presensi/sesi
@@ -40,14 +47,28 @@ GET  /api/presensi/sesi/aktif
 POST /api/presensi/sesi/{id}/pause
 POST /api/presensi/sesi/{id}/resume
 POST /api/presensi/sesi/{id}/finish
+POST /api/presensi/sesi/check-warning
+POST /api/presensi/sesi/{id}/heartbeat
+GET  /api/presensi/audit/latest
+POST /api/presensi/scan
+
+GET  /api/health
+POST /api/auth/login
+POST /api/auth/logout
+GET  /api/me
+GET  /api/presensi/jam-siswa
+PATCH/api/presensi/jam-siswa/{id}
+GET  /api/presensi/edit-reasons
+POST /api/presensi/sesi/check-warning
+POST /api/presensi/sesi/{id}/heartbeat
+GET  /api/presensi/audit/latest
 ```
 
-## Presensi Scan QR
-
-Endpoint scan QR sudah tersedia:
+## Halaman Demo Tambahan
 
 ```text
-POST /api/presensi/scan
+/dev/scan
+/dev/attendance-audit
 ```
 
 Flow utama:
@@ -103,12 +124,6 @@ Aturan utama:
 - rombel tidak boleh punya dua sesi aktif/suspended pada tanggal dan jam yang sama,
 - lab tidak boleh dipakai dua sesi aktif/suspended pada tanggal dan jam yang sama,
 - sesi yang sudah `selesai` tidak memblokir sesi baru.
-
-Testing terakhir:
-
-```text
-OK (16 tests, 56 assertions)
-```
 
 ## Stack
 
@@ -184,8 +199,6 @@ Akun utama:
 | `guru.demo`          | guru        |
 | `staff.demo`         | staff       |
 | `intern.demo`        | intern      |
-| `siswa.demo`         | siswa       |
-| `siswa.warning.demo` | siswa       |
 
 ## Testing
 
@@ -207,17 +220,6 @@ Jalankan feature test saja:
 ./scripts/test-backend-feature.sh
 ```
 
-## Endpoint Penting
-
-```text
-GET  /api/health
-POST /api/auth/login
-POST /api/auth/logout
-GET  /api/me
-GET   /api/presensi/jam-siswa
-PATCH /api/presensi/jam-siswa/{id}
-GET   /api/presensi/edit-reasons
-```
 
 ## Struktur Project
 
@@ -320,13 +322,14 @@ Reset jika import salah:
 ./scripts/db-reset-import-demo.sh
 ```
 
-Catatan:
+## Catatan:
 
 `db-reset-demo.sh` akan menghapus data hasil import dan mengembalikan database ke seed demo.
 
-Status validasi terbaru:
+### Catatan Sesi Presensi
 
-```text
-Import real: 1391 rows, 1391 success, 0 failed
-Backend test: OK (19 tests, 70 assertions)
-```
+- Sesi idle lebih dari 5 menit berubah menjadi `expired`.
+- `ended_reason` akan bernilai `timeout`.
+- Heartbeat memperbarui `last_seen_at` dan `expires_at`.
+- Tombol `Akhiri Sesi` tetap memakai flow finish sesi.
+- Warning jam harian tidak memblokir create sesi, hanya meminta konfirmasi.

@@ -8,7 +8,7 @@ echo "=== Successful Attendance Audit ==="
 echo "Database: ${DB_NAME}"
 echo
 
-echo "1) Check presensi_scan_log berhasil"
+echo "1) Check presensi_scan_log berhasil/warning"
 SCAN_SUCCESS_COUNT="$(
 docker compose exec -T -e MYSQL_PWD="$DB_PASS" db mysql -uroot "$DB_NAME" -N -B <<'SQL'
 SELECT COUNT(*)
@@ -17,7 +17,16 @@ WHERE status_scan = 'berhasil';
 SQL
 )"
 
+SCAN_WARNING_COUNT="$(
+docker compose exec -T -e MYSQL_PWD="$DB_PASS" db mysql -uroot "$DB_NAME" -N -B <<'SQL'
+SELECT COUNT(*)
+FROM presensi_scan_log
+WHERE status_scan = 'warning';
+SQL
+)"
+
 echo "presensi_scan_log berhasil: ${SCAN_SUCCESS_COUNT}"
+echo "presensi_scan_log warning : ${SCAN_WARNING_COUNT}"
 
 echo
 echo "2) Check presensi_jam_siswa with scan_log_id"
@@ -58,7 +67,7 @@ SELECT
   l.actual_rombel_id,
   l.created_at
 FROM presensi_scan_log l
-WHERE l.status_scan = 'berhasil'
+WHERE l.status_scan IN ('berhasil', 'warning')
 ORDER BY l.scan_log_id DESC
 LIMIT 20;
 
@@ -82,14 +91,13 @@ ORDER BY p.presensi_id DESC
 LIMIT 20;
 SQL
 
-if [[ "$SCAN_SUCCESS_COUNT" != "0" || "$ATTENDANCE_SCAN_COUNT" != "0" || "$ATTENDANCE_SUCCESS_COUNT" != "0" ]]; then
-  echo
+if [[ "$SCAN_SUCCESS_COUNT" != "0" || "$SCAN_WARNING_COUNT" != "0" || "$ATTENDANCE_SCAN_COUNT" != "0" || "$ATTENDANCE_SUCCESS_COUNT" != "0" ]]; then  echo
   echo "RESULT: FAILED"
-  echo "Ada presensi hasil scan di database."
+  echo "Ada scan berhasil/warning atau presensi hasil scan di database."
   echo "Jika ini dijalankan setelah fresh import murni, berarti ada scan/test yang sudah berjalan setelah import."
   exit 1
 fi
 
 echo
 echo "RESULT: PASSED"
-echo "Tidak ada presensi berhasil dari scan."
+echo "Tidak ada scan berhasil/warning dan tidak ada presensi hasil scan."

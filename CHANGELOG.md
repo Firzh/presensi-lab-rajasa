@@ -73,6 +73,32 @@ Removed
 - Menghapus script `check_docs_contracts.py`.
 - Menghapus acuan terhadap ESP32, ruangan, plotting rombel, policy engine, group engine, arsip, dan notifikasi kompleks dari scope MVP.
 
+## [0.9.1] - Session Timeout and Dev Audit Polish
+
+### Added
+
+- Menambahkan timeout sesi presensi 5 menit jika tidak ada aktivitas.
+- Menambahkan endpoint `POST /api/presensi/sesi/{id}/heartbeat`.
+- Menambahkan endpoint `POST /api/presensi/sesi/check-warning`.
+- Menambahkan warning saat user membuat sesi pada jam yang sudah pernah dipakai di hari yang sama.
+- Menambahkan tombol `Akhiri Sesi` pada halaman demo scanner `/dev/scan`.
+- Menambahkan endpoint `GET /api/presensi/audit/latest`.
+- Menambahkan halaman demo `/dev/attendance-audit` untuk melihat hasil presensi terkini.
+- Menambahkan test `PresensiSessionTimeoutTest`.
+
+### Changed
+
+- Mengubah alur create sesi di demo scanner agar mengecek warning jam sebelum membuat sesi.
+- Mengubah audit presensi demo agar tampil dalam tabel, bukan JSON mentah.
+- Mengubah scanner HP agar lebih mudah membaca QR kecil melalui peningkatan area scan, crop, dan kamera constraints.
+- Mengubah script `check-successful-attendance.sh` agar ikut mengecek scan `warning`.
+
+### Fixed
+
+- Memperbaiki sesi aktif yang sebelumnya tidak memiliki timeout otomatis.
+- Memperbaiki risiko user membuat sesi baru pada jam yang sudah pernah dipakai tanpa peringatan.
+- Memperbaiki keterbacaan QR pada kamera HP untuk demo scanner.
+
 ## [0.9.0] - Manual Attendance Edit Manual
 
 ### Added

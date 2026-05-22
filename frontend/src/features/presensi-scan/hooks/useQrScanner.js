@@ -1,6 +1,31 @@
 import { useCallback, useRef, useState } from 'preact/hooks';
 import { Html5Qrcode } from 'html5-qrcode';
 
+async function enhanceCameraTrack(elementId) {
+  await new Promise((resolve) => setTimeout(resolve, 250));
+
+  const video = document.querySelector(`#${elementId} video`);
+  const track = video?.srcObject?.getVideoTracks?.()[0];
+
+  if (!track?.getCapabilities || !track?.applyConstraints) return;
+
+  const caps = track.getCapabilities();
+  const advanced = [];
+
+  if (Array.isArray(caps.focusMode) && caps.focusMode.includes('continuous')) {
+    advanced.push({ focusMode: 'continuous' });
+  }
+
+  if (caps.zoom) {
+    const zoom = Math.min(caps.zoom.max, Math.max(caps.zoom.min, 2));
+    advanced.push({ zoom });
+  }
+
+  if (advanced.length > 0) {
+    await track.applyConstraints({ advanced }).catch(() => {});
+  }
+}
+
 export function useQrScanner({ elementId, onScanSuccess }) {
   const scannerRef = useRef(null);
   const lastPayloadRef = useRef('');
@@ -21,11 +46,19 @@ export function useQrScanner({ elementId, onScanSuccess }) {
 
     try {
       await scanner.start(
-        { facingMode: 'environment' },
         {
-          fps: 10,
-          qrbox: { width: 250, height: 250 },
+          facingMode: 'environment',
+        },
+        {
+          fps: 22,
+          qrbox: (viewfinderWidth, viewfinderHeight) => {
+            const size = Math.floor(Math.min(viewfinderWidth, viewfinderHeight) * 0.72);
+            return { width: size, height: size };
+          },
+          aspectRatio: 1.0,
+          disableFlip: true,
           rememberLastUsedCamera: true,
+          experimentalFeatures: { useBarCodeDetectorIfSupported: true },
         },
         async (decodedText) => {
           const now = Date.now();
@@ -43,6 +76,8 @@ export function useQrScanner({ elementId, onScanSuccess }) {
           // Diamkan scan failure agar tidak spam setiap frame.
         },
       );
+
+      await enhanceCameraTrack(elementId);
 
       setIsScanning(true);
     } catch (error) {

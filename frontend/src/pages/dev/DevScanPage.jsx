@@ -1,9 +1,12 @@
-import { useCallback, useMemo, useRef, useState } from 'preact/hooks';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import {
   createPresensiSession,
+  checkPresensiSessionWarning,
   fetchRombelOptions,
   loginDev,
   submitQrScan,
+  finishPresensiSession,
+  heartbeatPresensiSession,
 } from '../../features/presensi-scan/services/presensiScanApi.js';
 import { useQrScanner } from '../../features/presensi-scan/hooks/useQrScanner.js';
 
@@ -149,6 +152,19 @@ export function DevScanPage() {
     return true;
   };
 
+  useEffect(() => {
+    if (!token || !presensiSesiId) return;
+
+    const sendHeartbeat = () => {
+      heartbeatPresensiSession({ token, presensiSesiId }).catch(() => {});
+    };
+
+    sendHeartbeat();
+    const timer = window.setInterval(sendHeartbeat, 60_000);
+
+    return () => window.clearInterval(timer);
+  }, [token, presensiSesiId]);
+
   const handleLoadRombelOptions = async (activeToken = token) => {
     if (!activeToken) {
       setStatusType('error');
@@ -242,6 +258,35 @@ export function DevScanPage() {
       return;
     }
 
+    const warning = await checkPresensiSessionWarning({
+      token,
+      modePresensi,
+      rombelId,
+      jamIds,
+      ruangPilihan,
+    });
+
+    if (!showResponse(warning)) {
+      return;
+    }
+
+    if (warning.data?.data?.has_warning) {
+      const conflicts = warning.data.data.conflicts || [];
+      const detail = conflicts
+        .map((item) => `Jam ${item.jam_id} | ${item.ruang_label_snapshot || '-'} | ${item.status}`)
+        .join('\n');
+
+      const lanjut = window.confirm(
+        `Jam pelajaran ini sudah pernah dipakai hari ini.\n\n${detail}\n\nTetap buat sesi baru?`
+      );
+
+      if (!lanjut) {
+        setStatusType('warning');
+        setStatusMessage('Pembuatan sesi dibatalkan.');
+        return;
+      }
+    }
+
     setStatusType('info');
     setStatusMessage('Membuat sesi presensi...');
 
@@ -268,6 +313,23 @@ export function DevScanPage() {
     setSessionLabel(`${label} | Jam ${jamIds.join(', ')} | Ruang ${ruangPilihan}`);
     setStatusType('success');
     setStatusMessage(`Sesi berhasil dibuat: ${label}. ID sesi: ${sessionId}`);
+  };
+
+  const handleFinishSession = async () => {
+    if (!token || !presensiSesiId) {
+      setStatusType('error');
+      setStatusMessage('Belum ada sesi yang bisa diakhiri.');
+      return;
+    }
+
+    const result = await finishPresensiSession({ token, presensiSesiId });
+
+    if (!showResponse(result)) return;
+
+    setPresensiSesiId('');
+    setSessionLabel('');
+    setStatusType('success');
+    setStatusMessage('Sesi berhasil diakhiri.');
   };
 
   const handleDuplicateUi = ({ siswa, payload }) => {
@@ -434,6 +496,12 @@ export function DevScanPage() {
             Halaman ini untuk demo alur presensi via HP. Dropdown rombel sudah mengambil data dari
             database.
           </p>
+          <a
+            className="mt-4 inline-flex rounded-xl border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-700"
+            href="/dev/attendance-audit"
+          >
+            Lihat Hasil Presensi Terkini
+          </a>
           <div className="mt-4">
             <StatusBox message={secureContextMessage.message} type={secureContextMessage.type} />
           </div>
@@ -602,6 +670,15 @@ export function DevScanPage() {
               Buat Sesi
             </button>
 
+            <button
+              className="mt-3 w-full rounded-xl bg-red-600 px-4 py-2 font-semibold text-white disabled:opacity-50"
+              type="button"
+              disabled={!presensiSesiId}
+              onClick={handleFinishSession}
+            >
+              Akhiri Sesi
+            </button>
+
             <Field label="Presensi Sesi ID">
               <input
                 className="mt-2 w-full rounded-xl border border-slate-300 px-3 py-2"
@@ -624,7 +701,7 @@ export function DevScanPage() {
 
           <div
             id="qr-reader"
-            className="mt-4 min-h-72 overflow-hidden rounded-2xl border border-slate-300 bg-slate-950"
+            className="qr-reader-enhanced mt-4 min-h-[460px] overflow-hidden rounded-2xl border border-slate-300 bg-slate-950"
           />
 
           {scannerError && (

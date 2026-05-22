@@ -34,3 +34,17 @@ select,
 textarea {
   font: inherit;
 }
+
+.qr-reader-enhanced video {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+}
+
+.qr-reader-enhanced canvas {
+  image-rendering: auto;
+}
+
+.qr-reader-enhanced #qr-reader__scan_region {
+  min-height: 460px;
+}

@@ -1,5 +1,6 @@
 import './app.css';
 import { DevScanPage } from './pages/dev/DevScanPage.jsx';
+import { DevAttendanceAuditPage } from './pages/dev/DevAttendanceAuditPage.jsx';
 
 function HomePage() {
   return (
@@ -32,6 +33,10 @@ export function App() {
 
   if (path === '/dev/scan') {
     return <DevScanPage />;
+  }
+
+  if (window.location.pathname === '/dev/attendance-audit') {
+    return <DevAttendanceAuditPage />;
   }
 
   return <HomePage />;

@@ -77,3 +77,15 @@ export async function submitQrScan({ token, presensiSesiId, payloadRaw }) {
 
   return parseJsonResponse(response);
 }
+
+export async function fetchPresensiAudit({ token }) {
+  const response = await fetch('/api/presensi/audit/latest', {
+    method: 'GET',
+    headers: {
+      ...JSON_HEADERS,
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  return parseJsonResponse(response);
+}

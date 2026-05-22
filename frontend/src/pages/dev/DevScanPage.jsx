@@ -1,9 +1,12 @@
-import { useCallback, useMemo, useRef, useState } from 'preact/hooks';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import {
   createPresensiSession,
+  checkPresensiSessionWarning,
   fetchRombelOptions,
   loginDev,
   submitQrScan,
+  finishPresensiSession,
+  heartbeatPresensiSession,
 } from '../../features/presensi-scan/services/presensiScanApi.js';
 import { useQrScanner } from '../../features/presensi-scan/hooks/useQrScanner.js';
 
@@ -149,6 +152,19 @@ export function DevScanPage() {
     return true;
   };
 
+  useEffect(() => {
+    if (!token || !presensiSesiId) return;
+
+    const sendHeartbeat = () => {
+      heartbeatPresensiSession({ token, presensiSesiId }).catch(() => {});
+    };
+
+    sendHeartbeat();
+    const timer = window.setInterval(sendHeartbeat, 60_000);
+
+    return () => window.clearInterval(timer);
+  }, [token, presensiSesiId]);
+
   const handleLoadRombelOptions = async (activeToken = token) => {
     if (!activeToken) {
       setStatusType('error');
@@ -242,6 +258,35 @@ export function DevScanPage() {
       return;
     }
 
+    const warning = await checkPresensiSessionWarning({
+      token,
+      modePresensi,
+      rombelId,
+      jamIds,
+      ruangPilihan,
+    });
+
+    if (!showResponse(warning)) {
+      return;
+    }
+
+    if (warning.data?.data?.has_warning) {
+      const conflicts = warning.data.data.conflicts || [];
+      const detail = conflicts
+        .map((item) => `Jam ${item.jam_id} | ${item.ruang_label_snapshot || '-'} | ${item.status}`)
+        .join('\n');
+
+      const lanjut = window.confirm(
+        `Jam pelajaran ini sudah pernah dipakai hari ini.\n\n${detail}\n\nTetap buat sesi baru?`
+      );
+
+      if (!lanjut) {
+        setStatusType('warning');
+        setStatusMessage('Pembuatan sesi dibatalkan.');
+        return;
+      }
+    }
+
     setStatusType('info');
     setStatusMessage('Membuat sesi presensi...');
 
@@ -268,6 +313,23 @@ export function DevScanPage() {
     setSessionLabel(`${label} | Jam ${jamIds.join(', ')} | Ruang ${ruangPilihan}`);
     setStatusType('success');
     setStatusMessage(`Sesi berhasil dibuat: ${label}. ID sesi: ${sessionId}`);
+  };
+
+  const handleFinishSession = async () => {
+    if (!token || !presensiSesiId) {
+      setStatusType('error');
+      setStatusMessage('Belum ada sesi yang bisa diakhiri.');
+      return;
+    }
+
+    const result = await finishPresensiSession({ token, presensiSesiId });
+
+    if (!showResponse(result)) return;
+
+    setPresensiSesiId('');
+    setSessionLabel('');
+    setStatusType('success');
+    setStatusMessage('Sesi berhasil diakhiri.');
   };
 
   const handleDuplicateUi = ({ siswa, payload }) => {
@@ -606,6 +668,15 @@ export function DevScanPage() {
               onClick={handleCreateSession}
             >
               Buat Sesi
+            </button>
+
+            <button
+              className="mt-3 w-full rounded-xl bg-red-600 px-4 py-2 font-semibold text-white disabled:opacity-50"
+              type="button"
+              disabled={!presensiSesiId}
+              onClick={handleFinishSession}
+            >
+              Akhiri Sesi
             </button>
 
             <Field label="Presensi Sesi ID">

@@ -9,7 +9,7 @@ RUN apt-get update && apt-get install -y \
     libpng-dev libjpeg-dev libfreetype6-dev libzip-dev zip git unzip \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install gd pdo pdo_mysql zip \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/*s
 
 # Buat user sistem untuk menjalankan Composer dan PHP Command
 # Ini mencegah file dimiliki oleh 'root' di Linux/WSL

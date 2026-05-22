@@ -6,9 +6,10 @@ ARG GROUP_ID
 
 # Install dependensi sistem dan ekstensi PHP yang diperlukan
 RUN apt-get update && apt-get install -y \
-    libpng-dev libjpeg-dev libfreetype6-dev zip git unzip \
+    libpng-dev libjpeg-dev libfreetype6-dev libzip-dev zip git unzip \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install gd pdo pdo_mysql
+    && docker-php-ext-install gd pdo pdo_mysql zip \
+    && rm -rf /var/lib/apt/lists/*
 
 # Buat user sistem untuk menjalankan Composer dan PHP Command
 # Ini mencegah file dimiliki oleh 'root' di Linux/WSL

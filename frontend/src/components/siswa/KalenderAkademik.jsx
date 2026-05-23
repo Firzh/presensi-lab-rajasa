@@ -205,8 +205,9 @@ export default function KalenderAkademik() {
     setError(null)
     try {
       const res = await siswaApi.getKalenderAkademik()
-      setPdfUrl(res.pdf_url  ?? null)
-      setPdfName(res.pdf_name ?? null)
+      // Backend shape: { success, message, data: { pdf_url, pdf_name } }
+      setPdfUrl(res.data?.pdf_url   ?? null)
+      setPdfName(res.data?.pdf_name ?? null)
     } catch (err) {
       console.error('[KalenderAkademik] Fetch error:', err)
       setError(err.message || 'Gagal memuat kalender akademik.')

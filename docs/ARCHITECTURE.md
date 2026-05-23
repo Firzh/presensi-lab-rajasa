@@ -1,214 +1,275 @@
 # Architecture
 
-Dokumen ini menjelaskan arsitektur MVP Presensi Siswa Rajasa.
+Branch acuan: `alfy/backend-presensi-scan`
+
+Dokumen ini merangkum arsitektur MVP Presensi Siswa Rajasa secara singkat.
 
 ## Tujuan Sistem
 
-Sistem dibuat untuk mencatat presensi siswa berbasis QR.
+Sistem mencatat presensi siswa berbasis QR.
 
 Mode utama:
 
-1. Presensi rombel.
-2. Presensi piket untuk siswa terlambat.
+| Mode | Fungsi |
+|---|---|
+| `rombel` | Presensi siswa sesuai rombel |
+| `piket` | Presensi siswa terlambat lintas rombel |
 
-## Diagram Ringkas
+## Stack
+
+| Layer | Teknologi |
+|---|---|
+| Frontend | Preact + Vite |
+| Styling | Tailwind CSS via Vite |
+| Backend | PHP 8.2 FPM |
+| Routing | FastRoute |
+| DI | PHP-DI |
+| Database layer | Illuminate Database |
+| Database | MySQL 8 |
+| Web server | Nginx |
+| Test | PHPUnit 11 |
+| Dev env | Docker Compose |
+
+Catatan:
+
+- Backend bukan Laravel.
+- Tailwind CDN tidak dipakai.
+- `allowedHosts: true` dipakai untuk demo Cloudflare Quick Tunnel.
+
+## Alur Request
 
 ```text
-Browser
-  ↓
-Nginx
-  ↓
-Frontend Vite
-  ↓
-Backend PHP API
-  ↓
-MySQL
+Browser / HP
+  -> Vite dev server
+  -> proxy /api
+  -> Nginx
+  -> PHP-FPM backend
+  -> MySQL
 ```
 
-## Backend
+Demo HP:
 
-Backend memakai PHP 8.2 FPM dan Composer.
+```text
+HP HTTPS
+  -> Cloudflare Quick Tunnel
+  -> Vite /dev/scan
+  -> proxy /api
+  -> Backend API
+```
 
-Struktur utama:
+## Struktur Ringkas
 
 ```text
 backend/
-  boilerplate/
-    app.php
-    config.php
-    container.php
-    database.php
-    routes.php
-
-  public/
-    index.php
-
-  routes/
-    api.php
-
-  src/
-    Core/
-    Http/
-    Models/
-    Services/
-    Repositories/
-    Support/
-
-  database/
-    schema/
-    seeds/
-
+  routes/api.php
+  src/Core/
+  src/Http/Controllers/
+  src/Http/Middleware/
+  src/Services/
+  database/schema/
+  database/seeds/
   tests/
-    Unit/
-    Feature/
-    Support/
+
+frontend/
+  src/features/presensi-scan/
+  src/pages/dev/
+  src/app.jsx
+
+docs/
+scripts/
 ```
 
-## Komponen Backend
+## Modul Backend Aktif
 
-| Komponen | Fungsi |
+| Modul | Komponen utama | Fungsi |
+|---|---|---|
+| Auth | `AuthService`, `TokenService` | Login dan token |
+| Permission | `PermissionService`, `PermissionMiddleware` | Guard akses |
+| Import | `ScanReadinessImportService` | Import siswa, rombel, QR |
+| Rombel | `RombelController` | Dropdown rombel aktif |
+| Sesi | `PresensiSessionService` | Buat, pause, resume, finish sesi |
+| Timeout sesi | `PresensiSessionTimeoutService` | Expire sesi idle 5 menit |
+| Warning sesi | `PresensiSesiWarningCheckController` | Cek jam pernah dipakai hari ini |
+| Scan QR | `PresensiScanService`, `QrPayloadService` | Parse dan proses QR |
+| Manual edit | `PresensiManualEditService` | Edit presensi dan audit |
+| Audit demo | `PresensiAuditController` | Baca hasil scan terkini |
+
+## Modul Frontend Dev
+
+| Halaman | Fungsi |
 |---|---|
-| `public/index.php` | Front controller |
-| `boilerplate/app.php` | Entry aplikasi backend |
-| `boilerplate/config.php` | Konfigurasi app, database, auth, CORS, presensi |
-| `boilerplate/container.php` | Dependency injection |
-| `boilerplate/database.php` | Boot Illuminate Database |
-| `boilerplate/routes.php` | Load FastRoute dispatcher |
-| `routes/api.php` | Daftar route API |
-| `src/Core/Request.php` | Baca method, URI, query, body, header |
-| `src/Core/Response.php` | Response JSON standar |
-| `src/Core/ExceptionHandler.php` | Error response standar |
-| `src/Core/RouteDispatcher.php` | Dispatch route ke handler |
-| `src/Http/Middleware/CorsMiddleware.php` | CORS development |
-| `src/Services/AuthService.php` | Login dan user aktif |
-| `src/Services/TokenService.php` | Token stateless |
-| `src/Services/PermissionService.php` | Role dan permission user |
+| `/dev/scan` | Demo login, sesi, scan QR, akhiri sesi |
+| `/dev/attendance-audit` | Demo hasil presensi terkini |
 
-## Auth
-
-Auth memakai signed bearer token stateless.
-
-Token berisi:
+Komponen frontend penting:
 
 ```text
-user_id
-iat
-exp
+useQrScanner.js
+presensiScanApi.js
+DevScanPage.jsx
+DevAttendanceAuditPage.jsx
 ```
 
-Signature memakai `SESSION_SECRET`.
-
-Tidak ada tabel token di MVP.
-
-Konsekuensi:
-
-- logout dilakukan di sisi client dengan menghapus token,
-- revoke token server side belum tersedia,
-- cukup untuk development dan MVP.
-
-## Permission
-
-Permission dibaca dari:
+## Alur Import
 
 ```text
-user_roles
-role_permissions
-permissions
-user_permissions
+CSV data siswa
+  -> POST /api/import/scan-readiness
+  -> ScanReadinessImportService
+  -> jurusan, rombel, siswa, siswa_qr
+  -> import_jobs, import_row_logs
 ```
 
-Urutan logika:
+Import saat ini:
 
-1. Ambil role aktif user.
-2. Ambil permission dari role aktif.
-3. Ambil custom permission user.
-4. Gabungkan permission.
-5. Hilangkan duplikasi.
+- membaca `NISN`, `NAMA`, `KELAS`,
+- membentuk rombel dinamis,
+- menjaga NISN sebagai string,
+- mencegah rombel bernomor collapse.
 
-Kolom permission utama:
+## Alur Sesi Presensi
 
 ```text
-permissions.perm_slug
+User login
+  -> POST /api/presensi/sesi/check-warning
+  -> popup jika jam pernah dipakai
+  -> POST /api/presensi/sesi
+  -> presensi_sesi
+  -> presensi_sesi_jam
+  -> presensi_jam_siswa awal alpha
 ```
 
-## Frontend
+Aturan utama:
 
-Frontend memakai Vite.
+- mode `rombel` wajib `rombel_id`,
+- mode `piket` tidak memakai `rombel_id`,
+- jam maksimal 3 dan harus berurutan,
+- sesi aktif idle 5 menit menjadi `expired`,
+- heartbeat menjaga sesi tetap aktif.
 
-Frontend akan memakai endpoint:
+## Alur Scan QR
 
 ```text
-/api/auth/login
-/api/me
-/api/presensi/...
+Kamera membaca QR
+  -> QrPayloadService parse nama dan NISN
+  -> lookup siswa_qr
+  -> validasi sesi aktif
+  -> validasi rombel jika mode rombel
+  -> tulis presensi_scan_log
+  -> update presensi_jam_siswa jika valid
 ```
 
-## Nginx
+Status scan:
 
-Nginx membagi request:
-
-| Path | Tujuan |
+| Status | Arti |
 |---|---|
-| `/api/*` | Backend PHP-FPM |
-| selain `/api/*` | Frontend Vite |
+| `berhasil` | Presensi masuk |
+| `warning` | QR valid, beda rombel |
+| `invalid` | QR tidak dikenal |
+| `ditolak` | Duplicate atau tidak boleh diproses |
 
-## Database
+Warning tidak di-resolve. Warning tetap menjadi log kejadian.
 
-Database memakai MySQL 8.0.
+## Alur Manual Edit
 
-Kelompok utama:
+```text
+GET /api/presensi/jam-siswa
+  -> pilih presensi
+  -> PATCH /api/presensi/jam-siswa/{id}
+  -> update presensi_jam_siswa
+  -> insert presensi_edit_log
+```
 
-- IAM sederhana,
-- master akademik,
-- QR siswa,
-- presensi,
-- import,
-- notifikasi dan error log.
+Edit manual wajib punya alasan. Alasan tersedia dari:
 
-## Trigger
+```text
+GET /api/presensi/edit-reasons
+```
 
-Trigger dipakai untuk mengganti beberapa `CHECK constraint` yang bentrok dengan foreign key MySQL.
+## Alur Audit Demo
 
-Contoh aturan:
+```text
+/dev/attendance-audit
+  -> GET /api/presensi/audit/latest
+  -> presensi_scan_log
+  -> presensi_jam_siswa
+  -> tampil tabel scan dan presensi
+```
 
-- user siswa wajib punya `siswa_id`,
-- user guru/staff/admin wajib punya `guru_id`,
-- mode presensi rombel wajib punya `rombel_id`,
-- mode presensi piket tidak boleh punya `rombel_id`.
+Endpoint ini read-only.
 
-Trigger hanya dipakai untuk guard rail database, bukan untuk semua logic bisnis.
+## Database Inti
+
+| Kelompok | Tabel |
+|---|---|
+| IAM | `users`, `roles`, `permissions`, `user_roles`, `role_permissions` |
+| Akademik | `tahun_ajaran`, `jurusan`, `rombel`, `jam_pembelajaran` |
+| Siswa | `siswa`, `penempatan_siswa_rombel`, `siswa_qr` |
+| Import | `import_jobs`, `import_row_logs` |
+| Presensi | `presensi_sesi`, `presensi_sesi_jam`, `presensi_jam_siswa`, `presensi_scan_log`, `presensi_edit_log` |
+
+## Implementasi Terbaru dari Sisi Arsitektur
+
+Tidak ada perubahan schema database pada penambahan terbaru.
+
+Perubahan arsitektur terbaru:
+
+| Area | Perubahan |
+|---|---|
+| Backend sesi | Tambah timeout service dan heartbeat controller |
+| Backend sesi | Tambah warning check sebelum create sesi |
+| Backend audit | Tambah endpoint audit presensi terkini |
+| Frontend scan | Tambah tombol akhiri sesi |
+| Frontend audit | Tambah halaman tabel audit presensi |
+| Frontend scanner | Improve kamera HP dengan crop, qrbox, dan track constraints |
+| Script audit | `check-successful-attendance.sh` ikut mengecek warning |
+
+## Auth dan Permission
+
+Auth memakai bearer token stateless.
+
+Permission penting:
+
+```text
+attendance.session.create
+attendance.session.read
+attendance.session.update
+attendance.scan
+attendance.manual.read
+attendance.manual.update
+attendance.edit_reasons.read
+attendance.log.read
+import.submit
+import.read
+```
 
 ## Testing
 
-Testing memakai PHPUnit 11.
+Backend memakai PHPUnit.
 
-Jenis test:
+Script utama:
 
-- Unit test untuk service kecil,
-- Feature test untuk endpoint API.
+```bash
+./scripts/test-backend.sh
+./scripts/test-backend-unit.sh
+./scripts/test-backend-feature.sh
+```
 
-Current baseline mencakup:
+Script audit:
 
-- health endpoint,
-- 404,
-- 405,
-- login,
-- `/api/me`,
-- token service,
-- permission read.
+```bash
+./scripts/check-import-table-fill.sh
+./scripts/check-successful-attendance.sh
+```
 
-## Non Scope MVP
+## Non Scope Saat Ini
 
-Tidak masuk MVP:
-
-- ESP32,
-- ruangan,
-- plotting rombel,
-- presensi berbasis ruang,
-- Laravel penuh,
-- Redis,
-- queue worker,
-- policy engine,
-- group engine,
-- multi sekolah,
-- integrasi orang tua.
+- Laravel penuh.
+- Redis.
+- Queue worker.
+- Multi sekolah.
+- Integrasi orang tua.
+- Tabel ruang final.
+- Frontend production final.
+- Resolve warning beda rombel.
+- Laporan produksi final.

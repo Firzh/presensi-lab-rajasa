@@ -166,6 +166,7 @@ export default function PresensiCounter() {
     setError(null)
     try {
       const res = await siswaApi.getDashboardStats()
+      // Backend shape: { success, message, data: { tepat_waktu, ... } }
       setStats(res.data ?? null)
     } catch (err) {
       console.error('[PresensiCounter] Fetch error:', err)

@@ -22,47 +22,6 @@ import KalenderAkademik from '../../components/siswa/KalenderAkademik'
 import TablePresensi from '../../components/siswa/TablePresensi'
 
 /**
- * Placeholder content shown while individual page features are built.
- * Will be replaced by real components in subsequent commits.
- *
- * @param {{ label: string }} props
- */
-function PagePlaceholder({ label }) {
-  return (
-    <div style={{
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      minHeight: '60vh',
-      gap: '1rem',
-      color: '#64748b',
-      fontFamily: 'Poppins, sans-serif',
-    }}>
-      <div style={{
-        width: 64,
-        height: 64,
-        borderRadius: '50%',
-        background: '#e0f2fe',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-      }}>
-        <svg viewBox="0 0 24 24" width="32" height="32" fill="#0284c7" aria-hidden="true">
-          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" />
-        </svg>
-      </div>
-      <p style={{ margin: 0, fontWeight: 600, fontSize: '1rem', color: '#1e293b' }}>
-        {label}
-      </p>
-      <p style={{ margin: 0, fontSize: '0.85rem' }}>
-        Konten halaman ini sedang dalam pengembangan.
-      </p>
-    </div>
-  )
-}
-
-/**
  * Resolve the content component based on the current active tab and page.
  *
  * @param {string} activeTab   - Level 2 active tab id
@@ -86,13 +45,20 @@ function resolveContent(activeTab, activePage) {
     return <TablePresensi />
   }
 
-  return <PagePlaceholder label="Halaman tidak ditemukan." />
+  return null
 }
 
 /**
  * DashboardSiswa
  *
- * Accepts `user` and `onLogout` props passed down from app.jsx.
+ * Main entry page for the student (siswa) role.
+ * Wires together SiswaLayout (Level 2 header + Level 3 sidebar) with the
+ * appropriate content component for each active tab / sidebar page.
+ *
+ * Content routing:
+ *   Tab "dashboard"        + page "presensi" → PresensiCounter
+ *   Tab "dashboard"        + page "kalender" → KalenderAkademik
+ *   Tab "halaman-presensi" + any page        → TablePresensi
  *
  * @param {{ user: Object, onLogout: Function }} props
  */

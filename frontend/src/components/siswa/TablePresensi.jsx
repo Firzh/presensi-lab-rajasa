@@ -325,6 +325,7 @@ export default function TablePresensi() {
       }
 
       const res = await siswaApi.getPresensi(params)
+      // Backend shape: { success, message, data: [...rows], meta: {...} }
       setRows(res.data ?? [])
       setMeta(res.meta ?? { total: 0, page: targetPage, per_page: PER_PAGE, total_pages: 1 })
       setPage(targetPage)
@@ -401,8 +402,8 @@ export default function TablePresensi() {
                 <th scope="col">Tanggal</th>
                 <th scope="col">Ruangan</th>
                 <th scope="col">Kelas</th>
-                <th scope="col">Jam Masuk</th>
-                <th scope="col">Jam Keluar</th>
+                <th scope="col">Jam Sesi</th>
+                <th scope="col">Selesai</th>
                 <th scope="col">Status</th>
                 <th scope="col">Keterangan</th>
               </tr>
@@ -452,10 +453,10 @@ export default function TablePresensi() {
                 <tr key={row.presensi_id}>
                   <td className="col-no">{startIndex + idx + 1}</td>
                   <td>{formatDate(row.tanggal)}</td>
-                  <td>{row.ruangan  || '—'}</td>
-                  <td>{row.kelas    || '—'}</td>
-                  <td>{formatTime(row.waktu_masuk)}</td>
-                  <td>{formatTime(row.waktu_keluar)}</td>
+                  <td>{row.ruangan   || '—'}</td>
+                  <td>{row.kelas     || '—'}</td>
+                  <td>{row.label_jam ? `${row.label_jam} (${formatTime(row.waktu_mulai)})` : formatTime(row.waktu_mulai)}</td>
+                  <td>{formatTime(row.waktu_selesai)}</td>
                   <td><StatusBadge status={row.status} /></td>
                   <td style={{ maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {row.keterangan || '—'}

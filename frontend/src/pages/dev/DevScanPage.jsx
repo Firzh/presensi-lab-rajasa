@@ -707,7 +707,7 @@ export function DevScanPage() {
 
           <div
             id="qr-reader"
-            className="qr-reader-enhanced mt-4 min-h-[460px] overflow-hidden rounded-2xl border border-slate-300 bg-slate-950"
+            className="qr-reader-enhanced mt-4 min-h-115 overflow-hidden rounded-2xl border border-slate-300 bg-slate-950"
           />
 
           {scannerError && (

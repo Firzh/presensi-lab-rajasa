@@ -99,6 +99,26 @@ Removed
 - Memperbaiki risiko user membuat sesi baru pada jam yang sudah pernah dipakai tanpa peringatan.
 - Memperbaiki keterbacaan QR pada kamera HP untuk demo scanner.
 
+## [0.10.1] - Advanced Import Flow
+
+### Added
+
+- Menambahkan endpoint one-gate `POST /api/import` untuk import CSV/XLSX.
+- Menambahkan auto-detect tipe import berdasarkan header file.
+- Menambahkan reader file `.csv` dan `.xlsx`.
+- Menambahkan column mapper untuk normalisasi kolom siswa.
+- Menambahkan halaman dev import pada frontend.
+- Menambahkan test `AdvancedImportTest`, `ImportAutoDetectServiceTest`, dan `ImportColumnMapperTest`.
+
+### Changed
+
+- Mengubah alur import dev agar bisa memakai satu endpoint untuk file siswa.
+- Mempertahankan `POST /api/import/scan-readiness` sebagai endpoint kompatibilitas import siswa QR.
+
+### Fixed
+
+- Menambahkan dependency lock untuk PhpSpreadsheet agar reader `.xlsx` dapat dikenali Composer.
+
 ## [0.9.0] - Manual Attendance Edit Manual
 
 ### Added

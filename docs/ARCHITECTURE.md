@@ -1,6 +1,6 @@
 # Architecture
 
-Branch acuan: `alfy/backend-presensi-scan`
+Branch acuan: `alfy/backend-import-advanced`
 
 Dokumen ini merangkum arsitektur MVP Presensi Siswa Rajasa secara singkat.
 
@@ -10,25 +10,25 @@ Sistem mencatat presensi siswa berbasis QR.
 
 Mode utama:
 
-| Mode | Fungsi |
-|---|---|
-| `rombel` | Presensi siswa sesuai rombel |
-| `piket` | Presensi siswa terlambat lintas rombel |
+| Mode     | Fungsi                                 |
+| -------- | -------------------------------------- |
+| `rombel` | Presensi siswa sesuai rombel           |
+| `piket`  | Presensi siswa terlambat lintas rombel |
 
 ## Stack
 
-| Layer | Teknologi |
-|---|---|
-| Frontend | Preact + Vite |
-| Styling | Tailwind CSS via Vite |
-| Backend | PHP 8.2 FPM |
-| Routing | FastRoute |
-| DI | PHP-DI |
-| Database layer | Illuminate Database |
-| Database | MySQL 8 |
-| Web server | Nginx |
-| Test | PHPUnit 11 |
-| Dev env | Docker Compose |
+| Layer          | Teknologi             |
+| -------------- | --------------------- |
+| Frontend       | Preact + Vite         |
+| Styling        | Tailwind CSS via Vite |
+| Backend        | PHP 8.2 FPM           |
+| Routing        | FastRoute             |
+| DI             | PHP-DI                |
+| Database layer | Illuminate Database   |
+| Database       | MySQL 8               |
+| Web server     | Nginx                 |
+| Test           | PHPUnit 11            |
+| Dev env        | Docker Compose        |
 
 Catatan:
 
@@ -81,25 +81,25 @@ scripts/
 
 ## Modul Backend Aktif
 
-| Modul | Komponen utama | Fungsi |
-|---|---|---|
-| Auth | `AuthService`, `TokenService` | Login dan token |
-| Permission | `PermissionService`, `PermissionMiddleware` | Guard akses |
-| Import | `ScanReadinessImportService` | Import siswa, rombel, QR |
-| Rombel | `RombelController` | Dropdown rombel aktif |
-| Sesi | `PresensiSessionService` | Buat, pause, resume, finish sesi |
-| Timeout sesi | `PresensiSessionTimeoutService` | Expire sesi idle 5 menit |
-| Warning sesi | `PresensiSesiWarningCheckController` | Cek jam pernah dipakai hari ini |
-| Scan QR | `PresensiScanService`, `QrPayloadService` | Parse dan proses QR |
-| Manual edit | `PresensiManualEditService` | Edit presensi dan audit |
-| Audit demo | `PresensiAuditController` | Baca hasil scan terkini |
+| Modul        | Komponen utama                                                                                                       | Fungsi                                                                      |
+| ------------ | -------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
+| Auth         | `AuthService`, `TokenService`                                                                                        | Login dan token                                                             |
+| Permission   | `PermissionService`, `PermissionMiddleware`                                                                          | Guard akses                                                                 |
+| Import       | `ImportController, ImportFileReaderService, ImportAutoDetectService, ImportColumnMapper, ScanReadinessImportService` | Import one-gate CSV/XLSX, auto-detect header, lalu proses siswa, rombel, QR |
+| Rombel       | `RombelController`                                                                                                   | Dropdown rombel aktif                                                       |
+| Sesi         | `PresensiSessionService`                                                                                             | Buat, pause, resume, finish sesi                                            |
+| Timeout sesi | `PresensiSessionTimeoutService`                                                                                      | Expire sesi idle 5 menit                                                    |
+| Warning sesi | `PresensiSesiWarningCheckController`                                                                                 | Cek jam pernah dipakai hari ini                                             |
+| Scan QR      | `PresensiScanService`, `QrPayloadService`                                                                            | Parse dan proses QR                                                         |
+| Manual edit  | `PresensiManualEditService`                                                                                          | Edit presensi dan audit                                                     |
+| Audit demo   | `PresensiAuditController`                                                                                            | Baca hasil scan terkini                                                     |
 
 ## Modul Frontend Dev
 
-| Halaman | Fungsi |
-|---|---|
-| `/dev/scan` | Demo login, sesi, scan QR, akhiri sesi |
-| `/dev/attendance-audit` | Demo hasil presensi terkini |
+| Halaman                 | Fungsi                                 |
+| ----------------------- | -------------------------------------- |
+| `/dev/scan`             | Demo login, sesi, scan QR, akhiri sesi |
+| `/dev/attendance-audit` | Demo hasil presensi terkini            |
 
 Komponen frontend penting:
 
@@ -120,12 +120,23 @@ CSV data siswa
   -> import_jobs, import_row_logs
 ```
 
+```text
+CSV/XLSX one-gate
+  -> POST /api/import
+  -> ImportFileReaderService
+  -> ImportAutoDetectService
+  -> ImportColumnMapper
+  -> ScanReadinessImportService
+```
+
 Import saat ini:
 
 - membaca `NISN`, `NAMA`, `KELAS`,
 - membentuk rombel dinamis,
 - menjaga NISN sebagai string,
 - mencegah rombel bernomor collapse.
+- import advanced membaca `.csv` dan `.xlsx`,
+- Tahap 10.1 hanya mengaktifkan tipe `siswa`; tipe `guru` dan `wali_kelas` masih `disabled`.
 
 ## Alur Sesi Presensi
 
@@ -161,12 +172,12 @@ Kamera membaca QR
 
 Status scan:
 
-| Status | Arti |
-|---|---|
-| `berhasil` | Presensi masuk |
-| `warning` | QR valid, beda rombel |
-| `invalid` | QR tidak dikenal |
-| `ditolak` | Duplicate atau tidak boleh diproses |
+| Status     | Arti                                |
+| ---------- | ----------------------------------- |
+| `berhasil` | Presensi masuk                      |
+| `warning`  | QR valid, beda rombel               |
+| `invalid`  | QR tidak dikenal                    |
+| `ditolak`  | Duplicate atau tidak boleh diproses |
 
 Warning tidak di-resolve. Warning tetap menjadi log kejadian.
 
@@ -200,12 +211,12 @@ Endpoint ini read-only.
 
 ## Database Inti
 
-| Kelompok | Tabel |
-|---|---|
-| IAM | `users`, `roles`, `permissions`, `user_roles`, `role_permissions` |
-| Akademik | `tahun_ajaran`, `jurusan`, `rombel`, `jam_pembelajaran` |
-| Siswa | `siswa`, `penempatan_siswa_rombel`, `siswa_qr` |
-| Import | `import_jobs`, `import_row_logs` |
+| Kelompok | Tabel                                                                                                |
+| -------- | ---------------------------------------------------------------------------------------------------- |
+| IAM      | `users`, `roles`, `permissions`, `user_roles`, `role_permissions`                                    |
+| Akademik | `tahun_ajaran`, `jurusan`, `rombel`, `jam_pembelajaran`                                              |
+| Siswa    | `siswa`, `penempatan_siswa_rombel`, `siswa_qr`                                                       |
+| Import   | `import_jobs`, `import_row_logs`                                                                     |
 | Presensi | `presensi_sesi`, `presensi_sesi_jam`, `presensi_jam_siswa`, `presensi_scan_log`, `presensi_edit_log` |
 
 ## Implementasi Terbaru dari Sisi Arsitektur
@@ -214,15 +225,15 @@ Tidak ada perubahan schema database pada penambahan terbaru.
 
 Perubahan arsitektur terbaru:
 
-| Area | Perubahan |
-|---|---|
-| Backend sesi | Tambah timeout service dan heartbeat controller |
-| Backend sesi | Tambah warning check sebelum create sesi |
-| Backend audit | Tambah endpoint audit presensi terkini |
-| Frontend scan | Tambah tombol akhiri sesi |
-| Frontend audit | Tambah halaman tabel audit presensi |
+| Area             | Perubahan                                                   |
+| ---------------- | ----------------------------------------------------------- |
+| Backend sesi     | Tambah timeout service dan heartbeat controller             |
+| Backend sesi     | Tambah warning check sebelum create sesi                    |
+| Backend audit    | Tambah endpoint audit presensi terkini                      |
+| Frontend scan    | Tambah tombol akhiri sesi                                   |
+| Frontend audit   | Tambah halaman tabel audit presensi                         |
 | Frontend scanner | Improve kamera HP dengan crop, qrbox, dan track constraints |
-| Script audit | `check-successful-attendance.sh` ikut mengecek warning |
+| Script audit     | `check-successful-attendance.sh` ikut mengecek warning      |
 
 ## Auth dan Permission
 

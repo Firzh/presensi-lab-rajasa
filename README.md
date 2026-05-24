@@ -15,6 +15,7 @@ Status saat ini:
 - Auth dan permission baseline sudah berjalan.
 - Endpoint presensi sesi sudah implemented.
 - Endpoint scan readiness import sudah implemented.
+- Endpoint advanced import one-gate CSV/XLSX sudah implemented.
 - Endpoint presensi scan QR sudah implemented.
 - Endpoint dynamic rombel options sudah implemented.
 - Halaman demo scanner `/dev/scan` sudah tersedia untuk demo HP.
@@ -51,6 +52,7 @@ POST /api/presensi/sesi/check-warning
 POST /api/presensi/sesi/{id}/heartbeat
 GET  /api/presensi/audit/latest
 POST /api/presensi/scan
+POST /api/import
 
 GET  /api/health
 POST /api/auth/login
@@ -192,13 +194,13 @@ Rajasa@123
 
 Akun utama:
 
-| Username             | Tipe        |
-| -------------------- | ----------- |
-| `superadmin.demo`    | super_admin |
-| `admin.demo`         | admin       |
-| `guru.demo`          | guru        |
-| `staff.demo`         | staff       |
-| `intern.demo`        | intern      |
+| Username          | Tipe        |
+| ----------------- | ----------- |
+| `superadmin.demo` | super_admin |
+| `admin.demo`      | admin       |
+| `guru.demo`       | guru        |
+| `staff.demo`      | staff       |
+| `intern.demo`     | intern      |
 
 ## Testing
 
@@ -219,7 +221,6 @@ Jalankan feature test saja:
 ```bash
 ./scripts/test-backend-feature.sh
 ```
-
 
 ## Struktur Project
 
@@ -314,6 +315,12 @@ Jalankan import:
 
 ```bash
 ./scripts/import-scan-readiness.sh backend/database/data/NAMA-FILE-DATA.csv
+```
+
+Advanced import one-gate:
+
+```text
+POST /api/import
 ```
 
 Reset jika import salah:

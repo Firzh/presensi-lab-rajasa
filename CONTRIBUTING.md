@@ -7,15 +7,15 @@ Dokumen ini menjelaskan aturan kontribusi untuk project Presensi Siswa Rajasa.
 Semua branch development memakai prefix:
 
 ```text
-alfy/
+nama/feature
 ```
 
 Contoh:
 
 ```text
-alfy/backend-presensi-session
+bintang/backend-presensi-session
 alfy/backend-presensi-scan
-alfy/frontend-login
+fashich/dashboard-data-siswa
 ```
 
 ## Branch Utama
@@ -93,7 +93,7 @@ Jika endpoint berubah, update `docs/API.md`.
 
 Jika schema berubah, update `docs/DATABASE.md`.
 
-Jika struktur backend berubah, update `docs/ARCHITECTURE.md`.
+Jika struktur berubah, update `docs/ARCHITECTURE.md`.
 
 Jika test berubah, update `docs/TESTING.md`.
 

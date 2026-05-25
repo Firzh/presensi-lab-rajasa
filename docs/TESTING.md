@@ -102,15 +102,11 @@ Heartbeat memperbarui last_seen_at dan expires_at
 
 ### Warning Jam Sudah Dipakai
 
-Validasi manual:
+Validasi otomatis:
 
-```text
-Buat sesi Jam 1
-Akhiri sesi
-Buat sesi Jam 1 lagi
-Popup warning muncul
-Cancel: sesi tidak dibuat
-OK: sesi dibuat
+```bash
+docker compose exec backend ./vendor/bin/phpunit --filter PresensiSessionTest
+docker compose exec backend ./vendor/bin/phpunit --filter PresensiScanTest
 ```
 
 ### Audit Presensi Terkini
@@ -306,6 +302,8 @@ status sama ditolak
 
 ```bash
 docker compose exec backend composer dump-autoload
+docker compose exec backend ./vendor/bin/phpunit --filter PresensiSessionTest
+docker compose exec backend ./vendor/bin/phpunit --filter PresensiScanTest
 ./scripts/test-backend.sh
 docker compose exec frontend npm run build
 ```

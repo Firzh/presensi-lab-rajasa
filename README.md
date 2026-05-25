@@ -123,9 +123,9 @@ Aturan utama:
 - mode `piket` tidak boleh memilih rombel,
 - jam maksimal 3,
 - jam harus berurutan,
-- rombel tidak boleh punya dua sesi aktif/suspended pada tanggal dan jam yang sama,
-- lab tidak boleh dipakai dua sesi aktif/suspended pada tanggal dan jam yang sama,
-- sesi yang sudah `selesai` tidak memblokir sesi baru.
+- rombel tidak boleh punya sesi lain pada tanggal dan jam yang sama, termasuk jika sesi lama sudah `selesai`,
+- lab tidak boleh dipakai sesi lain pada tanggal dan jam yang sama, termasuk jika sesi lama sudah `selesai`,
+- mode `piket` tidak dikunci oleh sesi `rombel` atau `lab`.
 
 ## Stack
 
@@ -339,4 +339,6 @@ Reset jika import salah:
 - `ended_reason` akan bernilai `timeout`.
 - Heartbeat memperbarui `last_seen_at` dan `expires_at`.
 - Tombol `Akhiri Sesi` tetap memakai flow finish sesi.
-- Warning jam harian tidak memblokir create sesi, hanya meminta konfirmasi.
+- Warning sesi berlaku untuk konflik `rombel` pada tanggal dan jam yang sama.
+- Validasi final create sesi tetap menolak konflik `rombel` dan `lab`.
+- Mode `piket` tetap dapat dibuat meskipun ada sesi `rombel` atau `lab` pada jam yang sama.

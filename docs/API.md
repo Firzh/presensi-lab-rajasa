@@ -136,20 +136,20 @@ Request mode piket:
 
 Aturan utama:
 
-| Aturan                                  | Response |
-| --------------------------------------- | -------- |
-| Token tidak ada                         | `401`    |
-| Tidak punya permission                  | `403`    |
-| Mode tidak valid                        | `422`    |
-| Rombel wajib untuk mode `rombel`        | `422`    |
-| Mode `piket` tidak boleh memilih rombel | `422`    |
-| Jam kosong/lebih dari 3/tidak berurutan | `422`    |
-| Rombel aktif/suspended bentrok          | `409`    |
-| Lab aktif/suspended bentrok             | `409`    |
+| Aturan                                               | Response |
+| ---------------------------------------------------- | -------- |
+| Token tidak ada                                      | `401`    |
+| Tidak punya permission                               | `403`    |
+| Mode tidak valid                                     | `422`    |
+| Rombel wajib untuk mode `rombel`                     | `422`    |
+| Mode `piket` tidak boleh memilih rombel              | `422`    |
+| Jam kosong/lebih dari 3/tidak berurutan              | `422`    |
+| Rombel pernah dipakai pada tanggal dan jam yang sama | `409`    |
+| Lab pernah dipakai pada tanggal dan jam yang sama    | `409`    |
 
 ### POST `/presensi/sesi/check-warning`
 
-Fungsi: memberi warning jika `jam_ids` sudah pernah dipakai pada tanggal yang sama.
+Fungsi: memberi warning jika mode rombel memiliki konflik rombel dan jam pada tanggal yang sama.
 
 Response aman:
 
@@ -166,7 +166,7 @@ Response warning:
 ```json
 {
   "has_warning": true,
-  "message": "Jam pelajaran ini sudah pernah dipakai hari ini.",
+  "message": "Rombel sudah memiliki sesi pada jam yang dipilih.",
   "conflicts": [
     {
       "presensi_sesi_id": 12,
@@ -178,7 +178,12 @@ Response warning:
 }
 ```
 
-Catatan: warning ini tidak memblokir create sesi. Frontend menampilkan pilihan lanjut atau batal.
+Catatan:
+
+- Untuk `mode_presensi = rombel`, sesi lama berstatus `aktif`, `suspended`, `expired`, atau `selesai` tetap dihitung sebagai konflik jika `rombel_id`, tanggal, dan `jam_id` sama.
+- Untuk ruang lab, sesi lama berstatus apa pun tetap dihitung sebagai konflik jika ruang lab, tanggal, dan `jam_id` sama.
+- Untuk `mode_presensi = piket`, check-warning selalu aman dan tidak dikunci oleh sesi rombel/lab.
+- Warning bersifat pra-validasi frontend; validasi final tetap dilakukan saat create sesi.
 
 ### POST `/presensi/sesi/{id}/heartbeat`
 

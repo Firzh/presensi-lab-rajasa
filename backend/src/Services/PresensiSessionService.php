@@ -256,18 +256,16 @@ final class PresensiSessionService
 
     private function ensureRombelSessionAvailable(string $tanggal, int $rombelId, array $jamIds): void
     {
-        $statusColumn = $this->sessionStatusColumn();
-
         $exists = DB::table('presensi_sesi as ps')
             ->join('presensi_sesi_jam as psj', 'psj.presensi_sesi_id', '=', 'ps.presensi_sesi_id')
             ->where('ps.tanggal', $tanggal)
+            ->where('ps.mode_presensi', 'rombel')
             ->where('ps.rombel_id', $rombelId)
             ->whereIn('psj.jam_id', $jamIds)
-            ->whereIn('ps.' . $statusColumn, ['aktif', 'suspended'])
             ->exists();
 
         if ($exists) {
-            throw new HttpException('Rombel sudah memiliki sesi aktif pada jam yang dipilih.', 409);
+            throw new HttpException('Rombel sudah memiliki sesi pada jam yang dipilih.', 409);
         }
     }
 

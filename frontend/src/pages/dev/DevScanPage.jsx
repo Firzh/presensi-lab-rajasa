@@ -502,6 +502,12 @@ export function DevScanPage() {
           >
             Lihat Hasil Presensi Terkini
           </a>
+          <a
+            className="mt-4 ml-2 inline-flex rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-700"
+            href="/dev/import"
+          >
+            Demo Import
+          </a>
           <div className="mt-4">
             <StatusBox message={secureContextMessage.message} type={secureContextMessage.type} />
           </div>
@@ -701,7 +707,7 @@ export function DevScanPage() {
 
           <div
             id="qr-reader"
-            className="qr-reader-enhanced mt-4 min-h-[460px] overflow-hidden rounded-2xl border border-slate-300 bg-slate-950"
+            className="qr-reader-enhanced mt-4 min-h-115 overflow-hidden rounded-2xl border border-slate-300 bg-slate-950"
           />
 
           {scannerError && (

@@ -1,6 +1,6 @@
 # Testing
 
-Branch acuan: `alfy/backend-presensi-scan`
+Branch acuan: `alfy/backend-import-advanced`
 
 Dokumen ini merangkum test otomatis, test manual, dan audit database MVP Presensi QR Rajasa secara singkat.
 
@@ -57,29 +57,32 @@ Jumlah test dan assertion boleh berubah. Status akhir wajib `OK`.
 
 ## Coverage Otomatis
 
-| Area | Test |
-|---|---|
-| Health, 404, 405 | Feature |
-| Auth login dan `/api/me` | Feature |
-| Token stateless | Unit |
-| Permission read | Feature |
-| Presensi sesi rombel/piket | Feature |
-| Pause, resume, finish sesi | Feature |
-| Duplicate sesi dan bentrok lab | Feature |
-| Session timeout dan heartbeat | Feature |
-| Import scan readiness | Feature |
-| Import invalid row | Feature |
-| QR parser Google Form/plain | Unit |
-| Presensi scan valid | Feature |
-| Warning beda rombel | Feature |
-| Invalid QR | Feature |
-| Duplicate scan | Feature |
-| Rombel options | Feature |
-| Manual edit presensi | Feature |
-| Edit reasons | Feature |
-| Audit edit log | Feature |
-| Frontend `/dev/scan` | Build/manual |
-| Frontend `/dev/attendance-audit` | Build/manual |
+| Area                                             | Test         |
+| ------------------------------------------------ | ------------ |
+| Health, 404, 405                                 | Feature      |
+| Auth login dan `/api/me`                         | Feature      |
+| Token stateless                                  | Unit         |
+| Permission read                                  | Feature      |
+| Presensi sesi rombel/piket                       | Feature      |
+| Pause, resume, finish sesi                       | Feature      |
+| Duplicate sesi dan bentrok lab                   | Feature      |
+| Session timeout dan heartbeat                    | Feature      |
+| Import scan readiness                            | Feature      |
+| Import invalid row                               | Feature      |
+| Import advanced one-gate `/api/import`           | Feature      |
+| Import auto-detect siswa/guru/wali kelas/unknown | Unit         |
+| Import column mapper siswa                       | Unit         |
+| QR parser Google Form/plain                      | Unit         |
+| Presensi scan valid                              | Feature      |
+| Warning beda rombel                              | Feature      |
+| Invalid QR                                       | Feature      |
+| Duplicate scan                                   | Feature      |
+| Rombel options                                   | Feature      |
+| Manual edit presensi                             | Feature      |
+| Edit reasons                                     | Feature      |
+| Audit edit log                                   | Feature      |
+| Frontend `/dev/scan`                             | Build/manual |
+| Frontend `/dev/attendance-audit`                 | Build/manual |
 
 ## Test Khusus Terbaru
 
@@ -136,6 +139,24 @@ Buka /dev/scan via HTTPS tunnel
 Kamera terbuka
 QR terbaca pada jarak aman
 Payload otomatis terisi
+```
+
+### Advanced Import
+
+```bash
+docker compose exec backend ./vendor/bin/phpunit --filter AdvancedImportTest
+docker compose exec backend ./vendor/bin/phpunit --filter ImportAutoDetectServiceTest
+docker compose exec backend ./vendor/bin/phpunit --filter ImportColumnMapperTest
+```
+
+Validasi:
+
+```text
+/api/import wajib auth
+CSV siswa berhasil diproses
+guru dan wali_kelas terdeteksi tetapi masih disabled
+unknown import ditolak
+mapping header siswa menjadi NISN, NAMA, KELAS
 ```
 
 ## Test Import Real
@@ -197,13 +218,13 @@ POST /api/presensi/scan
 
 Expected:
 
-| Kasus | Expected |
-|---|---|
-| Rombel sesuai | `status_scan = berhasil`, `attendance_status = hadir` |
-| Mode piket | `status_scan = berhasil`, `attendance_status = terlambat` |
-| Beda rombel | `status_scan = warning`, `affected_rows = 0` |
-| QR tidak dikenal | `status_scan = invalid`, `affected_rows = 0` |
-| Scan ulang | `status_scan = ditolak`, `affected_rows = 0` |
+| Kasus            | Expected                                                  |
+| ---------------- | --------------------------------------------------------- |
+| Rombel sesuai    | `status_scan = berhasil`, `attendance_status = hadir`     |
+| Mode piket       | `status_scan = berhasil`, `attendance_status = terlambat` |
+| Beda rombel      | `status_scan = warning`, `affected_rows = 0`              |
+| QR tidak dikenal | `status_scan = invalid`, `affected_rows = 0`              |
+| Scan ulang       | `status_scan = ditolak`, `affected_rows = 0`              |
 
 ## Cek Database Scan
 
@@ -294,6 +315,7 @@ Untuk perubahan import atau data:
 ```bash
 ./scripts/db-reset-demo.sh
 ./scripts/import-scan-readiness.sh backend/database/data/data-siswa.csv
+docker compose exec backend ./vendor/bin/phpunit --filter AdvancedImportTest
 ./scripts/check-import-table-fill.sh
 ./scripts/check-successful-attendance.sh
 ```

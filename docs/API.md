@@ -1,6 +1,6 @@
 # API
 
-Branch acuan: `alfy/backend-presensi-scan`
+Branch acuan: `alfy/backend-import-advanced`
 
 Base URL development:
 
@@ -44,28 +44,29 @@ Authorization: Bearer TOKEN
 
 ## Endpoint Ringkas
 
-| Method | Endpoint | Fungsi | Permission |
-|---|---|---|---|
-| `GET` | `/health` | Cek backend aktif | Public |
-| `POST` | `/auth/login` | Login dan ambil token | Public |
-| `POST` | `/auth/logout` | Logout client-side | Login |
-| `GET` | `/me` | Data user aktif | Login |
-| `GET` | `/rombel/options` | Daftar rombel aktif | `attendance.session.read` |
-| `POST` | `/presensi/sesi/check-warning` | Cek jam sudah pernah dipakai hari ini | `attendance.session.create` |
-| `POST` | `/presensi/sesi` | Membuat sesi presensi | `attendance.session.create` |
-| `GET` | `/presensi/sesi/aktif` | Melihat sesi aktif/suspended | `attendance.session.read` |
-| `POST` | `/presensi/sesi/{id}/pause` | Menjeda sesi | `attendance.session.update` |
-| `POST` | `/presensi/sesi/{id}/resume` | Melanjutkan sesi | `attendance.session.update` |
-| `POST` | `/presensi/sesi/{id}/finish` | Menutup sesi | `attendance.session.update` |
-| `POST` | `/presensi/sesi/{id}/heartbeat` | Menjaga sesi tetap aktif | `attendance.session.update` |
-| `POST` | `/import/scan-readiness` | Import siswa CSV untuk QR | `import.submit` |
-| `GET` | `/import/jobs` | Riwayat import | `import.read` |
-| `GET` | `/import/jobs/{id}/rows` | Log baris import | `import.read` |
-| `POST` | `/presensi/scan` | Menerima hasil scan QR | `attendance.scan` |
-| `GET` | `/presensi/audit/latest` | Audit scan dan presensi terkini | `attendance.log.read` |
-| `GET` | `/presensi/jam-siswa` | Daftar presensi siswa | `attendance.manual.read` |
-| `PATCH` | `/presensi/jam-siswa/{id}` | Edit presensi manual | `attendance.manual.update` |
-| `GET` | `/presensi/edit-reasons` | Daftar alasan edit | `attendance.edit_reasons.read` |
+| Method  | Endpoint                        | Fungsi                                             | Permission                     |
+| ------- | ------------------------------- | -------------------------------------------------- | ------------------------------ |
+| `GET`   | `/health`                       | Cek backend aktif                                  | Public                         |
+| `POST`  | `/auth/login`                   | Login dan ambil token                              | Public                         |
+| `POST`  | `/auth/logout`                  | Logout client-side                                 | Login                          |
+| `GET`   | `/me`                           | Data user aktif                                    | Login                          |
+| `GET`   | `/rombel/options`               | Daftar rombel aktif                                | `attendance.session.read`      |
+| `POST`  | `/presensi/sesi/check-warning`  | Cek jam sudah pernah dipakai hari ini              | `attendance.session.create`    |
+| `POST`  | `/presensi/sesi`                | Membuat sesi presensi                              | `attendance.session.create`    |
+| `GET`   | `/presensi/sesi/aktif`          | Melihat sesi aktif/suspended                       | `attendance.session.read`      |
+| `POST`  | `/presensi/sesi/{id}/pause`     | Menjeda sesi                                       | `attendance.session.update`    |
+| `POST`  | `/presensi/sesi/{id}/resume`    | Melanjutkan sesi                                   | `attendance.session.update`    |
+| `POST`  | `/presensi/sesi/{id}/finish`    | Menutup sesi                                       | `attendance.session.update`    |
+| `POST`  | `/presensi/sesi/{id}/heartbeat` | Menjaga sesi tetap aktif                           | `attendance.session.update`    |
+| `POST`  | `/import/scan-readiness`        | Import siswa CSV untuk QR                          | `import.submit`                |
+| `POST`  | `/import`                       | Import one-gate CSV/XLSX dengan auto-detect header | `import.submit`                |
+| `GET`   | `/import/jobs`                  | Riwayat import                                     | `import.read`                  |
+| `GET`   | `/import/jobs/{id}/rows`        | Log baris import                                   | `import.read`                  |
+| `POST`  | `/presensi/scan`                | Menerima hasil scan QR                             | `attendance.scan`              |
+| `GET`   | `/presensi/audit/latest`        | Audit scan dan presensi terkini                    | `attendance.log.read`          |
+| `GET`   | `/presensi/jam-siswa`           | Daftar presensi siswa                              | `attendance.manual.read`       |
+| `PATCH` | `/presensi/jam-siswa/{id}`      | Edit presensi manual                               | `attendance.manual.update`     |
+| `GET`   | `/presensi/edit-reasons`        | Daftar alasan edit                                 | `attendance.edit_reasons.read` |
 
 ## Auth
 
@@ -135,16 +136,16 @@ Request mode piket:
 
 Aturan utama:
 
-| Aturan | Response |
-|---|---|
-| Token tidak ada | `401` |
-| Tidak punya permission | `403` |
-| Mode tidak valid | `422` |
-| Rombel wajib untuk mode `rombel` | `422` |
-| Mode `piket` tidak boleh memilih rombel | `422` |
-| Jam kosong/lebih dari 3/tidak berurutan | `422` |
-| Rombel aktif/suspended bentrok | `409` |
-| Lab aktif/suspended bentrok | `409` |
+| Aturan                                  | Response |
+| --------------------------------------- | -------- |
+| Token tidak ada                         | `401`    |
+| Tidak punya permission                  | `403`    |
+| Mode tidak valid                        | `422`    |
+| Rombel wajib untuk mode `rombel`        | `422`    |
+| Mode `piket` tidak boleh memilih rombel | `422`    |
+| Jam kosong/lebih dari 3/tidak berurutan | `422`    |
+| Rombel aktif/suspended bentrok          | `409`    |
+| Lab aktif/suspended bentrok             | `409`    |
 
 ### POST `/presensi/sesi/check-warning`
 
@@ -196,6 +197,26 @@ ended_reason = timeout
 
 Fungsi: mengakhiri sesi secara manual.
 
+## Import Advanced
+
+### POST `/import`
+
+Fungsi: import one-gate CSV/XLSX dengan auto-detect jenis data. Tahap 10.1 baru mengaktifkan import `siswa`; deteksi `guru` dan `wali_kelas` masih `disabled`.
+
+Input didukung:
+
+```text
+multipart file
+file_path
+```
+
+Format didukung:
+
+```text
+.csv
+.xlsx
+```
+
 ## Import Scan Readiness
 
 ### POST `/import/scan-readiness`
@@ -204,10 +225,10 @@ Fungsi: import CSV siswa untuk kebutuhan scan QR.
 
 Kolom wajib:
 
-| Kolom | Fungsi |
-|---|---|
-| `NISN` | Identitas QR dan siswa |
-| `NAMA` | Nama siswa |
+| Kolom   | Fungsi                           |
+| ------- | -------------------------------- |
+| `NISN`  | Identitas QR dan siswa           |
+| `NAMA`  | Nama siswa                       |
 | `KELAS` | Jurusan, rombel, dan kelas aktif |
 
 Request file path:
@@ -262,21 +283,21 @@ Request:
 
 Format payload yang didukung:
 
-| Format | Status |
-|---|---|
-| URL Google Form `entry.*` | Didukung |
-| Payload plain nama dan NISN | Didukung |
-| NISN nol depan | Tetap string |
+| Format                      | Status       |
+| --------------------------- | ------------ |
+| URL Google Form `entry.*`   | Didukung     |
+| Payload plain nama dan NISN | Didukung     |
+| NISN nol depan              | Tetap string |
 
 Hasil scan:
 
-| Kondisi | `status_scan` | Efek DB |
-|---|---|---|
-| QR valid sesuai rombel | `berhasil` | `presensi_jam_siswa = hadir` |
-| QR valid mode piket | `berhasil` | `presensi_jam_siswa = terlambat` |
-| QR valid beda rombel | `warning` | Hanya masuk `presensi_scan_log` |
-| QR tidak dikenal | `invalid` | Hanya masuk `presensi_scan_log` |
-| Scan duplikat | `ditolak` | Log masuk, presensi tidak berubah |
+| Kondisi                | `status_scan` | Efek DB                           |
+| ---------------------- | ------------- | --------------------------------- |
+| QR valid sesuai rombel | `berhasil`    | `presensi_jam_siswa = hadir`      |
+| QR valid mode piket    | `berhasil`    | `presensi_jam_siswa = terlambat`  |
+| QR valid beda rombel   | `warning`     | Hanya masuk `presensi_scan_log`   |
+| QR tidak dikenal       | `invalid`     | Hanya masuk `presensi_scan_log`   |
+| Scan duplikat          | `ditolak`     | Log masuk, presensi tidak berubah |
 
 Response berhasil:
 
@@ -395,9 +416,9 @@ lainnya
 
 Route frontend demo:
 
-| Route | Fungsi |
-|---|---|
-| `/dev/scan` | Demo scan QR presensi |
+| Route                   | Fungsi                      |
+| ----------------------- | --------------------------- |
+| `/dev/scan`             | Demo scan QR presensi       |
 | `/dev/attendance-audit` | Demo hasil presensi terkini |
 
 Catatan dev:
@@ -410,14 +431,14 @@ scanner HP memakai crop, qrbox besar, dan camera track enhancement
 
 ## Error Code
 
-| Code | Arti |
-|---|---|
-| `200` | Berhasil |
-| `201` | Data dibuat |
-| `401` | Token tidak ada/tidak valid |
-| `403` | Tidak punya akses |
+| Code  | Arti                               |
+| ----- | ---------------------------------- |
+| `200` | Berhasil                           |
+| `201` | Data dibuat                        |
+| `401` | Token tidak ada/tidak valid        |
+| `403` | Tidak punya akses                  |
 | `404` | Endpoint atau data tidak ditemukan |
-| `405` | Method tidak diizinkan |
-| `409` | Konflik data |
-| `422` | Validasi gagal |
-| `500` | Error sistem |
+| `405` | Method tidak diizinkan             |
+| `409` | Konflik data                       |
+| `422` | Validasi gagal                     |
+| `500` | Error sistem                       |

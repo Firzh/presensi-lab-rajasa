@@ -195,23 +195,42 @@ final class PresensiScanTest extends TestCase
 
     private function cleanupAttendanceForTestStudents(): void
     {
-        $studentIds = DB::table('siswa')
+        $studentRows = DB::table('siswa')
             ->whereIn('nisn', ['0096672112', '0106325606'])
+            ->get(['siswa_id', 'rombel_id_aktif']);
+
+        $studentIds = $studentRows
             ->pluck('siswa_id')
             ->map(fn ($id) => (int) $id)
             ->all();
 
-        if ($studentIds === []) {
-            return;
+        $rombelIds = $studentRows
+            ->pluck('rombel_id_aktif')
+            ->filter()
+            ->map(fn ($id) => (int) $id)
+            ->unique()
+            ->values()
+            ->all();
+
+        if ($rombelIds !== []) {
+            $sessionIds = DB::table('presensi_sesi')
+                ->whereIn('rombel_id', $rombelIds)
+                ->pluck('presensi_sesi_id')
+                ->map(fn ($id) => (int) $id)
+                ->all();
+
+            if ($sessionIds !== []) {
+                DB::table('presensi_jam_siswa')->whereIn('presensi_sesi_id', $sessionIds)->delete();
+                DB::table('presensi_scan_log')->whereIn('presensi_sesi_id', $sessionIds)->delete();
+                DB::table('presensi_sesi_jam')->whereIn('presensi_sesi_id', $sessionIds)->delete();
+                DB::table('presensi_sesi')->whereIn('presensi_sesi_id', $sessionIds)->delete();
+            }
         }
 
-        DB::table('presensi_jam_siswa')
-            ->whereIn('siswa_id', $studentIds)
-            ->delete();
-
-        DB::table('presensi_scan_log')
-            ->whereIn('siswa_id', $studentIds)
-            ->delete();
+        if ($studentIds !== []) {
+            DB::table('presensi_jam_siswa')->whereIn('siswa_id', $studentIds)->delete();
+            DB::table('presensi_scan_log')->whereIn('siswa_id', $studentIds)->delete();
+        }
     }
 
     private function importMiniStudents(string $token): void

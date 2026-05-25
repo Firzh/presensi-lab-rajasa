@@ -99,6 +99,17 @@ Removed
 - Memperbaiki risiko user membuat sesi baru pada jam yang sudah pernah dipakai tanpa peringatan.
 - Memperbaiki keterbacaan QR pada kamera HP untuk demo scanner.
 
+## [Addition] - Backend Guard Presensi Session at backend-presensi-scan
+
+### Fixed
+
+- Memperbaiki aturan pembatasan sesi presensi.
+- Mode `piket` tidak lagi dikunci oleh sesi `rombel` atau ruang `lab`, baik sesi lama berstatus `aktif`, `suspended`, `expired`, maupun `selesai`.
+- Mode `rombel` sekarang menolak pembuatan sesi baru jika terdapat sesi dengan `rombel_id`, tanggal, dan `jam_id` yang sama, termasuk sesi yang sudah `selesai`.
+- Ruang `lab` sekarang menolak pembuatan sesi baru jika terdapat sesi dengan ruang lab, tanggal, dan `jam_id` yang sama, termasuk sesi yang sudah `selesai`.
+- Menyesuaikan endpoint `/api/presensi/sesi/check-warning` agar warning hanya berlaku untuk konflik `rombel` yang relevan.
+- Menambahkan test regresi untuk pembatasan sesi `rombel`, `piket`, dan scan presensi.
+
 ## [0.10.1] - Advanced Import Flow
 
 ### Added

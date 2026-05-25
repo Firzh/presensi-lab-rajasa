@@ -22,13 +22,46 @@ final class PresensiSesiWarningCheckController
         $this->permission->require('attendance.session.create');
 
         $body = $this->request->body();
-        $jamIds = array_values(array_filter(array_map('intval', $body['jam_ids'] ?? [])));
+
+        $mode = strtolower(trim((string) ($body['mode_presensi'] ?? 'rombel')));
+        $jamIds = array_values(array_filter(array_unique(array_map('intval', $body['jam_ids'] ?? []))));
         $tanggal = date('Y-m-d');
+
+        if ($jamIds === []) {
+            Response::success('Cek warning sesi selesai.', [
+                'has_warning' => false,
+                'message' => 'Tidak ada warning.',
+                'conflicts' => [],
+            ]);
+            return;
+        }
+
+        if ($mode === 'piket') {
+            Response::success('Cek warning sesi selesai.', [
+                'has_warning' => false,
+                'message' => 'Mode piket tidak dikunci oleh sesi rombel.',
+                'conflicts' => [],
+            ]);
+            return;
+        }
+
+        $rombelId = (int) ($body['rombel_id'] ?? 0);
+
+        if ($mode === 'rombel' && $rombelId <= 0) {
+            Response::success('Cek warning sesi selesai.', [
+                'has_warning' => false,
+                'message' => 'Rombel belum dipilih.',
+                'conflicts' => [],
+            ]);
+            return;
+        }
 
         $conflicts = DB::table('presensi_sesi as s')
             ->join('presensi_sesi_jam as sj', 'sj.presensi_sesi_id', '=', 's.presensi_sesi_id')
             ->leftJoin('rombel as r', 'r.rombel_id', '=', 's.rombel_id')
             ->where('s.tanggal', $tanggal)
+            ->where('s.mode_presensi', 'rombel')
+            ->where('s.rombel_id', $rombelId)
             ->whereIn('sj.jam_id', $jamIds)
             ->orderByDesc('s.presensi_sesi_id')
             ->get([
@@ -57,7 +90,7 @@ final class PresensiSesiWarningCheckController
         Response::success('Cek warning sesi selesai.', [
             'has_warning' => count($conflicts) > 0,
             'message' => count($conflicts) > 0
-                ? 'Jam pelajaran ini sudah pernah dipakai hari ini.'
+                ? 'Rombel sudah memiliki sesi pada jam yang dipilih.'
                 : 'Tidak ada warning.',
             'conflicts' => $conflicts,
         ]);

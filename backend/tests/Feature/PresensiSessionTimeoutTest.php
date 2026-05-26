@@ -80,8 +80,12 @@ final class PresensiSessionTimeoutTest extends TestCase
             ]);
         }
 
+        $kodeJurusan = 'TMO' . bin2hex(random_bytes(4));
+
+        DB::table('jurusan')->where('kode_jurusan', $kodeJurusan)->delete();
+
         $jurusanId = (int) DB::table('jurusan')->insertGetId([
-            'kode_jurusan' => 'TMO' . random_int(100, 999),
+            'kode_jurusan' => $kodeJurusan,
             'nama_jurusan' => 'Jurusan Test Timeout',
             'status' => 'aktif',
             'created_at' => $now,

@@ -17,13 +17,47 @@ final class Env
 
     public static function bool(string $key, bool $default = false): bool
     {
-        $value = self::get($key, $default);
+        $value = self::get($key, null);
 
-        return filter_var($value, FILTER_VALIDATE_BOOLEAN);
+        if ($value === null) {
+            return $default;
+        }
+
+        $result = filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+
+        return $result ?? $default;
     }
 
     public static function int(string $key, int $default = 0): int
     {
-        return (int) self::get($key, $default);
+        $value = self::get($key, null);
+
+        if ($value === null || filter_var($value, FILTER_VALIDATE_INT) === false) {
+            return $default;
+        }
+
+        return (int) $value;
+    }
+
+    public static function string(string $key, string $default = ''): string
+    {
+        $value = self::get($key, null);
+
+        if ($value === null) {
+            return $default;
+        }
+
+        return trim((string) $value);
+    }
+
+    public static function float(string $key, float $default = 0.0): float
+    {
+        $value = self::get($key, null);
+
+        if ($value === null || filter_var($value, FILTER_VALIDATE_FLOAT) === false) {
+            return $default;
+        }
+
+        return (float) $value;
     }
 }

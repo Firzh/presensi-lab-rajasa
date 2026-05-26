@@ -8,19 +8,28 @@ final class Request
 {
     private ?array $cachedBody = null;
 
+    public function __construct(
+        private readonly ?array $server = null,
+        private readonly ?array $queryParams = null,
+        private readonly ?array $postParams = null,
+        private readonly ?array $uploadedFiles = null,
+        private readonly ?string $rawBodyContent = null
+    ) {
+    }
+
     public function file(string $key): ?array
     {
-        return $_FILES[$key] ?? null;
+        return $this->uploadedFiles()[$key] ?? null;
     }
-    
+
     public function method(): string
     {
-        return strtoupper($_SERVER['REQUEST_METHOD'] ?? 'GET');
+        return strtoupper((string) ($this->server()['REQUEST_METHOD'] ?? 'GET'));
     }
 
     public function uri(): string
     {
-        $uri = $_SERVER['REQUEST_URI'] ?? '/';
+        $uri = (string) ($this->server()['REQUEST_URI'] ?? '/');
 
         if (false !== $pos = strpos($uri, '?')) {
             return substr($uri, 0, $pos);
@@ -31,7 +40,7 @@ final class Request
 
     public function query(): array
     {
-        return $_GET;
+        return $this->queryParams();
     }
 
     public function body(): array
@@ -40,9 +49,9 @@ final class Request
             return $this->cachedBody;
         }
 
-        $contentType = $_SERVER['CONTENT_TYPE'] ?? '';
+        $contentType = (string) $this->header('Content-Type', '');
 
-        if (str_contains($contentType, 'application/json')) {
+        if (str_contains(strtolower($contentType), 'application/json')) {
             $raw = $this->rawBody();
 
             if ($raw === '') {
@@ -60,7 +69,7 @@ final class Request
             return $this->cachedBody = $decoded;
         }
 
-        return $this->cachedBody = $_POST;
+        return $this->cachedBody = $this->postParams();
     }
 
     public function input(string $key, mixed $default = null): mixed
@@ -68,32 +77,75 @@ final class Request
         return $this->body()[$key] ?? $this->query()[$key] ?? $default;
     }
 
-    public function header(string $key, mixed $default = null): mixed
+        public function header(string $key, mixed $default = null): mixed
     {
-        $serverKey = 'HTTP_' . strtoupper(str_replace('-', '_', $key));
+        $normalized = strtoupper(str_replace('-', '_', $key));
+        $server = $this->server();
 
-        return $_SERVER[$serverKey]
-            ?? $_SERVER['REDIRECT_' . $serverKey]
-            ?? $default;
+        $candidates = [
+            'HTTP_' . $normalized,
+            'REDIRECT_HTTP_' . $normalized,
+            $normalized,
+            'REDIRECT_' . $normalized,
+        ];
+
+        foreach ($candidates as $candidate) {
+            if (array_key_exists($candidate, $server)) {
+                return is_string($server[$candidate])
+                    ? trim($server[$candidate])
+                    : $server[$candidate];
+            }
+        }
+
+        return $default;
     }
 
     public function bearerToken(): ?string
     {
         $authorization = $this->header('Authorization');
 
-        if (!$authorization || !str_starts_with($authorization, 'Bearer ')) {
+        if (!is_string($authorization)) {
             return null;
         }
 
-        return trim(substr($authorization, 7));
+        if (!preg_match('/^Bearer\s+(.+)$/i', trim($authorization), $matches)) {
+            return null;
+        }
+
+        return trim($matches[1]);
     }
 
     private function rawBody(): string
     {
+        if ($this->rawBodyContent !== null) {
+            return $this->rawBodyContent;
+        }
+
+        //legacy testinng raw body
         if (array_key_exists('__TEST_RAW_BODY', $GLOBALS)) {
             return (string) $GLOBALS['__TEST_RAW_BODY'];
         }
 
         return file_get_contents('php://input') ?: '';
+    }
+
+    private function server(): array
+    {
+        return $this->server ?? $_SERVER;
+    }
+
+    private function queryParams(): array
+    {
+        return $this->queryParams ?? $_GET;
+    }
+
+    private function postParams(): array
+    {
+        return $this->postParams ?? $_POST;
+    }
+
+    private function uploadedFiles(): array
+    {
+        return $this->uploadedFiles ?? $_FILES;
     }
 }

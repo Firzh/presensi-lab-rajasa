@@ -37,7 +37,7 @@ final class SiswaKalenderController
      * Directory (relative to backend root) where PDF files are stored.
      * The directory is created automatically when the first PDF is uploaded.
      */
-    private const PDF_DIR = __DIR__ . '/../../../../server/kalender-akademik/';
+    private const PDF_DIR = __DIR__ . '/../../../server/kalender-akademik/';
 
     public function __construct(
         private readonly AuthMiddleware $auth

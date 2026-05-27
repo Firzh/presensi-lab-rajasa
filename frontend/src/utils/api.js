@@ -135,7 +135,7 @@ export const authApi = {
    * @returns {Promise<Object>} Login response with user data and token
    */
   async login(username, password) {
-    const response = await api.post('/login', { username, password });
+    const response = await api.post('/auth/login', { username, password });
     
     // Save authentication data
     // Note: Backend may or may not return token field
@@ -155,7 +155,7 @@ export const authApi = {
    */
   async logout() {
     try {
-      await api.post('/logout');
+      await api.post('/auth/logout');
     } finally {
       // Always clear local auth data
       auth.clearAuth();

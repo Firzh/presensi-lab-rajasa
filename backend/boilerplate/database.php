@@ -11,12 +11,12 @@ return function (): Capsule {
     $capsule->addConnection([
         'driver' => Config::get('database.driver', 'mysql'),
         'host' => Config::get('database.host', 'db'),
-        'port' => Config::get('database.port', '3306'),
-        'database' => Config::get('database.database'),
-        'username' => Config::get('database.username'),
-        'password' => Config::get('database.password'),
-        'charset' => Config::get('database.charset', 'utf8mb4'),
-        'collation' => Config::get('database.collation', 'utf8mb4_unicode_ci'),
+        'port' => Config::int('database.port', 3306),
+        'database' => Config::string('database.database'),
+        'username' => Config::string('database.username'),
+        'password' => Config::string('database.password'),
+        'charset' => Config::string('database.charset', 'utf8mb4'),
+        'collation' => Config::string('database.collation', 'utf8mb4_unicode_ci'),
         'prefix' => '',
     ]);
 

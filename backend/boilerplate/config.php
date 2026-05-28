@@ -6,17 +6,17 @@ use Rajasa\PresensiSiswa\Support\Env;
 
 return [
     'app' => [
-        'name' => Env::get('APP_NAME', 'Presensi Siswa Rajasa'),
-        'env' => Env::get('APP_ENV', 'local'),
+        'name' => Env::string('APP_NAME', 'Presensi Siswa Rajasa'),
+        'env' => Env::string('APP_ENV', 'local'),
         'debug' => Env::bool('APP_DEBUG', true),
-        'url' => Env::get('APP_URL', 'http://localhost:8080'),
-        'timezone' => Env::get('APP_TIMEZONE', 'Asia/Jakarta'),
+        'url' => Env::string('APP_URL', 'http://localhost:8080'),
+        'timezone' => Env::string('APP_TIMEZONE', 'Asia/Jakarta'),
     ],
 
     'database' => [
         'driver' => Env::get('DB_CONNECTION', 'mysql'),
         'host' => Env::get('DB_HOST', 'db'),
-        'port' => Env::get('DB_PORT', '3306'),
+        'port' => Env::int('DB_PORT', 3306),
         'database' => Env::get('DB_DATABASE', 'sistem_presensi_siswa_qr'),
         'username' => Env::get('DB_USERNAME', 'root'),
         'password' => Env::get('DB_PASSWORD', ''),
@@ -25,14 +25,18 @@ return [
     ],
 
     'auth' => [
-        'secret' => Env::get('SESSION_SECRET', 'change_me_for_local_dev'),
+        'secret' => Env::string('SESSION_SECRET', 'change_me_for_local_dev'),
         'token_ttl_minutes' => Env::int('ACCESS_TOKEN_TTL_MINUTES', 720),
     ],
 
     'cors' => [
-        'allowed_origins' => array_map('trim', explode(',', Env::get('CORS_ALLOWED_ORIGINS', 'http://localhost:3000,http://localhost:8080'))),
-        'allowed_methods' => Env::get('CORS_ALLOWED_METHODS', 'GET,POST,PUT,PATCH,DELETE,OPTIONS'),
-        'allowed_headers' => Env::get('CORS_ALLOWED_HEADERS', 'Content-Type,Authorization,X-Requested-With'),
+        'allowed_origins' => array_values(array_filter(
+            array_map('trim', explode(',', Env::string('CORS_ALLOWED_ORIGINS', 'http://localhost:3000,http://localhost:8080'))),
+            static fn (string $origin): bool => $origin !== ''
+        )),
+        'allowed_methods' => Env::string('CORS_ALLOWED_METHODS', 'GET,POST,PUT,PATCH,DELETE,OPTIONS'),
+        'allowed_headers' => Env::string('CORS_ALLOWED_HEADERS', 'Content-Type,Authorization,X-Requested-With'),
+        'allow_credentials' => Env::bool('CORS_ALLOW_CREDENTIALS', false),
     ],
 
     'presensi' => [

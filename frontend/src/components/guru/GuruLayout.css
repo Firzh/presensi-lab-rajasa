@@ -1,0 +1,402 @@
+/**
+ * GuruLayout.css
+ *
+ * Styles for the teacher (guru) dashboard layout.
+ * Header (Level 2) + Sidebar (Level 3) with Poppins font.
+ *
+ * Design reference: HTA-Guru-Magang-SMK-Rajasa-Siswa.png
+ *
+ * @author fashich/dashboard-guru-page
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+/* ─── CSS Design Tokens ───────────────────────────────────────────────────── */
+:root {
+  --guru-primary:        #0284c7;
+  --guru-primary-light:  #e0f2fe;
+  --guru-primary-dark:   #0369a1;
+  --guru-accent:         #f97316;
+  --guru-danger:         #ef4444;
+  --guru-success:        #10b981;
+  --guru-warning:        #f59e0b;
+
+  --guru-white:          #ffffff;
+  --guru-bg:             #f1f5f9;
+  --guru-border:         #e2e8f0;
+  --guru-text-base:      #1e293b;
+  --guru-text-muted:     #64748b;
+  --guru-text-subtle:    #94a3b8;
+  --guru-sidebar-bg:     #ffffff;
+
+  --guru-sidebar-width:  240px;
+  --guru-header-height:  64px;
+
+  --guru-font:           'Poppins', sans-serif;
+  --guru-transition:     0.2s ease;
+  --guru-shadow-sm:      0 1px 3px rgba(0,0,0,.06);
+  --guru-shadow-md:      0 4px 12px rgba(0,0,0,.08);
+}
+
+/* ─── Layout Shell ────────────────────────────────────────────────────────── */
+.guru-layout {
+  display: flex;
+  min-height: 100vh;
+  background: var(--guru-bg);
+  font-family: var(--guru-font);
+}
+
+/* ─── Header ──────────────────────────────────────────────────────────────── */
+.guru-header {
+  display: flex;
+  align-items: center;
+  height: var(--guru-header-height);
+  background: var(--guru-white);
+  border-bottom: 1px solid var(--guru-border);
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  box-shadow: var(--guru-shadow-sm);
+  padding: 0 1rem 0 1.25rem;
+  gap: 1rem;
+}
+
+.guru-header-toggle {
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: transparent;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--guru-text-muted);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background var(--guru-transition), color var(--guru-transition);
+}
+
+.guru-header-toggle:hover {
+  background: var(--guru-primary-light);
+  color: var(--guru-primary);
+}
+
+.guru-header-toggle svg {
+  width: 20px; height: 20px;
+  fill: currentColor;
+}
+
+.guru-header-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.guru-header-brand-icon {
+  width: 34px; height: 34px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, var(--guru-primary), var(--guru-primary-dark));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.guru-header-brand-icon svg {
+  width: 18px; height: 18px;
+  fill: currentColor;
+}
+
+.guru-header-brand-text {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--guru-text-base);
+  white-space: nowrap;
+}
+
+/* Level 2 nav tabs */
+.guru-header-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  flex: 1;
+}
+
+.guru-header-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 1rem;
+  border: none;
+  background: transparent;
+  border-radius: 8px;
+  font-family: var(--guru-font);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--guru-text-muted);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background var(--guru-transition), color var(--guru-transition);
+  position: relative;
+}
+
+.guru-header-nav-item:hover {
+  background: var(--guru-primary-light);
+  color: var(--guru-primary-dark);
+}
+
+.guru-header-nav-item.active {
+  color: var(--guru-primary);
+  background: var(--guru-primary-light);
+  font-weight: 600;
+}
+
+.guru-header-nav-item.active::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0.75rem; right: 0.75rem;
+  height: 3px;
+  background: var(--guru-primary);
+  border-radius: 3px 3px 0 0;
+}
+
+.guru-header-nav-item .nav-icon svg {
+  width: 16px; height: 16px;
+  fill: currentColor;
+}
+
+/* User info */
+.guru-header-user {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-left: auto;
+  padding: 0.35rem 0.65rem;
+  border-radius: 10px;
+}
+
+.guru-header-user-avatar {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--guru-accent), #ea580c);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+}
+
+.guru-header-user-info {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+.guru-header-user-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--guru-text-base);
+}
+
+.guru-header-user-role {
+  font-size: 0.72rem;
+  color: var(--guru-text-muted);
+}
+
+/* ─── Sidebar ─────────────────────────────────────────────────────────────── */
+.guru-sidebar {
+  width: var(--guru-sidebar-width);
+  background: var(--guru-sidebar-bg);
+  border-right: 1px solid var(--guru-border);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: var(--guru-header-height);
+  left: 0;
+  height: calc(100vh - var(--guru-header-height));
+  z-index: 80;
+  transition: width var(--guru-transition);
+  overflow: hidden;
+  box-shadow: var(--guru-shadow-sm);
+}
+
+.guru-layout.sidebar-collapsed .guru-sidebar {
+  width: 72px;
+}
+
+.guru-sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1.25rem 1.25rem 1rem;
+  border-bottom: 1px solid var(--guru-border);
+  min-height: 68px;
+}
+
+.guru-sidebar-brand-icon {
+  width: 40px; height: 40px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--guru-primary), var(--guru-primary-dark));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.guru-sidebar-brand-icon svg {
+  width: 22px; height: 22px;
+  fill: currentColor;
+}
+
+.guru-sidebar-brand-text strong {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--guru-text-base);
+}
+
+.guru-sidebar-brand-text span {
+  font-size: 0.72rem;
+  color: var(--guru-text-muted);
+}
+
+/* Nav */
+.guru-sidebar-nav {
+  flex: 1;
+  padding: 1rem 0.75rem;
+  overflow-y: auto;
+}
+
+.guru-sidebar-nav-label {
+  font-size: 0.68rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--guru-text-subtle);
+  padding: 0.5rem 0.75rem 0.25rem;
+  white-space: nowrap;
+}
+
+.guru-sidebar-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  border: none;
+  background: transparent;
+  border-radius: 8px;
+  color: var(--guru-text-muted);
+  font-family: var(--guru-font);
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background var(--guru-transition), color var(--guru-transition);
+  margin-bottom: 2px;
+}
+
+.guru-sidebar-nav-item:hover {
+  background: var(--guru-primary-light);
+  color: var(--guru-primary-dark);
+}
+
+.guru-sidebar-nav-item.active {
+  background: var(--guru-primary);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(2,132,199,.3);
+}
+
+.guru-sidebar-nav-item .nav-icon {
+  width: 20px; height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.guru-sidebar-nav-item .nav-icon svg {
+  width: 18px; height: 18px;
+  fill: currentColor;
+}
+
+.guru-sidebar-empty {
+  padding: 1.5rem 1rem;
+  text-align: center;
+  color: var(--guru-text-subtle);
+  font-size: 0.8rem;
+}
+
+/* Footer / Logout */
+.guru-sidebar-footer {
+  padding: 0.75rem;
+  border-top: 1px solid var(--guru-border);
+}
+
+.guru-sidebar-logout {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.65rem 0.75rem;
+  border: 1px solid var(--guru-border);
+  border-radius: 8px;
+  background: var(--guru-white);
+  color: var(--guru-text-muted);
+  font-family: var(--guru-font);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  transition: background var(--guru-transition), color var(--guru-transition);
+}
+
+.guru-sidebar-logout:hover {
+  background: #fff5f5;
+  color: var(--guru-danger);
+  border-color: #fca5a5;
+}
+
+.guru-sidebar-logout .nav-icon {
+  width: 20px; height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.guru-sidebar-logout .nav-icon svg {
+  width: 18px; height: 18px;
+  fill: currentColor;
+}
+
+/* ─── Main Content ────────────────────────────────────────────────────────── */
+.guru-content {
+  flex: 1;
+  margin-left: var(--guru-sidebar-width);
+  margin-top: var(--guru-header-height);
+  min-height: calc(100vh - var(--guru-header-height));
+  transition: margin-left var(--guru-transition);
+}
+
+.guru-layout.sidebar-collapsed .guru-content {
+  margin-left: 72px;
+}
+
+.guru-page-content {
+  padding: 1.75rem;
+}
+
+/* ─── Responsive ──────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  :root { --guru-sidebar-width: 200px; }
+  .guru-header-user-info { display: none; }
+  .guru-header-brand-text { display: none; }
+}

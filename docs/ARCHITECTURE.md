@@ -225,15 +225,20 @@ Tidak ada perubahan schema database pada penambahan terbaru.
 
 Perubahan arsitektur terbaru:
 
-| Area             | Perubahan                                                   |
-| ---------------- | ----------------------------------------------------------- |
-| Backend sesi     | Tambah timeout service dan heartbeat controller             |
-| Backend sesi     | Tambah warning check sebelum create sesi                    |
-| Backend audit    | Tambah endpoint audit presensi terkini                      |
-| Frontend scan    | Tambah tombol akhiri sesi                                   |
-| Frontend audit   | Tambah halaman tabel audit presensi                         |
-| Frontend scanner | Improve kamera HP dengan crop, qrbox, dan track constraints |
-| Script audit     | `check-successful-attendance.sh` ikut mengecek warning      |
+| Area             | Perubahan                                                                                                                |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| Backend sesi     | Tambah timeout service dan heartbeat controller                                                                          |
+| Backend sesi     | Tambah warning check sebelum create sesi                                                                                 |
+| Backend audit    | Tambah endpoint audit presensi terkini                                                                                   |
+| Frontend scan    | Tambah tombol akhiri sesi                                                                                                |
+| Frontend audit   | Tambah halaman tabel audit presensi                                                                                      |
+| Frontend scanner | Improve kamera HP dengan crop, qrbox, dan track constraints                                                              |
+| Script audit     | `check-successful-attendance.sh` ikut mengecek warning                                                                   |
+| Backend core     | Rapikan HTTP core: `Response`, `Request`, `RouteDispatcher`, `HttpException`, `ExceptionHandler`, dan `RequestValidator` |
+| Backend support  | Rapikan helper `Env` dan `Config` dengan typed getter untuk bootstrap/config                                             |
+| Backend CORS     | Rapikan `CorsMiddleware` agar header CORS bisa diuji tanpa langsung emit header                                          |
+| Backend model    | Perketat `User` model sesuai schema `users` dengan fillable, hidden, dan casts                                           |
+| Backend test     | Tambah unit test untuk core/support/middleware/model agar migrasi backend tetap regression-safe                          |
 
 ## Auth dan Permission
 

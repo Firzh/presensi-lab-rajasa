@@ -73,6 +73,15 @@ Removed
 - Menghapus script `check_docs_contracts.py`.
 - Menghapus acuan terhadap ESP32, ruangan, plotting rombel, policy engine, group engine, arsip, dan notifikasi kompleks dari scope MVP.
 
+## Review Backend
+
+- Merapikan HTTP core: `Request`, `Response`, `RouteDispatcher`, `HttpException`, `ExceptionHandler`, dan `RequestValidator`.
+- Merapikan support bootstrap/config melalui `Env` dan `Config`.
+- Merapikan `CorsMiddleware` agar header CORS bisa diuji tanpa langsung emit header.
+- Menyesuaikan `User` model dengan schema `users`.
+- Merapikan `boilerplate` dan `public/index.php` sebagai jalur bootstrap/front controller.
+- Menambahkan unit test untuk core, support, middleware, model, dan bootstrap terkait.
+
 ## [0.9.1] - Session Timeout and Dev Audit Polish
 
 ### Added

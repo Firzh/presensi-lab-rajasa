@@ -36,6 +36,10 @@ Gagal:
 }
 ```
 
+catatan:
+
+- Response error dapat memiliki field opsional `code` jika error internal sudah dimigrasikan pada flow terkait.
+
 Auth header:
 
 ```text

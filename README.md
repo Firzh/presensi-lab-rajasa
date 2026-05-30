@@ -37,6 +37,8 @@ Status saat ini:
 - Halaman `/dev/attendance-audit` menampilkan hasil presensi terkini.
 - Scanner HP diperbaiki untuk membaca QR kecil lebih stabil.
 - Script audit presensi ikut mengecek scan `warning`.
+- Review backend core, support, middleware, model, boilerplate, dan front controller sudah dilakukan.
+- Unit test tambahan untuk core/support/middleware/model sudah ditambahkan.
 
 ## Endpoints
 

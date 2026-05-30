@@ -217,7 +217,54 @@
   background: #fee2e2;
 }
 
-/* ─── Skeleton pulse animation ────────────────────────────────────────────── */
+/* ─── Dark theme overrides ────────────────────────────────────────────────── */
+:root[data-theme='dark'] .presensi-counter-title {
+  color: #f1f5f9;
+}
+
+:root[data-theme='dark'] .presensi-counter-subtitle {
+  color: #94a3b8;
+}
+
+:root[data-theme='dark'] .counter-card {
+  background: #1e2a35;
+  border-color: #374151;
+}
+
+:root[data-theme='dark'] .counter-card-value {
+  color: #f1f5f9;
+}
+
+:root[data-theme='dark'] .counter-card-label {
+  color: #94a3b8;
+}
+
+:root[data-theme='dark'] .counter-card-value.is-loading {
+  background: #374151;
+}
+
+:root[data-theme='dark'] .counter-card--hadir     { --card-icon-bg: #042f2e; }
+:root[data-theme='dark'] .counter-card--terlambat { --card-icon-bg: #451a03; }
+:root[data-theme='dark'] .counter-card--alpha     { --card-icon-bg: #450a0a; }
+:root[data-theme='dark'] .counter-card--sakit     { --card-icon-bg: #0c4a6e; }
+:root[data-theme='dark'] .counter-card--izin      { --card-icon-bg: #2e1065; }
+
+:root[data-theme='dark'] .presensi-counter-error {
+  background: #2d1a1a;
+  border-color: #7f1d1d;
+  color: #f87171;
+}
+
+:root[data-theme='dark'] .counter-retry-btn {
+  background: #1e2a35;
+  border-color: #7f1d1d;
+  color: #f87171;
+}
+
+:root[data-theme='dark'] .counter-retry-btn:hover {
+  background: #2d1a1a;
+}
+
 @keyframes pulse {
   0%, 100% { opacity: 1; }
   50%       { opacity: 0.45; }

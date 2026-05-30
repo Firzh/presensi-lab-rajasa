@@ -305,3 +305,70 @@
     order: 2;
   }
 }
+
+/* ─── Dark theme ──────────────────────────────────────────────────────────── */
+:root[data-theme='dark'] .kalender-title    { color: #f1f5f9; }
+:root[data-theme='dark'] .kalender-subtitle { color: #94a3b8; }
+
+:root[data-theme='dark'] .zoom-group {
+  background: #1e2a35;
+  border-color: #374151;
+}
+
+:root[data-theme='dark'] .zoom-btn { color: #94a3b8; }
+:root[data-theme='dark'] .zoom-btn:hover:not(:disabled) {
+  background: #263340;
+  color: #f1f5f9;
+}
+
+:root[data-theme='dark'] .zoom-value { color: #94a3b8; }
+
+:root[data-theme='dark'] .zoom-reset-btn {
+  background: #1e2a35;
+  border-color: #374151;
+  color: #94a3b8;
+}
+
+:root[data-theme='dark'] .zoom-reset-btn:hover {
+  background: #263340;
+  color: #f1f5f9;
+}
+
+:root[data-theme='dark'] .kalender-viewer-wrap {
+  background: #0f172a;
+  border-color: #374151;
+}
+
+:root[data-theme='dark'] .kalender-empty {
+  background: #1e2a35;
+  border-color: #374151;
+}
+
+:root[data-theme='dark'] .kalender-empty-icon { background: #0c4a6e; }
+:root[data-theme='dark'] .kalender-empty-title { color: #f1f5f9; }
+:root[data-theme='dark'] .kalender-empty-desc  { color: #94a3b8; }
+
+:root[data-theme='dark'] .kalender-empty-badge {
+  background: #451a03;
+  border-color: #78350f;
+  color: #fcd34d;
+}
+
+:root[data-theme='dark'] .kalender-loading { color: #94a3b8; }
+
+:root[data-theme='dark'] .kalender-loading-spinner {
+  border-color: #374151;
+  border-top-color: #38bdf8;
+}
+
+:root[data-theme='dark'] .kalender-error {
+  background: #2d1a1a;
+  border-color: #7f1d1d;
+  color: #f87171;
+}
+
+:root[data-theme='dark'] .kalender-retry-btn {
+  background: #1e2a35;
+  border-color: #7f1d1d;
+  color: #f87171;
+}

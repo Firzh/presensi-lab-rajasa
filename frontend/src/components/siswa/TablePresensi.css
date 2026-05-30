@@ -392,3 +392,79 @@
     align-items: flex-start;
   }
 }
+
+/* ─── Dark theme ──────────────────────────────────────────────────────────── */
+:root[data-theme='dark'] .presensi-table-title  { color: #f1f5f9; }
+:root[data-theme='dark'] .presensi-table-subtitle { color: #94a3b8; }
+
+:root[data-theme='dark'] .filter-bar {
+  background: #1e2a35;
+  border-color: #374151;
+}
+
+:root[data-theme='dark'] .filter-bar-label { color: #94a3b8; }
+
+:root[data-theme='dark'] .filter-chip {
+  background: #1e2a35;
+  border-color: #374151;
+  color: #94a3b8;
+}
+
+:root[data-theme='dark'] .filter-chip:hover {
+  background: #263340;
+  border-color: #4b5563;
+  color: #f1f5f9;
+}
+
+:root[data-theme='dark'] .filter-date-input {
+  background: #1e2a35;
+  border-color: #374151;
+  color: #f1f5f9;
+}
+
+:root[data-theme='dark'] .presensi-table-card {
+  background: #1e2a35;
+  border-color: #374151;
+}
+
+:root[data-theme='dark'] .presensi-table thead {
+  background: #162030;
+}
+
+:root[data-theme='dark'] .presensi-table th { color: #94a3b8; }
+
+:root[data-theme='dark'] .presensi-table td {
+  color: #cbd5e1;
+  border-bottom-color: #263340;
+}
+
+:root[data-theme='dark'] .presensi-table tbody tr:hover td {
+  background: #162030;
+}
+
+:root[data-theme='dark'] .skeleton-cell { background: #374151; }
+
+:root[data-theme='dark'] .table-state-icon { background: #263340; }
+:root[data-theme='dark'] .table-state-title { color: #94a3b8; }
+:root[data-theme='dark'] .table-state-desc  { color: #64748b; }
+
+:root[data-theme='dark'] .pagination-bar { border-top-color: #263340; }
+:root[data-theme='dark'] .pagination-info { color: #94a3b8; }
+
+:root[data-theme='dark'] .pagination-btn {
+  background: #1e2a35;
+  border-color: #374151;
+  color: #94a3b8;
+}
+
+:root[data-theme='dark'] .pagination-btn:hover:not(:disabled) {
+  background: #263340;
+  border-color: #4b5563;
+  color: #f1f5f9;
+}
+
+:root[data-theme='dark'] .pagination-btn.active {
+  background: #0284c7;
+  border-color: #0284c7;
+  color: #fff;
+}

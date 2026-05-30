@@ -20,6 +20,9 @@ import { authApi } from '../../utils/api'
 import auth from '../../utils/auth'
 import './SiswaLayout.css'
 
+// ─── Theme key ────────────────────────────────────────────────────────────────
+const THEME_KEY = 'rajasa-presensi-theme'
+
 // ─── SVG Icon Primitives ─────────────────────────────────────────────────────
 
 /** Grid / Dashboard icon */
@@ -76,6 +79,17 @@ function IconMenu() {
   )
 }
 
+/** Theme toggle icon */
+function IconTheme() {
+  return (
+    <img
+      src="/icon/circle-half-stroke-solid-full.svg"
+      alt=""
+      style={{ width: 20, height: 20, display: 'block', filter: 'var(--theme-toggle-icon-filter, none)' }}
+    />
+  )
+}
+
 /** School / brand icon */
 function IconSchool() {
   return (
@@ -129,7 +143,7 @@ const NAV_TABS = [
  *
  * @param {{ activeTab: string, onTabChange: Function, onToggleSidebar: Function, user: Object }} props
  */
-function SiswaHeader({ activeTab, onTabChange, onToggleSidebar, user }) {
+function SiswaHeader({ activeTab, onTabChange, onToggleSidebar, onToggleTheme, theme, user }) {
   // Derive initials from nama_lengkap or username for the avatar
   const initials = (user?.nama_lengkap || user?.username || 'S')
     .charAt(0)
@@ -170,6 +184,17 @@ function SiswaHeader({ activeTab, onTabChange, onToggleSidebar, user }) {
           </button>
         ))}
       </nav>
+
+      {/* Theme toggle */}
+      <button
+        type="button"
+        className="header-toggle-btn"
+        onClick={onToggleTheme}
+        aria-label={theme === 'light' ? 'Aktifkan mode gelap' : 'Aktifkan mode terang'}
+        style={{ marginLeft: 'auto' }}
+      >
+        <IconTheme />
+      </button>
 
       {/* User info */}
       <div className="header-user" aria-label={`Pengguna: ${user?.nama_lengkap || user?.username}`}>
@@ -306,6 +331,21 @@ export default function SiswaLayout({ user, onLogout, renderPage }) {
   // Loading state for logout
   const [isLoggingOut, setIsLoggingOut] = useState(false)
 
+  // Theme state
+  const [theme, setTheme] = useState(() =>
+    localStorage.getItem(THEME_KEY) || 'light'
+  )
+
+  // Apply theme to <html> on mount and change
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme
+    localStorage.setItem(THEME_KEY, theme)
+  }, [theme])
+
+  const handleToggleTheme = useCallback(() => {
+    setTheme((t) => (t === 'light' ? 'dark' : 'light'))
+  }, [])
+
   /**
    * When the active header tab changes, reset the sidebar to the first
    * available item for that tab (or null if no items).
@@ -343,6 +383,8 @@ export default function SiswaLayout({ user, onLogout, renderPage }) {
         activeTab={activeTab}
         onTabChange={handleTabChange}
         onToggleSidebar={handleToggleSidebar}
+        onToggleTheme={handleToggleTheme}
+        theme={theme}
         user={user}
       />
 

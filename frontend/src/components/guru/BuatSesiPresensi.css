@@ -1,0 +1,424 @@
+/**
+ * BuatSesiPresensi.css
+ *
+ * Styles for the "Buat Sesi Presensi" page (Level 4).
+ * Dashboard Guru → Buat Sesi Presensi.
+ *
+ * Features (Level 5):
+ *   - Mode Rombel / Mode Piket toggle
+ *   - Pilih Rombel (dropdown, visible on mode rombel)
+ *   - Pilih Jam (checkbox grid Jam 1–8)
+ *   - Submit Sesi button
+ *
+ * @author fashich/dashboard-guru-page
+ */
+
+/* ─── Page wrapper ────────────────────────────────────────────────────────── */
+.buat-sesi-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  font-family: 'Poppins', sans-serif;
+  max-width: 640px;
+}
+
+.buat-sesi-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0;
+}
+
+.buat-sesi-subtitle {
+  font-size: 0.8rem;
+  color: #64748b;
+  margin: 0.2rem 0 0;
+}
+
+/* ─── Form card ───────────────────────────────────────────────────────────── */
+.buat-sesi-card {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 1.75rem;
+  box-shadow: 0 1px 4px rgba(0,0,0,.05);
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* ─── Mode toggle (Level 5: Mode Rombel / Piket) ─────────────────────────── */
+.mode-toggle-group {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.mode-toggle-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  background: #f8fafc;
+  color: #64748b;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.mode-toggle-btn:hover {
+  border-color: #0284c7;
+  background: #e0f2fe;
+  color: #0284c7;
+}
+
+.mode-toggle-btn.active {
+  border-color: #0284c7;
+  background: #0284c7;
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(2,132,199,.3);
+}
+
+.mode-toggle-btn .mode-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: rgba(255,255,255,.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mode-toggle-btn .mode-icon svg {
+  width: 20px;
+  height: 20px;
+  fill: currentColor;
+}
+
+.mode-toggle-btn:not(.active) .mode-icon {
+  background: #e0f2fe;
+  color: #0284c7;
+}
+
+/* ─── Form field ──────────────────────────────────────────────────────────── */
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+.form-select {
+  width: 100%;
+  padding: 0.65rem 0.875rem;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 8px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.875rem;
+  color: #1e293b;
+  background: #fff;
+  outline: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' fill='%2364748b' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 20px;
+  padding-right: 2.5rem;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+
+.form-select:focus {
+  border-color: #0284c7;
+  box-shadow: 0 0 0 3px rgba(2,132,199,.15);
+}
+
+.form-select:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ─── Jam grid (Level 5: Jam 1–8) ────────────────────────────────────────── */
+.jam-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.5rem;
+}
+
+.jam-checkbox-item {
+  position: relative;
+}
+
+.jam-checkbox-input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.jam-checkbox-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.15rem;
+  padding: 0.6rem 0.5rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  background: #f8fafc;
+  color: #64748b;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-align: center;
+}
+
+.jam-checkbox-label:hover {
+  border-color: #0284c7;
+  background: #e0f2fe;
+  color: #0284c7;
+}
+
+.jam-checkbox-input:checked + .jam-checkbox-label {
+  border-color: #0284c7;
+  background: #0284c7;
+  color: #fff;
+  box-shadow: 0 1px 4px rgba(2,132,199,.3);
+}
+
+.jam-checkbox-input:disabled + .jam-checkbox-label {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.jam-time {
+  font-size: 0.68rem;
+  font-weight: 400;
+  opacity: 0.8;
+}
+
+/* ─── Submit button ───────────────────────────────────────────────────────── */
+.buat-sesi-submit-btn {
+  width: 100%;
+  padding: 0.8rem;
+  border: none;
+  border-radius: 10px;
+  background: #0284c7;
+  color: #fff;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.buat-sesi-submit-btn:hover:not(:disabled) {
+  background: #0369a1;
+  transform: translateY(-1px);
+}
+
+.buat-sesi-submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.buat-sesi-submit-btn svg {
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
+}
+
+/* ─── Alert / Error ───────────────────────────────────────────────────────── */
+.buat-sesi-alert {
+  padding: 0.875rem 1rem;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+}
+
+.buat-sesi-alert svg {
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.buat-sesi-alert.is-error {
+  background: #fff5f5;
+  border: 1px solid #fca5a5;
+  color: #dc2626;
+}
+
+.buat-sesi-alert.is-success {
+  background: #f0fdf4;
+  border: 1px solid #86efac;
+  color: #16a34a;
+}
+
+/* ─── Success state ───────────────────────────────────────────────────────── */
+.buat-sesi-success {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 1rem;
+  padding: 2rem;
+}
+
+.buat-sesi-success-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: #dcfce7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.buat-sesi-success-icon svg {
+  width: 32px;
+  height: 32px;
+  fill: #16a34a;
+}
+
+.buat-sesi-success h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.buat-sesi-success p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
+.buat-sesi-success-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.btn-outline {
+  padding: 0.55rem 1.25rem;
+  border: 1.5px solid #0284c7;
+  border-radius: 8px;
+  background: transparent;
+  color: #0284c7;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.btn-outline:hover {
+  background: #e0f2fe;
+}
+
+.btn-primary {
+  padding: 0.55rem 1.25rem;
+  border: none;
+  border-radius: 8px;
+  background: #0284c7;
+  color: #fff;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.btn-primary:hover {
+  background: #0369a1;
+}
+
+/* ─── Loading skeleton ────────────────────────────────────────────────────── */
+.skeleton-select {
+  height: 44px;
+  border-radius: 8px;
+  background: #e2e8f0;
+  animation: pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.45; }
+}
+
+/* ─── Dark theme ──────────────────────────────────────────────────────────── */
+:root[data-theme='dark'] .buat-sesi-title  { color: #f1f5f9; }
+:root[data-theme='dark'] .buat-sesi-subtitle { color: #94a3b8; }
+
+:root[data-theme='dark'] .buat-sesi-card {
+  background: #1e2a35;
+  border-color: #374151;
+}
+
+:root[data-theme='dark'] .mode-toggle-btn {
+  background: #162030;
+  border-color: #374151;
+  color: #94a3b8;
+}
+
+:root[data-theme='dark'] .mode-toggle-btn:hover {
+  background: #0c4a6e;
+  border-color: #38bdf8;
+  color: #38bdf8;
+}
+
+:root[data-theme='dark'] .mode-toggle-btn.active {
+  background: #0284c7;
+  border-color: #0284c7;
+  color: #fff;
+}
+
+:root[data-theme='dark'] .form-label { color: #cbd5e1; }
+
+:root[data-theme='dark'] .form-select {
+  background-color: #162030;
+  border-color: #374151;
+  color: #f1f5f9;
+}
+
+:root[data-theme='dark'] .jam-checkbox-label {
+  background: #162030;
+  border-color: #374151;
+  color: #94a3b8;
+}
+
+:root[data-theme='dark'] .jam-checkbox-label:hover {
+  background: #0c4a6e;
+  border-color: #38bdf8;
+  color: #38bdf8;
+}
+
+:root[data-theme='dark'] .jam-checkbox-input:checked + .jam-checkbox-label {
+  background: #0284c7;
+  border-color: #0284c7;
+  color: #fff;
+}

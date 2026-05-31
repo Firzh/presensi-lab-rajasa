@@ -1,0 +1,274 @@
+/**
+ * SesiAktif.css
+ *
+ * Styles for the "Lihat Sesi Aktif" page (Level 4).
+ * Presensi → Lihat Sesi Aktif.
+ *
+ * Features (Level 5):
+ *   - Resume Sesi
+ *   - Pause Sesi
+ *   - Finish Sesi
+ *
+ * @author fashich/dashboard-guru-page
+ */
+
+.sesi-aktif-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  font-family: 'Poppins', sans-serif;
+}
+
+.sesi-aktif-title    { font-size: 1.1rem; font-weight: 600; color: #1e293b; margin: 0; }
+.sesi-aktif-subtitle { font-size: 0.8rem; color: #64748b; margin: 0.2rem 0 0; }
+
+/* ─── Loading / Empty / Error states ─────────────────────────────────────── */
+.sesi-state-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 3rem 2rem;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  text-align: center;
+  font-family: 'Poppins', sans-serif;
+}
+
+.sesi-state-icon {
+  width: 56px; height: 56px;
+  border-radius: 50%;
+  background: #f1f5f9;
+  display: flex; align-items: center; justify-content: center;
+}
+
+.sesi-state-icon svg { width: 28px; height: 28px; fill: #94a3b8; }
+.sesi-state-icon.is-error { background: #fff5f5; }
+.sesi-state-icon.is-error svg { fill: #ef4444; }
+
+.sesi-state-title { font-size: 0.95rem; font-weight: 600; color: #475569; margin: 0; }
+.sesi-state-desc  { font-size: 0.82rem; color: #94a3b8; margin: 0; }
+
+.sesi-state-spinner {
+  width: 32px; height: 32px;
+  border: 3px solid #e2e8f0;
+  border-top-color: #0284c7;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.sesi-retry-btn {
+  margin-top: 0.25rem;
+  padding: 0.4rem 1rem;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 8px;
+  background: #fff;
+  color: #64748b;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.sesi-retry-btn:hover { background: #f1f5f9; }
+
+/* ─── Session cards list ──────────────────────────────────────────────────── */
+.sesi-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.sesi-card {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0,0,0,.05);
+}
+
+/* Status bar at top of card */
+.sesi-card-bar {
+  height: 4px;
+}
+
+.sesi-card-bar.status-aktif     { background: #10b981; }
+.sesi-card-bar.status-suspended { background: #f59e0b; }
+.sesi-card-bar.status-selesai   { background: #94a3b8; }
+
+.sesi-card-body {
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* ─── Session header info ─────────────────────────────────────────────────── */
+.sesi-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.sesi-card-info h3 {
+  margin: 0 0 0.25rem;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.sesi-card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.sesi-meta-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 99px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  background: #f1f5f9;
+  color: #64748b;
+}
+
+.sesi-meta-tag.tag-rombel  { background: #e0f2fe; color: #0369a1; }
+.sesi-meta-tag.tag-piket   { background: #fef3c7; color: #b45309; }
+.sesi-meta-tag.tag-aktif   { background: #dcfce7; color: #15803d; }
+.sesi-meta-tag.tag-paused  { background: #fef3c7; color: #b45309; }
+
+.sesi-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: 99px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.sesi-status-badge.aktif     { background: #dcfce7; color: #15803d; }
+.sesi-status-badge.suspended { background: #fef3c7; color: #b45309; }
+.sesi-status-badge.selesai   { background: #f1f5f9; color: #64748b; }
+
+.status-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+/* ─── Jam list ────────────────────────────────────────────────────────────── */
+.sesi-jam-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.sesi-jam-chip {
+  padding: 0.2rem 0.55rem;
+  border-radius: 6px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  background: #e0f2fe;
+  color: #0369a1;
+}
+
+/* ─── Action buttons (Level 5) ────────────────────────────────────────────── */
+.sesi-card-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  border-top: 1px solid #f1f5f9;
+  padding-top: 1rem;
+}
+
+.sesi-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 8px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.1s;
+}
+
+.sesi-action-btn:hover:not(:disabled) { opacity: 0.88; transform: translateY(-1px); }
+.sesi-action-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.sesi-action-btn svg { width: 16px; height: 16px; fill: currentColor; }
+
+.sesi-action-btn.btn-resume  { background: #0284c7; color: #fff; }
+.sesi-action-btn.btn-pause   { background: #f59e0b; color: #fff; }
+.sesi-action-btn.btn-finish  { background: #ef4444; color: #fff; }
+
+/* Confirm finish modal */
+.finish-confirm {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 1rem;
+  background: #fff5f5;
+  border: 1px solid #fca5a5;
+  border-radius: 10px;
+  font-size: 0.82rem;
+  color: #dc2626;
+}
+
+.finish-confirm-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.btn-cancel-finish {
+  padding: 0.35rem 0.85rem;
+  border: 1.5px solid #fca5a5;
+  border-radius: 6px;
+  background: #fff;
+  color: #dc2626;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-confirm-finish {
+  padding: 0.35rem 0.85rem;
+  border: none;
+  border-radius: 6px;
+  background: #ef4444;
+  color: #fff;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* ─── Dark theme ──────────────────────────────────────────────────────────── */
+:root[data-theme='dark'] .sesi-aktif-title    { color: #f1f5f9; }
+:root[data-theme='dark'] .sesi-aktif-subtitle { color: #94a3b8; }
+:root[data-theme='dark'] .sesi-state-box   { background: #1e2a35; border-color: #374151; }
+:root[data-theme='dark'] .sesi-state-icon  { background: #263340; }
+:root[data-theme='dark'] .sesi-state-title { color: #94a3b8; }
+:root[data-theme='dark'] .sesi-state-desc  { color: #64748b; }
+:root[data-theme='dark'] .sesi-retry-btn   { background: #1e2a35; border-color: #374151; color: #94a3b8; }
+:root[data-theme='dark'] .sesi-card        { background: #1e2a35; border-color: #374151; }
+:root[data-theme='dark'] .sesi-card-info h3 { color: #f1f5f9; }
+:root[data-theme='dark'] .sesi-meta-tag    { background: #263340; color: #94a3b8; }
+:root[data-theme='dark'] .sesi-jam-chip    { background: #0c4a6e; color: #7dd3fc; }
+:root[data-theme='dark'] .sesi-card-actions { border-top-color: #374151; }
+:root[data-theme='dark'] .finish-confirm   { background: #2d1a1a; border-color: #7f1d1d; }

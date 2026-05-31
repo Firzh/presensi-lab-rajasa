@@ -17,6 +17,7 @@
 
 import GuruLayout from '../../components/guru/GuruLayout'
 import BuatSesiPresensi from '../../components/guru/BuatSesiPresensi'
+import SesiAktif from '../../components/guru/SesiAktif'
 
 /**
  * Temporary placeholder — replaced by real components in next commits.
@@ -65,8 +66,7 @@ function resolveContent(activeTab, activePage) {
 
   if (activeTab === 'presensi') {
     if (activePage === 'sesi-aktif') {
-      // TODO: Replace with <SesiAktif /> in next commit
-      return <PagePlaceholder label="Lihat Sesi Aktif" />
+      return <SesiAktif />
     }
     if (activePage === 'rekap') {
       // TODO: Replace with <RekapPresensi /> in next commit

@@ -18,43 +18,7 @@
 import GuruLayout from '../../components/guru/GuruLayout'
 import BuatSesiPresensi from '../../components/guru/BuatSesiPresensi'
 import SesiAktif from '../../components/guru/SesiAktif'
-
-/**
- * Temporary placeholder — replaced by real components in next commits.
- */
-function PagePlaceholder({ label }) {
-  return (
-    <div style={{
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      minHeight: '60vh',
-      gap: '1rem',
-      color: '#64748b',
-      fontFamily: 'Poppins, sans-serif',
-    }}>
-      <div style={{
-        width: 64, height: 64,
-        borderRadius: '50%',
-        background: '#e0f2fe',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-      }}>
-        <svg viewBox="0 0 24 24" width="32" height="32" fill="#0284c7" aria-hidden="true">
-          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" />
-        </svg>
-      </div>
-      <p style={{ margin: 0, fontWeight: 600, fontSize: '1rem', color: '#1e293b' }}>
-        {label}
-      </p>
-      <p style={{ margin: 0, fontSize: '0.85rem' }}>
-        Konten halaman ini sedang dalam pengembangan.
-      </p>
-    </div>
-  )
-}
+import RekapPresensi from '../../components/guru/RekapPresensi'
 
 /**
  * Resolve content component based on active tab + page.
@@ -69,8 +33,7 @@ function resolveContent(activeTab, activePage) {
       return <SesiAktif />
     }
     if (activePage === 'rekap') {
-      // TODO: Replace with <RekapPresensi /> in next commit
-      return <PagePlaceholder label="Rekap Presensi" />
+      return <RekapPresensi />
     }
   }
 

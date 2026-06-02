@@ -9,27 +9,27 @@ final class Request
     private ?array $cachedBody = null;
 
     public function __construct(
-        private readonly ?array $server = null,
-        private readonly ?array $queryParams = null,
-        private readonly ?array $postParams = null,
-        private readonly ?array $uploadedFiles = null,
-        private readonly ?string $rawBodyContent = null
+        private readonly array $server,
+        private readonly array $queryParams,
+        private readonly array $postParams,
+        private readonly array $uploadedFiles,
+        private readonly string $rawBodyContent
     ) {
     }
 
     public function file(string $key): ?array
     {
-        return $this->uploadedFiles()[$key] ?? null;
+        return $this->uploadedFiles[$key] ?? null;
     }
 
     public function method(): string
     {
-        return strtoupper((string) ($this->server()['REQUEST_METHOD'] ?? 'GET'));
+        return strtoupper((string) ($this->server['REQUEST_METHOD'] ?? 'GET'));
     }
 
     public function uri(): string
     {
-        $uri = (string) ($this->server()['REQUEST_URI'] ?? '/');
+        $uri = (string) ($this->server['REQUEST_URI'] ?? '/');
 
         if (false !== $pos = strpos($uri, '?')) {
             return substr($uri, 0, $pos);
@@ -40,7 +40,7 @@ final class Request
 
     public function query(): array
     {
-        return $this->queryParams();
+        return $this->queryParams;
     }
 
     public function body(): array
@@ -52,7 +52,7 @@ final class Request
         $contentType = (string) $this->header('Content-Type', '');
 
         if (str_contains(strtolower($contentType), 'application/json')) {
-            $raw = $this->rawBody();
+            $raw = $this->rawBodyContent;
 
             if ($raw === '') {
                 return $this->cachedBody = [];
@@ -69,7 +69,7 @@ final class Request
             return $this->cachedBody = $decoded;
         }
 
-        return $this->cachedBody = $this->postParams();
+        return $this->cachedBody = $this->postParams;
     }
 
     public function input(string $key, mixed $default = null): mixed
@@ -77,10 +77,9 @@ final class Request
         return $this->body()[$key] ?? $this->query()[$key] ?? $default;
     }
 
-        public function header(string $key, mixed $default = null): mixed
+    public function header(string $key, mixed $default = null): mixed
     {
         $normalized = strtoupper(str_replace('-', '_', $key));
-        $server = $this->server();
 
         $candidates = [
             'HTTP_' . $normalized,
@@ -90,10 +89,10 @@ final class Request
         ];
 
         foreach ($candidates as $candidate) {
-            if (array_key_exists($candidate, $server)) {
-                return is_string($server[$candidate])
-                    ? trim($server[$candidate])
-                    : $server[$candidate];
+            if (array_key_exists($candidate, $this->server)) {
+                return is_string($this->server[$candidate])
+                    ? trim($this->server[$candidate])
+                    : $this->server[$candidate];
             }
         }
 
@@ -113,66 +112,5 @@ final class Request
         }
 
         return trim($matches[1]);
-    }
-
-    private function rawBody(): string
-    {
-        if ($this->rawBodyContent !== null) {
-            return $this->rawBodyContent;
-        }
-
-        // Refactor guard:
-        // Legacy fallback dimatikan untuk mendeteksi runtime/test yang belum inject Request snapshot.
-        // if (array_key_exists('__TEST_RAW_BODY', $GLOBALS)) {
-        //     return (string) $GLOBALS['__TEST_RAW_BODY'];
-        // }
-        //
-        // return file_get_contents('php://input') ?: '';
-
-        throw new \RuntimeException('Request raw body snapshot belum di-inject. Jangan gunakan php://input atau $GLOBALS fallback.');
-    }
-
-    private function server(): array
-    {
-        if ($this->server !== null) {
-            return $this->server;
-        }
-
-        // return $_SERVER;
-
-        throw new \RuntimeException('Request server snapshot belum di-inject. Jangan gunakan $_SERVER fallback.');
-    }
-
-    private function queryParams(): array
-    {
-        if ($this->queryParams !== null) {
-            return $this->queryParams;
-        }
-
-        // return $_GET;
-
-        throw new \RuntimeException('Request query snapshot belum di-inject. Jangan gunakan $_GET fallback.');
-    }
-
-    private function postParams(): array
-    {
-        if ($this->postParams !== null) {
-            return $this->postParams;
-        }
-
-        // return $_POST;
-
-        throw new \RuntimeException('Request post snapshot belum di-inject. Jangan gunakan $_POST fallback.');
-    }
-
-    private function uploadedFiles(): array
-    {
-        if ($this->uploadedFiles !== null) {
-            return $this->uploadedFiles;
-        }
-
-        // return $_FILES;
-
-        throw new \RuntimeException('Request uploaded file snapshot belum di-inject. Jangan gunakan $_FILES fallback.');
     }
 }

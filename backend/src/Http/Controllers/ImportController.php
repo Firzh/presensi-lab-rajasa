@@ -27,7 +27,7 @@ final class ImportController
     ) {
     }
 
-    public function __invoke(): void
+    public function submit(): void
     {
         $this->permission->require('import.submit');
 
@@ -71,6 +71,24 @@ final class ImportController
             'detected_type' => 'siswa',
             ...$result,
         ], 201);
+    }
+
+    public function jobs(): void
+    {
+        $this->permission->require('import.read');
+
+        Response::success('Riwayat import.', [
+            'jobs' => $this->siswaImporter->jobs(),
+        ]);
+    }
+
+    public function rows(string $id): void
+    {
+        $this->permission->require('import.read');
+
+        Response::success('Log baris import.', [
+            'rows' => $this->siswaImporter->rowLogs((int) $id),
+        ]);
     }
 
     private function resolveFileInput(): array

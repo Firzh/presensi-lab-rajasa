@@ -9,7 +9,7 @@ use Rajasa\PresensiSiswa\Core\Request;
 use Rajasa\PresensiSiswa\Core\Response;
 use Rajasa\PresensiSiswa\Services\AuthService;
 
-final class AuthLoginController
+final class AuthController
 {
     public function __construct(
         private readonly Request $request,
@@ -17,7 +17,7 @@ final class AuthLoginController
     ) {
     }
 
-    public function __invoke(): void
+    public function login(): void
     {
         $username = trim((string) $this->request->input('username', ''));
         $password = (string) $this->request->input('password', '');
@@ -30,5 +30,12 @@ final class AuthLoginController
         }
 
         Response::success('Login berhasil.', $this->authService->login($username, $password));
+    }
+
+    public function logout(): void
+    {
+        Response::success('Logout berhasil.', [
+            'note' => 'Token stateless. Hapus token di sisi client.',
+        ]);
     }
 }

@@ -121,31 +121,58 @@ final class Request
             return $this->rawBodyContent;
         }
 
-        //legacy testinng raw body
-        if (array_key_exists('__TEST_RAW_BODY', $GLOBALS)) {
-            return (string) $GLOBALS['__TEST_RAW_BODY'];
-        }
+        // Refactor guard:
+        // Legacy fallback dimatikan untuk mendeteksi runtime/test yang belum inject Request snapshot.
+        // if (array_key_exists('__TEST_RAW_BODY', $GLOBALS)) {
+        //     return (string) $GLOBALS['__TEST_RAW_BODY'];
+        // }
+        //
+        // return file_get_contents('php://input') ?: '';
 
-        return file_get_contents('php://input') ?: '';
+        throw new \RuntimeException('Request raw body snapshot belum di-inject. Jangan gunakan php://input atau $GLOBALS fallback.');
     }
 
     private function server(): array
     {
-        return $this->server ?? $_SERVER;
+        if ($this->server !== null) {
+            return $this->server;
+        }
+
+        // return $_SERVER;
+
+        throw new \RuntimeException('Request server snapshot belum di-inject. Jangan gunakan $_SERVER fallback.');
     }
 
     private function queryParams(): array
     {
-        return $this->queryParams ?? $_GET;
+        if ($this->queryParams !== null) {
+            return $this->queryParams;
+        }
+
+        // return $_GET;
+
+        throw new \RuntimeException('Request query snapshot belum di-inject. Jangan gunakan $_GET fallback.');
     }
 
     private function postParams(): array
     {
-        return $this->postParams ?? $_POST;
+        if ($this->postParams !== null) {
+            return $this->postParams;
+        }
+
+        // return $_POST;
+
+        throw new \RuntimeException('Request post snapshot belum di-inject. Jangan gunakan $_POST fallback.');
     }
 
     private function uploadedFiles(): array
     {
-        return $this->uploadedFiles ?? $_FILES;
+        if ($this->uploadedFiles !== null) {
+            return $this->uploadedFiles;
+        }
+
+        // return $_FILES;
+
+        throw new \RuntimeException('Request uploaded file snapshot belum di-inject. Jangan gunakan $_FILES fallback.');
     }
 }

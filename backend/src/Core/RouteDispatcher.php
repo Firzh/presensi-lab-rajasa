@@ -44,6 +44,24 @@ final class RouteDispatcher
             return;
         }
 
+        if (
+            is_array($handler)
+            && count($handler) === 2
+            && is_string($handler[0])
+            && is_string($handler[1])
+        ) {
+            $controller = $this->container->get($handler[0]);
+            $method = $handler[1];
+
+            if (!method_exists($controller, $method)) {
+                throw new HttpException('Method controller tidak ditemukan.', 500);
+            }
+
+            $result = $controller->{$method}(...array_values($vars));
+            $this->sendIfResponse($result);
+            return;
+        }
+
         if (is_callable($handler)) {
             $result = $handler(...array_values($vars));
             $this->sendIfResponse($result);

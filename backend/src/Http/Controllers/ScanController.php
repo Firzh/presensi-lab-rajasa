@@ -9,19 +9,34 @@ use Rajasa\PresensiSiswa\Core\Request;
 use Rajasa\PresensiSiswa\Core\Response;
 use Rajasa\PresensiSiswa\Http\Middleware\AuthMiddleware;
 use Rajasa\PresensiSiswa\Http\Middleware\PermissionMiddleware;
+use Rajasa\PresensiSiswa\Services\PresensiScanService;
 use Rajasa\PresensiSiswa\Services\ScanReadinessImportService;
 
-final class ScanReadinessImportController
+final class ScanController
 {
     public function __construct(
         private readonly Request $request,
         private readonly AuthMiddleware $auth,
         private readonly PermissionMiddleware $permission,
-        private readonly ScanReadinessImportService $service
+        private readonly PresensiScanService $scanService,
+        private readonly ScanReadinessImportService $importService
     ) {
     }
 
-    public function __invoke(): void
+    public function scan(): void
+    {
+        $this->permission->require('attendance.scan');
+
+        $user = $this->auth->user();
+
+        Response::success(
+            'Scan QR diproses.',
+            $this->scanService->scan($this->request->body(), (int) $user->user_id),
+            201
+        );
+    }
+
+    public function importReadiness(): void
     {
         $this->permission->require('import.submit');
 
@@ -31,7 +46,7 @@ final class ScanReadinessImportController
 
         Response::success(
             'Import scan readiness selesai.',
-            $this->service->importFromPath($filePath, (int) $user->user_id),
+            $this->importService->importFromPath($filePath, (int) $user->user_id),
             201
         );
     }

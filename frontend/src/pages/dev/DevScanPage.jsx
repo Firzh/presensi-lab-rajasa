@@ -8,70 +8,18 @@ import {
   finishPresensiSession,
   heartbeatPresensiSession,
 } from '../../api/presensiScanApi.js';
+import {
+  DevScanAuthPanel,
+  DevScanSessionPanel,
+  DevScanScannerPanel,
+  DevScanResultPanel,
+  Field,
+  StatusBox,
+} from '../../components/dev-scan/index.js';
 import { useQrScanner } from '../../hooks/useQrScanner.js';
 
-const DEFAULT_PAYLOAD =
-  'https://docs.google.com/forms/d/e/1FAIpQLSdld41u92r5hCQUzp_HeGNnPN7StSC9LcAlixa9Ymzg4ixkRw/formResponse?usp=pp_url&entry.1743651050=RENDY+PRAWIRA&entry.178375719=0099662619';
-
-const JAM_OPTIONS = [
-  { id: 1, label: 'Jam 1' },
-  { id: 2, label: 'Jam 2' },
-  { id: 3, label: 'Jam 3' },
-];
-
-function sortJamIds(jamIds) {
-  return [...jamIds].sort((a, b) => a - b);
-}
-
-function getQrFingerprint(payload) {
-  return payload.trim().toLowerCase();
-}
-
-function getRombelLabel(item) {
-  if (!item) {
-    return 'Belum memilih rombel';
-  }
-
-  const label = String(item.label || item.label_rombel || item.label_rombel_raw || '').trim();
-
-  if (label !== '') {
-    return label;
-  }
-
-  return `Rombel #${item.rombel_id}`;
-}
-
-function getSelectedJamLabel(selectedJamIds) {
-  if (selectedJamIds.length === 0) {
-    return 'Pilih jam presensi';
-  }
-
-  return JAM_OPTIONS.filter((item) => selectedJamIds.includes(item.id))
-    .map((item) => item.label)
-    .join(', ');
-}
-
-function StatusBox({ message, type = 'info' }) {
-  const className =
-    type === 'success'
-      ? 'border-emerald-200 bg-emerald-50 text-emerald-800'
-      : type === 'error'
-        ? 'border-red-200 bg-red-50 text-red-800'
-        : type === 'warning'
-          ? 'border-amber-200 bg-amber-50 text-amber-800'
-          : 'border-blue-200 bg-blue-50 text-blue-800';
-
-  return <div className={`rounded-xl border px-4 py-3 text-sm ${className}`}>{message}</div>;
-}
-
-function Field({ label, children }) {
-  return (
-    <label className="block">
-      <span className="mb-1 block text-sm font-semibold text-slate-700">{label}</span>
-      {children}
-    </label>
-  );
-}
+import { DEFAULT_PAYLOAD } from '../../constants/devScan.js';
+import { getQrFingerprint, getRombelLabel, sortJamIds } from '../../lib/devScanUtils.js';
 
 export function DevScanPage() {
   const processedPayloadsRef = useRef(new Set());
@@ -489,272 +437,57 @@ export function DevScanPage() {
   return (
     <main className="min-h-screen bg-slate-100 px-4 py-6 text-slate-900">
       <div className="mx-auto max-w-5xl space-y-4">
-        <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-          <p className="text-sm font-semibold uppercase tracking-wide text-blue-700">Tahap 8.3c</p>
-          <h1 className="mt-1 text-2xl font-bold">Demo Scan QR Presensi</h1>
-          <p className="mt-2 text-sm text-slate-600">
-            Halaman ini untuk demo alur presensi via HP. Dropdown rombel sudah mengambil data dari
-            database.
-          </p>
-          <a
-            className="mt-4 inline-flex rounded-xl border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-700"
-            href="/dev/attendance-audit"
-          >
-            Lihat Hasil Presensi Terkini
-          </a>
-          <a
-            className="mt-4 ml-2 inline-flex rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-700"
-            href="/dev/import"
-          >
-            Demo Import
-          </a>
-          <div className="mt-4">
-            <StatusBox message={secureContextMessage.message} type={secureContextMessage.type} />
-          </div>
-        </section>
+        <DevScanResultPanel
+          statusMessage={statusMessage}
+          statusType={statusType}
+          responseJson={responseJson}
+        />
 
         <section className="grid gap-4 lg:grid-cols-2">
-          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-            <h2 className="text-lg font-bold">1. Login Demo</h2>
-
-            <div className="mt-4 grid gap-3 sm:grid-cols-2">
-              <Field label="Username">
-                <input
-                  className="w-full rounded-xl border border-slate-300 px-3 py-2"
-                  value={username}
-                  onInput={(event) => setUsername(event.currentTarget.value)}
-                />
-              </Field>
-
-              <Field label="Password">
-                <input
-                  className="w-full rounded-xl border border-slate-300 px-3 py-2"
-                  type="password"
-                  value={password}
-                  onInput={(event) => setPassword(event.currentTarget.value)}
-                />
-              </Field>
-            </div>
-
-            <button
-              className="mt-4 w-full rounded-xl bg-blue-600 px-4 py-2 font-semibold text-white"
-              type="button"
-              onClick={handleLogin}
-            >
-              Login dan Muat Rombel
-            </button>
-
-            <button
-              className="mt-3 w-full rounded-xl border border-blue-200 bg-blue-50 px-4 py-2 font-semibold text-blue-700 disabled:opacity-50"
-              type="button"
-              disabled={!token || isLoadingRombel}
-              onClick={() => handleLoadRombelOptions()}
-            >
-              {isLoadingRombel ? 'Memuat Rombel...' : 'Refresh Daftar Rombel'}
-            </button>
-
-            <Field label="Token">
-              <textarea
-                className="mt-2 min-h-20 w-full rounded-xl border border-slate-300 px-3 py-2 text-xs"
-                value={token}
-                onInput={(event) => setToken(event.currentTarget.value)}
-                placeholder="Token akan terisi setelah login"
-              />
-            </Field>
-          </div>
-
-          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-            <h2 className="text-lg font-bold">2. Buat Sesi</h2>
-
-            <div className="mt-4 grid gap-3 sm:grid-cols-2">
-              <Field label="Mode">
-                <select
-                  className="w-full rounded-xl border border-slate-300 px-3 py-2"
-                  value={modePresensi}
-                  onInput={(event) => handleModeChange(event.currentTarget.value)}
-                >
-                  <option value="rombel">rombel</option>
-                  <option value="piket">piket</option>
-                </select>
-              </Field>
-
-              <Field label="Rombel">
-                <select
-                  className="w-full rounded-xl border border-slate-300 px-3 py-2 disabled:bg-slate-100"
-                  disabled={
-                    modePresensi === 'piket' || isLoadingRombel || rombelOptions.length === 0
-                  }
-                  value={selectedRombelId}
-                  onInput={(event) => setSelectedRombelId(event.currentTarget.value)}
-                >
-                  {rombelOptions.length === 0 && <option value="">Belum ada data rombel</option>}
-
-                  {rombelOptions.map((item) => (
-                    <option key={item.rombel_id} value={String(item.rombel_id)}>
-                      {getRombelLabel(item)}
-                    </option>
-                  ))}
-                </select>
-              </Field>
-
-              <Field label="Jam Presensi">
-                <div className="relative">
-                  <button
-                    type="button"
-                    className="flex w-full items-center justify-between rounded-xl border border-slate-300 bg-white px-3 py-2 text-left text-sm"
-                    onClick={() => setIsJamDropdownOpen((value) => !value)}
-                  >
-                    <span>{getSelectedJamLabel(selectedJamIds)}</span>
-                    <span className="text-slate-500">▾</span>
-                  </button>
-
-                  {isJamDropdownOpen && (
-                    <div className="absolute z-20 mt-2 w-full rounded-xl border border-slate-200 bg-white p-2 shadow-lg">
-                      {JAM_OPTIONS.map((jam) => {
-                        const checked = selectedJamIds.includes(jam.id);
-
-                        return (
-                          <button
-                            key={jam.id}
-                            type="button"
-                            className={`flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm ${
-                              checked
-                                ? 'bg-blue-50 font-semibold text-blue-700'
-                                : 'bg-white text-slate-700 hover:bg-slate-50'
-                            }`}
-                            onClick={() => handleToggleJam(jam.id)}
-                          >
-                            <span>{jam.label}</span>
-                            <span>{checked ? '✓' : ''}</span>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  )}
-                </div>
-              </Field>
-
-              <Field label="Ruang">
-                <select
-                  className="w-full rounded-xl border border-slate-300 px-3 py-2"
-                  value={ruangPilihan}
-                  onInput={(event) => setRuangPilihan(event.currentTarget.value)}
-                >
-                  <option value="kelas">kelas</option>
-                  <option value="lab-tkj-1">lab-tkj-1</option>
-                  <option value="lab-tkj-2">lab-tkj-2</option>
-                  <option value="lab-tkj-3">lab-tkj-3</option>
-                  <option value="lab-tkj-4">lab-tkj-4</option>
-                  <option value="piket">piket</option>
-                </select>
-              </Field>
-            </div>
-
-            <div className="mt-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700">
-              <p className="font-semibold">Sesi akan dibuat untuk:</p>
-              <p>{rombelLabel}</p>
-
-              {selectedRombel && modePresensi === 'rombel' && (
-                <div className="mt-2 text-xs text-slate-500">
-                  <p>Rombel ID: {selectedRombel.rombel_id}</p>
-                  <p>
-                    Tingkat: {selectedRombel.tingkat_angka || selectedRombel.tingkatan || '-'} |
-                    Nomor: {selectedRombel.nomor_rombel || '-'}
-                  </p>
-                  <p>
-                    Jurusan: {selectedRombel.kode_jurusan || selectedRombel.nama_jurusan || '-'}
-                  </p>
-                </div>
-              )}
-            </div>
-
-            <button
-              className="mt-4 w-full rounded-xl bg-emerald-600 px-4 py-2 font-semibold text-white"
-              type="button"
-              onClick={handleCreateSession}
-            >
-              Buat Sesi
-            </button>
-
-            <button
-              className="mt-3 w-full rounded-xl bg-red-600 px-4 py-2 font-semibold text-white disabled:opacity-50"
-              type="button"
-              disabled={!presensiSesiId}
-              onClick={handleFinishSession}
-            >
-              Akhiri Sesi
-            </button>
-
-            <Field label="Presensi Sesi ID">
-              <input
-                className="mt-2 w-full rounded-xl border border-slate-300 px-3 py-2"
-                type="number"
-                value={presensiSesiId}
-                onInput={(event) => setPresensiSesiId(event.currentTarget.value)}
-              />
-            </Field>
-
-            {sessionLabel && (
-              <div className="mt-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
-                Sesi aktif: {sessionLabel}
-              </div>
-            )}
-          </div>
-        </section>
-
-        <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-          <h2 className="text-lg font-bold">3. Scan QR</h2>
-
-          <div
-            id="qr-reader"
-            className="qr-reader-enhanced mt-4 min-h-115 overflow-hidden rounded-2xl border border-slate-300 bg-slate-950"
+          <DevScanAuthPanel
+            username={username}
+            setUsername={setUsername}
+            password={password}
+            setPassword={setPassword}
+            token={token}
+            setToken={setToken}
+            isLoadingRombel={isLoadingRombel}
+            onLogin={handleLogin}
+            onRefreshRombel={() => handleLoadRombelOptions()}
           />
 
-          {scannerError && (
-            <div className="mt-3">
-              <StatusBox
-                type="error"
-                message={`Kamera gagal dibuka: ${scannerError}. Coba HTTPS Cloudflare atau paste payload manual.`}
-              />
-            </div>
-          )}
-
-          <div className="mt-4 grid gap-3 sm:grid-cols-2">
-            <button
-              className="rounded-xl bg-blue-600 px-4 py-2 font-semibold text-white disabled:opacity-50"
-              type="button"
-              disabled={isScanning}
-              onClick={startScanner}
-            >
-              Buka Kamera
-            </button>
-
-            <button
-              className="rounded-xl bg-red-600 px-4 py-2 font-semibold text-white disabled:opacity-50"
-              type="button"
-              disabled={!isScanning}
-              onClick={stopScanner}
-            >
-              Tutup Kamera
-            </button>
-          </div>
-
-          <Field label="Payload hasil scan / paste manual">
-            <textarea
-              className="mt-2 min-h-28 w-full rounded-xl border border-slate-300 px-3 py-2 text-xs"
-              value={payloadRaw}
-              onInput={(event) => setPayloadRaw(event.currentTarget.value)}
-            />
-          </Field>
-
-          <button
-            className="mt-4 w-full rounded-xl bg-slate-800 px-4 py-2 font-semibold text-white"
-            type="button"
-            onClick={() => handleSubmitScan()}
-          >
-            Kirim Scan Manual
-          </button>
+          <DevScanSessionPanel
+            modePresensi={modePresensi}
+            onModeChange={handleModeChange}
+            rombelOptions={rombelOptions}
+            selectedRombelId={selectedRombelId}
+            setSelectedRombelId={setSelectedRombelId}
+            selectedRombel={selectedRombel}
+            isLoadingRombel={isLoadingRombel}
+            selectedJamIds={selectedJamIds}
+            isJamDropdownOpen={isJamDropdownOpen}
+            setIsJamDropdownOpen={setIsJamDropdownOpen}
+            onToggleJam={handleToggleJam}
+            ruangPilihan={ruangPilihan}
+            setRuangPilihan={setRuangPilihan}
+            rombelLabel={rombelLabel}
+            presensiSesiId={presensiSesiId}
+            setPresensiSesiId={setPresensiSesiId}
+            sessionLabel={sessionLabel}
+            onCreateSession={handleCreateSession}
+            onFinishSession={handleFinishSession}
+          />
         </section>
+
+        <DevScanScannerPanel
+          scannerError={scannerError}
+          isScanning={isScanning}
+          startScanner={startScanner}
+          stopScanner={stopScanner}
+          payloadRaw={payloadRaw}
+          setPayloadRaw={setPayloadRaw}
+          onSubmitScan={handleSubmitScan}
+        />
 
         <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
           <h2 className="text-lg font-bold">Status</h2>

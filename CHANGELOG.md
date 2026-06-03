@@ -73,6 +73,31 @@ Removed
 - Menghapus script `check_docs_contracts.py`.
 - Menghapus acuan terhadap ESP32, ruangan, plotting rombel, policy engine, group engine, arsip, dan notifikasi kompleks dari scope MVP.
 
+## [Addition] - Review Backend [2]
+
+### Added
+
+* Menambahkan `ImportSubmitService` untuk memindahkan orchestration submit import dari controller ke service.
+* Menambahkan `RombelService` untuk memindahkan query dropdown rombel dari controller ke service.
+* Menambahkan `PresensiAuditService` untuk memindahkan query audit presensi terkini dari controller ke service.
+* Menambahkan `PresensiJamSiswaService` untuk memindahkan listing presensi jam siswa dari controller ke service.
+* Menambahkan `PresensiSessionWarningService` untuk memindahkan logic check warning sesi dari controller ke service.
+* Menambahkan `RequestFactory` dan `RequestContext` sebagai boundary request snapshot di backend core.
+
+### Changed
+
+* Mengonsolidasikan controller kecil ke controller gabungan berbasis method route.
+* Mengubah route handler agar dapat memakai format `[ControllerClass, method]`.
+* Mengurangi business/query logic langsung di controller dan memindahkannya ke service layer.
+* Mengubah flow request test agar memakai request snapshot melalui container/test context.
+* Mempertahankan kontrak endpoint API tanpa perubahan path, method, permission, request, atau response.
+
+### Removed
+
+* Menghapus controller kecil legacy yang sudah digabung ke controller utama.
+* Menghapus fallback request global/superglobal dari jalur test backend.
+
+
 ## Review Backend
 
 - Merapikan HTTP core: `Request`, `Response`, `RouteDispatcher`, `HttpException`, `ExceptionHandler`, dan `RequestValidator`.

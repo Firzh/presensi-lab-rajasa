@@ -239,6 +239,11 @@ Perubahan arsitektur terbaru:
 | Backend CORS     | Rapikan `CorsMiddleware` agar header CORS bisa diuji tanpa langsung emit header                                          |
 | Backend model    | Perketat `User` model sesuai schema `users` dengan fillable, hidden, dan casts                                           |
 | Backend test     | Tambah unit test untuk core/support/middleware/model agar migrasi backend tetap regression-safe                          |
+| Backend controller | Konsolidasi controller kecil ke controller gabungan berbasis method route |
+| Backend service    | Pindahkan orchestration import, query rombel, audit, jam siswa, dan warning sesi ke service |
+| Backend core       | Tambah request snapshot boundary melalui `RequestFactory` dan `RequestContext` |
+| Backend routing    | `RouteDispatcher` mendukung handler array `[ControllerClass, method]` |
+
 
 ## Auth dan Permission
 

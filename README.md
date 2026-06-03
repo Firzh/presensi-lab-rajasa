@@ -39,6 +39,11 @@ Status saat ini:
 - Script audit presensi ikut mengecek scan `warning`.
 - Review backend core, support, middleware, model, boilerplate, dan front controller sudah dilakukan.
 - Unit test tambahan untuk core/support/middleware/model sudah ditambahkan.
+- Review backend tahap 2 sudah mengonsolidasikan controller kecil ke controller gabungan berbasis method route.
+- Logic import, rombel, audit, jam siswa, dan warning sesi sudah dipindahkan ke service layer.
+- Request backend sudah memakai request snapshot boundary untuk jalur implementasi dan test.
+- Validasi backend terbaru: `./scripts/test-backend.sh` OK, 86 tests, 306 assertions.
+
 
 ## Endpoints
 

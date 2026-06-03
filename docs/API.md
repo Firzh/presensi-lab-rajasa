@@ -438,6 +438,15 @@ Cloudflare Quick Tunnel didukung untuk kamera HP
 scanner HP memakai crop, qrbox besar, dan camera track enhancement
 ```
 
+Catatan implementasi backend:
+
+```text
+Endpoint API tidak berubah pada refactor 2 Juni.
+Beberapa route kini memakai controller gabungan berbasis method handler.
+Orchestration import, rombel, audit, jam siswa, dan warning sesi dipindahkan ke service.
+```
+
+
 ## Error Code
 
 | Code  | Arti                               |

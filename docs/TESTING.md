@@ -55,6 +55,8 @@ Cloudflare Quick Tunnel HP: passed
 
 Jumlah test dan assertion boleh berubah. Status akhir wajib `OK`.
 
+Validasi refactor 2 Juni: `./scripts/test-backend.sh` OK, 86 tests, 306 assertions.
+
 ## Coverage Otomatis
 
 | Area                                                               | Test         |
@@ -85,6 +87,8 @@ Jumlah test dan assertion boleh berubah. Status akhir wajib `OK`.
 | Manual edit presensi                                               | Feature      |
 | Edit reasons                                                       | Feature      |
 | Audit edit log                                                     | Feature      |
+| Request snapshot dan route method handler                         | Unit/Feature |
+| Service extraction import, rombel, audit, jam siswa, warning sesi  | Unit/Feature |
 | Frontend `/dev/scan`                                               | Build/manual |
 | Frontend `/dev/attendance-audit`                                   | Build/manual |
 

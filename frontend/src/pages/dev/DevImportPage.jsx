@@ -1,5 +1,5 @@
 import { useState } from 'preact/hooks';
-import { loginDev, uploadImportFile } from '../../features/import/services/importApi.js';
+import { loginDev, uploadImportFile } from '../../api/importApi.js';
 
 export function DevImportPage() {
   const [token, setToken] = useState('');

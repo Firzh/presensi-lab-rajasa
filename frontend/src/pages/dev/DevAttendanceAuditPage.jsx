@@ -1,5 +1,5 @@
 import { useState } from 'preact/hooks';
-import { fetchPresensiAudit, loginDev } from '../../features/presensi-scan/services/presensiScanApi.js';
+import { fetchPresensiAudit, loginDev } from '../../api/presensiScanApi.js';
 
 function StatusBadge({ value }) {
   const tone =

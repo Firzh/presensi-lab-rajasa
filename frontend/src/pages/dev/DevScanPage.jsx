@@ -7,8 +7,8 @@ import {
   submitQrScan,
   finishPresensiSession,
   heartbeatPresensiSession,
-} from '../../features/presensi-scan/services/presensiScanApi.js';
-import { useQrScanner } from '../../features/presensi-scan/hooks/useQrScanner.js';
+} from '../../api/presensiScanApi.js';
+import { useQrScanner } from '../../hooks/useQrScanner.js';
 
 const DEFAULT_PAYLOAD =
   'https://docs.google.com/forms/d/e/1FAIpQLSdld41u92r5hCQUzp_HeGNnPN7StSC9LcAlixa9Ymzg4ixkRw/formResponse?usp=pp_url&entry.1743651050=RENDY+PRAWIRA&entry.178375719=0099662619';

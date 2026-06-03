@@ -1,4 +1,4 @@
-import { loginDev } from '../../presensi-scan/services/presensiScanApi.js';
+import { loginDev } from './presensiScanApi.js';
 
 async function parseJsonResponse(response) {
   const data = await response.json().catch(() => ({}));

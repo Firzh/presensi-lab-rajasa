@@ -9,7 +9,9 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "vitest run --environment happy-dom",
+    "test:watch": "vitest --environment happy-dom"
   },
   "dependencies": {
     "clsx": "^2.1.1",
@@ -24,11 +26,14 @@
     "@eslint/js": "^9.0.0",
     "@preact/preset-vite": "^2.10.2",
     "@tailwindcss/vite": "^4.3.0",
+    "@testing-library/preact": "^3.2.4",
     "eslint": "^9.0.0",
     "eslint-plugin-react": "^7.37.5",
     "globals": "^15.0.0",
+    "happy-dom": "^20.9.0",
     "prettier": "^3.0.0",
     "tailwindcss": "^4.3.0",
-    "vite": "^7.3.1"
+    "vite": "^7.3.1",
+    "vitest": "^4.1.8"
   }
 }

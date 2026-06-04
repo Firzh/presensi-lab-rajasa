@@ -73,6 +73,25 @@ Removed
 - Menghapus script `check_docs_contracts.py`.
 - Menghapus acuan terhadap ESP32, ruangan, plotting rombel, policy engine, group engine, arsip, dan notifikasi kompleks dari scope MVP.
 
+## [Addition] - Refactor Frontend
+
+### Added
+
+- Menambahkan struktur test frontend dengan Vitest dan happy-dom.
+- Menambahkan test utility dev scan.
+- Menambahkan test komponen dev scan, dev import, dan dev audit.
+- Menambahkan test route untuk `/`, `/dev/scan`, `/dev/import`, `/dev/attendance-audit`, dan not found.
+- Menambahkan test hook `useDevScanAuth` dan `useDevScanSubmit`.
+
+### Changed
+
+- Merapikan work tree frontend ke struktur `api`, `components`, `constants`, `hooks`, `layouts`, `lib`, `pages`, `routes`, dan `tests`.
+- Memindahkan routing halaman frontend ke `AppRoutes`.
+- Memecah halaman dev scan menjadi page orchestrator, hook, util, dan komponen UI.
+- Memisahkan komponen halaman dev scan, dev import, dan dev audit.
+- Memisahkan pemanggilan API frontend ke file client API khusus.
+- Menambahkan dependency frontend untuk routing, helper UI, validasi, tanggal, dan testing.
+
 ## [0.9.1] - Session Timeout and Dev Audit Polish
 
 ### Added

@@ -434,6 +434,14 @@ Cloudflare Quick Tunnel didukung untuk kamera HP
 scanner HP memakai crop, qrbox besar, dan camera track enhancement
 ```
 
+Tambahan implementasi frontend:
+
+```text
+Kontrak endpoint API tidak berubah pada refactor frontend.
+Pemanggilan API frontend dipisah ke `src/api/importApi.js` dan `src/api/presensiScanApi.js`.
+Routing halaman dev berada di frontend route, bukan endpoint API backend.
+```
+
 ## Error Code
 
 | Code  | Arti                               |

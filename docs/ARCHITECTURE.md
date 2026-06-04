@@ -225,15 +225,19 @@ Tidak ada perubahan schema database pada penambahan terbaru.
 
 Perubahan arsitektur terbaru:
 
-| Area             | Perubahan                                                   |
-| ---------------- | ----------------------------------------------------------- |
-| Backend sesi     | Tambah timeout service dan heartbeat controller             |
-| Backend sesi     | Tambah warning check sebelum create sesi                    |
-| Backend audit    | Tambah endpoint audit presensi terkini                      |
-| Frontend scan    | Tambah tombol akhiri sesi                                   |
-| Frontend audit   | Tambah halaman tabel audit presensi                         |
-| Frontend scanner | Improve kamera HP dengan crop, qrbox, dan track constraints |
-| Script audit     | `check-successful-attendance.sh` ikut mengecek warning      |
+| Area             | Perubahan                                                                                          |
+| ---------------- | -------------------------------------------------------------------------------------------------- |
+| Backend sesi     | Tambah timeout service dan heartbeat controller                                                    |
+| Backend sesi     | Tambah warning check sebelum create sesi                                                           |
+| Backend audit    | Tambah endpoint audit presensi terkini                                                             |
+| Frontend scan    | Tambah tombol akhiri sesi                                                                          |
+| Frontend audit   | Tambah halaman tabel audit presensi                                                                |
+| Frontend scanner | Improve kamera HP dengan crop, qrbox, dan track constraints                                        |
+| Script audit     | `check-successful-attendance.sh` ikut mengecek warning                                             |
+| Frontend tree    | Rapikan struktur `src` menjadi `api`, `components`, `hooks`, `lib`, `pages`, `routes`, dan `tests` |
+| Frontend routes  | Pindahkan routing halaman dev ke `AppRoutes`                                                       |
+| Frontend scan    | Modularisasi `DevScanPage` menjadi page orchestrator, hook, util, dan komponen UI                  |
+| Frontend dev     | Pisahkan komponen halaman scan, import, dan audit agar lebih mudah dites                           |
 
 ## Auth dan Permission
 

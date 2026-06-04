@@ -26,6 +26,7 @@ backend/tests/Support/
 ./scripts/test-backend.sh
 ./scripts/test-backend-unit.sh
 ./scripts/test-backend-feature.sh
+docker compose exec frontend npm test
 docker compose exec frontend npm run build
 ```
 
@@ -81,10 +82,30 @@ Jumlah test dan assertion boleh berubah. Status akhir wajib `OK`.
 | Manual edit presensi                             | Feature      |
 | Edit reasons                                     | Feature      |
 | Audit edit log                                   | Feature      |
+| Frontend utility dev scan                        | Unit         |
+| Frontend komponen dev scan/import/audit          | Unit         |
+| Frontend route `/`, `/dev/*`, dan not found      | Unit/smoke   |
+| Frontend hook dev scan auth dan submit           | Unit         |
 | Frontend `/dev/scan`                             | Build/manual |
 | Frontend `/dev/attendance-audit`                 | Build/manual |
 
 ## Test Khusus Terbaru
+
+### Frontend Refactor
+
+```bash
+docker compose exec frontend npm test
+docker compose exec frontend npm run build
+```
+
+Validasi:
+
+```text
+Utility dev scan teruji
+Komponen dev scan, import, dan audit ter-render
+Route utama dan route dev teruji
+Hook dev scan auth dan submit teruji
+```
 
 ### Session Timeout
 
@@ -305,6 +326,7 @@ docker compose exec backend composer dump-autoload
 docker compose exec backend ./vendor/bin/phpunit --filter PresensiSessionTest
 docker compose exec backend ./vendor/bin/phpunit --filter PresensiScanTest
 ./scripts/test-backend.sh
+docker compose exec frontend npm test
 docker compose exec frontend npm run build
 ```
 

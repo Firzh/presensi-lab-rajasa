@@ -38,6 +38,10 @@ Status saat ini:
 - Scanner HP diperbaiki untuk membaca QR kecil lebih stabil.
 - Script audit presensi ikut mengecek scan `warning`.
 
+* Refactor frontend sudah merapikan work tree ke struktur `api`, `components`, `hooks`, `lib`, `pages`, `routes`, dan `tests`.
+* Halaman dev scan, import, dan audit sudah dipisah menjadi route, page, hook, util, dan komponen UI.
+* Frontend sudah memiliki baseline test untuk utility, komponen, route, dan hook.
+
 ## Endpoints
 
 Endpoint presensi yang sudah tersedia:
@@ -220,6 +224,13 @@ Jalankan feature test saja:
 
 ```bash
 ./scripts/test-backend-feature.sh
+```
+
+Test Frontend
+
+```bash
+docker compose exec frontend npm test
+docker compose exec frontend npm run build
 ```
 
 ## Struktur Project

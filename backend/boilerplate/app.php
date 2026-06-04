@@ -14,9 +14,9 @@ if (file_exists(__DIR__ . '/../.env')) {
     Dotenv::createImmutable(__DIR__ . '/..')->safeLoad();
 }
 
-date_default_timezone_set(getenv('APP_TIMEZONE') ?: 'Asia/Jakarta');
-
 Config::load(require __DIR__ . '/config.php');
+
+date_default_timezone_set(getenv('APP_TIMEZONE') ?: 'Asia/Jakarta');
 
 $bootDatabase = require __DIR__ . '/database.php';
 $bootDatabase();

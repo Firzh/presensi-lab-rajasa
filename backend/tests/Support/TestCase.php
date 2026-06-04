@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Rajasa\PresensiSiswa\Tests\Support;
 
 use PHPUnit\Framework\TestCase as BaseTestCase;
+use Rajasa\PresensiSiswa\Core\RequestContext;
+use Rajasa\PresensiSiswa\Core\RequestFactory;
 
 abstract class TestCase extends BaseTestCase
 {
@@ -15,11 +17,7 @@ abstract class TestCase extends BaseTestCase
         array $headers = [],
         array $server = []
     ): array {
-        $_GET = [];
-        $_POST = [];
-
         $_ENV['APP_ENV'] = 'testing';
-        $_SERVER['APP_ENV'] = 'testing';
         putenv('APP_ENV=testing');
 
         $serverHeaders = [];
@@ -28,7 +26,20 @@ abstract class TestCase extends BaseTestCase
             $serverHeaders['HTTP_' . strtoupper(str_replace('-', '_', $name))] = $value;
         }
 
-        $_SERVER = array_merge([
+        $queryParams = [];
+        $path = $uri;
+
+        $parsedUrl = parse_url($uri);
+
+        if (is_array($parsedUrl)) {
+            $path = (string) ($parsedUrl['path'] ?? $uri);
+
+            if (isset($parsedUrl['query'])) {
+                parse_str((string) $parsedUrl['query'], $queryParams);
+            }
+        }
+
+        $serverSnapshot = array_merge([
             'REQUEST_METHOD' => $method,
             'REQUEST_URI' => $uri,
             'CONTENT_TYPE' => 'application/json',
@@ -36,19 +47,30 @@ abstract class TestCase extends BaseTestCase
             'APP_ENV' => 'testing',
         ], $serverHeaders, $server);
 
-        $GLOBALS['__TEST_RAW_BODY'] = $body === []
+        $rawBody = $body === []
             ? ''
             : json_encode($body, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 
+        RequestContext::set(RequestFactory::fromSnapshot(
+            server: $serverSnapshot,
+            queryParams: $queryParams,
+            postParams: [],
+            uploadedFiles: [],
+            rawBodyContent: $rawBody !== false ? $rawBody : ''
+        ));
+
         ob_start();
 
-        require __DIR__ . '/../../public/index.php';
+        try {
+            require __DIR__ . '/../../public/index.php';
+        } finally {
+            RequestContext::clear();
+        }
 
         $content = ob_get_clean();
         $statusCode = http_response_code();
 
         http_response_code(200);
-        unset($GLOBALS['__TEST_RAW_BODY']);
 
         $json = json_decode((string) $content, true) ?: [];
         $json['__status_code'] = $statusCode ?: 200;

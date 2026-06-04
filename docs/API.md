@@ -36,6 +36,10 @@ Gagal:
 }
 ```
 
+catatan:
+
+- Response error dapat memiliki field opsional `code` jika error internal sudah dimigrasikan pada flow terkait.
+
 Auth header:
 
 ```text
@@ -432,6 +436,22 @@ Catatan dev:
 /dev/* hanya untuk demo/testing
 Cloudflare Quick Tunnel didukung untuk kamera HP
 scanner HP memakai crop, qrbox besar, dan camera track enhancement
+```
+
+Catatan implementasi backend:
+
+```text
+Endpoint API tidak berubah pada refactor 2 Juni.
+Beberapa route kini memakai controller gabungan berbasis method handler.
+Orchestration import, rombel, audit, jam siswa, dan warning sesi dipindahkan ke service.
+```
+
+Tambahan implementasi frontend:
+
+```text
+Kontrak endpoint API tidak berubah pada refactor frontend.
+Pemanggilan API frontend dipisah ke `src/api/importApi.js` dan `src/api/presensiScanApi.js`.
+Routing halaman dev berada di frontend route, bukan endpoint API backend.
 ```
 
 ## Error Code

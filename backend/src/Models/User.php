@@ -14,5 +14,26 @@ final class User extends Model
 
     public $timestamps = true;
 
-    protected $guarded = [];
+    protected $fillable = [
+        'username',
+        'email',
+        'password_hash',
+        'user_type',
+        'siswa_id',
+        'guru_id',
+        'status',
+        'last_login_at',
+    ];
+
+    protected $hidden = [
+        'password_hash',
+    ];
+
+    protected $casts = [
+        'siswa_id' => 'integer',
+        'guru_id' => 'integer',
+        'last_login_at' => 'datetime',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+    ];
 }

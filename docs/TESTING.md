@@ -26,6 +26,7 @@ backend/tests/Support/
 ./scripts/test-backend.sh
 ./scripts/test-backend-unit.sh
 ./scripts/test-backend-feature.sh
+docker compose exec frontend npm test
 docker compose exec frontend npm run build
 ```
 
@@ -55,36 +56,75 @@ Cloudflare Quick Tunnel HP: passed
 
 Jumlah test dan assertion boleh berubah. Status akhir wajib `OK`.
 
+Validasi refactor 2 Juni: `./scripts/test-backend.sh` OK, 86 tests, 306 assertions.
+
 ## Coverage Otomatis
 
-| Area                                             | Test         |
-| ------------------------------------------------ | ------------ |
-| Health, 404, 405                                 | Feature      |
-| Auth login dan `/api/me`                         | Feature      |
-| Token stateless                                  | Unit         |
-| Permission read                                  | Feature      |
-| Presensi sesi rombel/piket                       | Feature      |
-| Pause, resume, finish sesi                       | Feature      |
-| Duplicate sesi dan bentrok lab                   | Feature      |
-| Session timeout dan heartbeat                    | Feature      |
-| Import scan readiness                            | Feature      |
-| Import invalid row                               | Feature      |
-| Import advanced one-gate `/api/import`           | Feature      |
-| Import auto-detect siswa/guru/wali kelas/unknown | Unit         |
-| Import column mapper siswa                       | Unit         |
-| QR parser Google Form/plain                      | Unit         |
-| Presensi scan valid                              | Feature      |
-| Warning beda rombel                              | Feature      |
-| Invalid QR                                       | Feature      |
-| Duplicate scan                                   | Feature      |
-| Rombel options                                   | Feature      |
-| Manual edit presensi                             | Feature      |
-| Edit reasons                                     | Feature      |
-| Audit edit log                                   | Feature      |
-| Frontend `/dev/scan`                             | Build/manual |
-| Frontend `/dev/attendance-audit`                 | Build/manual |
+| Area                                                               | Test         |
+| ------------------------------------------------------------------ | ------------ |
+| Health, 404, 405                                                   | Feature      |
+| Core HTTP: request, response, validator, route dispatch, exception | Unit         |
+| Support config/env helpers                                         | Unit         |
+| CORS middleware header generation                                  | Unit         |
+| User model metadata                                                | Unit         |
+| Auth login dan `/api/me`                                           | Feature      |
+| Token stateless                                                    | Unit         |
+| Permission read                                                    | Feature      |
+| Presensi sesi rombel/piket                                         | Feature      |
+| Pause, resume, finish sesi                                         | Feature      |
+| Duplicate sesi dan bentrok lab                                     | Feature      |
+| Session timeout dan heartbeat                                      | Feature      |
+| Import scan readiness                                              | Feature      |
+| Import invalid row                                                 | Feature      |
+| Import advanced one-gate `/api/import`                             | Feature      |
+| Import auto-detect siswa/guru/wali kelas/unknown                   | Unit         |
+| Import column mapper siswa                                         | Unit         |
+| QR parser Google Form/plain                                        | Unit         |
+| Presensi scan valid                                                | Feature      |
+| Warning beda rombel                                                | Feature      |
+| Invalid QR                                                         | Feature      |
+| Duplicate scan                                                     | Feature      |
+| Rombel options                                                     | Feature      |
+| Manual edit presensi                                               | Feature      |
+| Edit reasons                                                       | Feature      |
+| Audit edit log                                                     | Feature      |
+| Request snapshot dan route method handler                          | Unit/Feature |
+| Service extraction import, rombel, audit, jam siswa, warning sesi  | Unit/Feature |
+| Frontend utility dev scan                                          | Unit         |
+| Frontend komponen dev scan/import/audit                            | Unit         |
+| Frontend route `/`, `/dev/*`, dan not found                        | Unit/smoke   |
+| Frontend hook dev scan auth dan submit                             | Unit         |
+| Frontend `/dev/scan`                                               | Build/manual |
+| Frontend `/dev/attendance-audit`                                   | Build/manual |
 
 ## Test Khusus Terbaru
+
+### Core, Support, Middleware, dan Model
+
+````bash
+docker compose exec backend ./vendor/bin/phpunit --filter RequestTest
+docker compose exec backend ./vendor/bin/phpunit --filter ResponseTest
+docker compose exec backend ./vendor/bin/phpunit --filter RequestValidatorTest
+docker compose exec backend ./vendor/bin/phpunit --filter EnvTest
+docker compose exec backend ./vendor/bin/phpunit --filter ConfigTest
+docker compose exec backend ./vendor/bin/phpunit --filter CorsMiddlewareTest
+docker compose exec backend ./vendor/bin/phpunit --filter UserModelTest
+
+### Frontend Refactor
+
+```bash
+docker compose exec frontend npm test
+docker compose exec frontend npm run build
+````
+
+Validasi:
+
+```text
+Utility dev scan teruji
+Komponen dev scan, import, dan audit ter-render
+Route utama dan route dev teruji
+Hook dev scan auth dan submit teruji
+```
 
 ### Session Timeout
 
@@ -302,9 +342,11 @@ status sama ditolak
 
 ```bash
 docker compose exec backend composer dump-autoload
+docker compose exec backend ./vendor/bin/phpunit --filter "RequestTest|ResponseTest|RequestValidatorTest|EnvTest|ConfigTest|CorsMiddlewareTest|UserModelTest"
 docker compose exec backend ./vendor/bin/phpunit --filter PresensiSessionTest
 docker compose exec backend ./vendor/bin/phpunit --filter PresensiScanTest
 ./scripts/test-backend.sh
+docker compose exec frontend npm test
 docker compose exec frontend npm run build
 ```
 

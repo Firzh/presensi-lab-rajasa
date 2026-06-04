@@ -183,9 +183,13 @@ final class PresensiManualEditTest extends TestCase
                 'updated_at' => $now,
             ]);
         }
+        
+        $kodeJurusan = 'TST' . bin2hex(random_bytes(4));
+
+        DB::table('jurusan')->where('kode_jurusan', $kodeJurusan)->delete();
 
         $jurusanId = (int) DB::table('jurusan')->insertGetId([
-            'kode_jurusan' => 'TST' . random_int(100, 999),
+            'kode_jurusan' => $kodeJurusan,
             'nama_jurusan' => 'Jurusan Test Manual Edit',
             'status' => 'aktif',
             'created_at' => $now,

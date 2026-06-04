@@ -37,6 +37,17 @@ Status saat ini:
 - Halaman `/dev/attendance-audit` menampilkan hasil presensi terkini.
 - Scanner HP diperbaiki untuk membaca QR kecil lebih stabil.
 - Script audit presensi ikut mengecek scan `warning`.
+- Review backend core, support, middleware, model, boilerplate, dan front controller sudah dilakukan.
+- Unit test tambahan untuk core/support/middleware/model sudah ditambahkan.
+- Review backend tahap 2 sudah mengonsolidasikan controller kecil ke controller gabungan berbasis method route.
+- Logic import, rombel, audit, jam siswa, dan warning sesi sudah dipindahkan ke service layer.
+- Request backend sudah memakai request snapshot boundary untuk jalur implementasi dan test.
+- Validasi backend terbaru: `./scripts/test-backend.sh` OK, 86 tests, 306 assertions.
+
+
+* Refactor frontend sudah merapikan work tree ke struktur `api`, `components`, `hooks`, `lib`, `pages`, `routes`, dan `tests`.
+* Halaman dev scan, import, dan audit sudah dipisah menjadi route, page, hook, util, dan komponen UI.
+* Frontend sudah memiliki baseline test untuk utility, komponen, route, dan hook.
 
 ## Endpoints
 
@@ -220,6 +231,13 @@ Jalankan feature test saja:
 
 ```bash
 ./scripts/test-backend-feature.sh
+```
+
+Test Frontend
+
+```bash
+docker compose exec frontend npm test
+docker compose exec frontend npm run build
 ```
 
 ## Struktur Project

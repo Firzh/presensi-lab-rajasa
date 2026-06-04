@@ -1,7 +1,8 @@
 import { useCallback, useMemo, useRef, useState } from 'preact/hooks';
 import { useDevScanSession } from '../../hooks/useDevScanSession.js';
-import { loginDev } from '../../api/presensiScanApi.js';
+import { useDevScanAuth } from '../../hooks/useDevScanAuth.js';
 import { useDevScanSubmit } from '../../hooks/useDevScanSubmit.js';
+import { useQrScanner } from '../../hooks/useQrScanner.js';
 import {
   DevScanAuthPanel,
   DevScanHeader,
@@ -9,7 +10,6 @@ import {
   DevScanScannerPanel,
   DevScanSessionPanel,
 } from '../../components/dev-scan/index.js';
-import { useQrScanner } from '../../hooks/useQrScanner.js';
 
 import { DEFAULT_PAYLOAD } from '../../constants/devScan.js';
 import { getRombelLabel, sortJamIds } from '../../lib/devScanUtils.js';
@@ -18,10 +18,6 @@ export function DevScanPage() {
   const processedPayloadsRef = useRef(new Set());
   const processedStudentIdsRef = useRef(new Set());
   const isSubmittingRef = useRef(false);
-
-  const [username, setUsername] = useState('admin.demo');
-  const [password, setPassword] = useState('Rajasa@123');
-  const [token, setToken] = useState('');
 
   const [modePresensi, setModePresensi] = useState('rombel');
   const [rombelOptions, setRombelOptions] = useState([]);
@@ -93,24 +89,12 @@ export function DevScanPage() {
     return true;
   };
 
-  const handleLogin = async () => {
-    setStatusType('info');
-    setStatusMessage('Login diproses...');
-
-    const result = await loginDev({ username, password });
-
-    if (!showResponse(result)) {
-      return;
-    }
-
-    const nextToken = result.data.data.token || '';
-
-    setToken(nextToken);
-    setStatusType('success');
-    setStatusMessage('Login berhasil. Token tersimpan.');
-
-    await handleLoadRombelOptions(nextToken);
-  };
+  const { username, setUsername, password, setPassword, token, setToken, handleLogin } =
+  useDevScanAuth({
+    setStatusType,
+    setStatusMessage,
+    showResponse,
+  });
 
   const handleToggleJam = (jamId) => {
     setSelectedJamIds((current) => {
@@ -189,7 +173,7 @@ export function DevScanPage() {
             token={token}
             setToken={setToken}
             isLoadingRombel={isLoadingRombel}
-            onLogin={handleLogin}
+            onLogin={() => handleLogin({ onLoginSuccess: handleLoadRombelOptions })}
             onRefreshRombel={() => handleLoadRombelOptions()}
           />
 

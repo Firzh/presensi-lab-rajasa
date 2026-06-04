@@ -6,3 +6,4 @@ export { DevScanSessionPanel } from './DevScanSessionPanel.jsx';
 export { DevScanScannerPanel } from './DevScanScannerPanel.jsx';
 export { DevScanResultPanel } from './DevScanResultPanel.jsx';
 export { DevScanHeader } from './DevScanHeader.jsx';
+export { SingleSelect } from './SingleSelect.jsx';

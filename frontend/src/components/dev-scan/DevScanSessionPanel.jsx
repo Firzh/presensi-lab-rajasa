@@ -1,6 +1,7 @@
 import { Field } from './Field.jsx';
 import { JamSelector } from './JamSelector.jsx';
-import { getRombelLabel } from '../../lib/devScanUtils.js';
+import { SingleSelect } from './SingleSelect.jsx';
+import { getRombelLabel, getSelectedJamLabel } from '../../lib/devScanUtils.js';
 
 export function DevScanSessionPanel({
   modePresensi,
@@ -23,6 +24,19 @@ export function DevScanSessionPanel({
   onCreateSession,
   onFinishSession,
 }) {
+  const rombelSelectOptions = rombelOptions.map((item) => ({
+    value: String(item.rombel_id),
+    label: getRombelLabel(item),
+  }));
+
+  const ruangSelectOptions = [
+    { value: 'kelas', label: 'kelas' },
+    { value: 'lab-tkj-1', label: 'lab-tkj-1' },
+    { value: 'lab-tkj-2', label: 'lab-tkj-2' },
+    { value: 'lab-tkj-3', label: 'lab-tkj-3' },
+    { value: 'lab-tkj-4', label: 'lab-tkj-4' },
+    { value: 'piket', label: 'piket' },
+  ];
   return (
     <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
       <h2 className="text-lg font-bold">2. Buat Sesi</h2>
@@ -40,20 +54,13 @@ export function DevScanSessionPanel({
         </Field>
 
         <Field label="Rombel">
-          <select
-            className="w-full rounded-xl border border-slate-300 px-3 py-2 disabled:bg-slate-100"
-            disabled={modePresensi === 'piket' || isLoadingRombel || rombelOptions.length === 0}
+          <SingleSelect
             value={selectedRombelId}
-            onInput={(event) => setSelectedRombelId(event.currentTarget.value)}
-          >
-            {rombelOptions.length === 0 && <option value="">Belum ada data rombel</option>}
-
-            {rombelOptions.map((item) => (
-              <option key={item.rombel_id} value={String(item.rombel_id)}>
-                {getRombelLabel(item)}
-              </option>
-            ))}
-          </select>
+            options={rombelSelectOptions}
+            placeholder="Belum ada data rombel"
+            disabled={modePresensi === 'piket' || isLoadingRombel || rombelOptions.length === 0}
+            onChange={setSelectedRombelId}
+          />
         </Field>
 
         <Field label="Jam Presensi">
@@ -63,11 +70,7 @@ export function DevScanSessionPanel({
               className="flex w-full items-center justify-between rounded-xl border border-slate-300 bg-white px-3 py-2 text-left text-sm"
               onClick={() => setIsJamDropdownOpen((value) => !value)}
             >
-              <span>
-                {selectedJamIds.length === 0
-                  ? 'Pilih jam presensi'
-                  : `Jam ${selectedJamIds.join(', ')}`}
-              </span>
+              <span>{getSelectedJamLabel(selectedJamIds)}</span>
               <span className="text-slate-500">▾</span>
             </button>
 
@@ -78,18 +81,12 @@ export function DevScanSessionPanel({
         </Field>
 
         <Field label="Ruang">
-          <select
-            className="w-full rounded-xl border border-slate-300 px-3 py-2"
+          <SingleSelect
             value={ruangPilihan}
-            onInput={(event) => setRuangPilihan(event.currentTarget.value)}
-          >
-            <option value="kelas">kelas</option>
-            <option value="lab-tkj-1">lab-tkj-1</option>
-            <option value="lab-tkj-2">lab-tkj-2</option>
-            <option value="lab-tkj-3">lab-tkj-3</option>
-            <option value="lab-tkj-4">lab-tkj-4</option>
-            <option value="piket">piket</option>
-          </select>
+            options={ruangSelectOptions}
+            placeholder="Pilih ruang"
+            onChange={setRuangPilihan}
+          />
         </Field>
       </div>
 

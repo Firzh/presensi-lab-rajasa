@@ -446,6 +446,13 @@ Beberapa route kini memakai controller gabungan berbasis method handler.
 Orchestration import, rombel, audit, jam siswa, dan warning sesi dipindahkan ke service.
 ```
 
+Tambahan implementasi frontend:
+
+```text
+Kontrak endpoint API tidak berubah pada refactor frontend.
+Pemanggilan API frontend dipisah ke `src/api/importApi.js` dan `src/api/presensiScanApi.js`.
+Routing halaman dev berada di frontend route, bukan endpoint API backend.
+```
 
 ## Error Code
 

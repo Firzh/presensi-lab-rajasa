@@ -26,6 +26,7 @@ backend/tests/Support/
 ./scripts/test-backend.sh
 ./scripts/test-backend-unit.sh
 ./scripts/test-backend-feature.sh
+docker compose exec frontend npm test
 docker compose exec frontend npm run build
 ```
 
@@ -87,8 +88,12 @@ Validasi refactor 2 Juni: `./scripts/test-backend.sh` OK, 86 tests, 306 assertio
 | Manual edit presensi                                               | Feature      |
 | Edit reasons                                                       | Feature      |
 | Audit edit log                                                     | Feature      |
-| Request snapshot dan route method handler                         | Unit/Feature |
+| Request snapshot dan route method handler                          | Unit/Feature |
 | Service extraction import, rombel, audit, jam siswa, warning sesi  | Unit/Feature |
+| Frontend utility dev scan                                          | Unit         |
+| Frontend komponen dev scan/import/audit                            | Unit         |
+| Frontend route `/`, `/dev/*`, dan not found                        | Unit/smoke   |
+| Frontend hook dev scan auth dan submit                             | Unit         |
 | Frontend `/dev/scan`                                               | Build/manual |
 | Frontend `/dev/attendance-audit`                                   | Build/manual |
 
@@ -96,7 +101,7 @@ Validasi refactor 2 Juni: `./scripts/test-backend.sh` OK, 86 tests, 306 assertio
 
 ### Core, Support, Middleware, dan Model
 
-```bash
+````bash
 docker compose exec backend ./vendor/bin/phpunit --filter RequestTest
 docker compose exec backend ./vendor/bin/phpunit --filter ResponseTest
 docker compose exec backend ./vendor/bin/phpunit --filter RequestValidatorTest
@@ -104,6 +109,21 @@ docker compose exec backend ./vendor/bin/phpunit --filter EnvTest
 docker compose exec backend ./vendor/bin/phpunit --filter ConfigTest
 docker compose exec backend ./vendor/bin/phpunit --filter CorsMiddlewareTest
 docker compose exec backend ./vendor/bin/phpunit --filter UserModelTest
+
+### Frontend Refactor
+
+```bash
+docker compose exec frontend npm test
+docker compose exec frontend npm run build
+````
+
+Validasi:
+
+```text
+Utility dev scan teruji
+Komponen dev scan, import, dan audit ter-render
+Route utama dan route dev teruji
+Hook dev scan auth dan submit teruji
 ```
 
 ### Session Timeout
@@ -326,6 +346,7 @@ docker compose exec backend ./vendor/bin/phpunit --filter "RequestTest|ResponseT
 docker compose exec backend ./vendor/bin/phpunit --filter PresensiSessionTest
 docker compose exec backend ./vendor/bin/phpunit --filter PresensiScanTest
 ./scripts/test-backend.sh
+docker compose exec frontend npm test
 docker compose exec frontend npm run build
 ```
 

@@ -73,32 +73,50 @@ Removed
 - Menghapus script `check_docs_contracts.py`.
 - Menghapus acuan terhadap ESP32, ruangan, plotting rombel, policy engine, group engine, arsip, dan notifikasi kompleks dari scope MVP.
 
+## [Addition] - Refactor Frontend
+
+### Added
+
+- Menambahkan struktur test frontend dengan Vitest dan happy-dom.
+- Menambahkan test utility dev scan.
+- Menambahkan test komponen dev scan, dev import, dan dev audit.
+- Menambahkan test route untuk `/`, `/dev/scan`, `/dev/import`, `/dev/attendance-audit`, dan not found.
+- Menambahkan test hook `useDevScanAuth` dan `useDevScanSubmit`.
+
+### Changed
+
+- Merapikan work tree frontend ke struktur `api`, `components`, `constants`, `hooks`, `layouts`, `lib`, `pages`, `routes`, dan `tests`.
+- Memindahkan routing halaman frontend ke `AppRoutes`.
+- Memecah halaman dev scan menjadi page orchestrator, hook, util, dan komponen UI.
+- Memisahkan komponen halaman dev scan, dev import, dan dev audit.
+- Memisahkan pemanggilan API frontend ke file client API khusus.
+- Menambahkan dependency frontend untuk routing, helper UI, validasi, tanggal, dan testing.
+
 ## [Addition] - Review Backend [2]
 
 ### Added
 
-* Menambahkan `ImportSubmitService` untuk memindahkan orchestration submit import dari controller ke service.
-* Menambahkan `RombelService` untuk memindahkan query dropdown rombel dari controller ke service.
-* Menambahkan `PresensiAuditService` untuk memindahkan query audit presensi terkini dari controller ke service.
-* Menambahkan `PresensiJamSiswaService` untuk memindahkan listing presensi jam siswa dari controller ke service.
-* Menambahkan `PresensiSessionWarningService` untuk memindahkan logic check warning sesi dari controller ke service.
-* Menambahkan `RequestFactory` dan `RequestContext` sebagai boundary request snapshot di backend core.
+- Menambahkan `ImportSubmitService` untuk memindahkan orchestration submit import dari controller ke service.
+- Menambahkan `RombelService` untuk memindahkan query dropdown rombel dari controller ke service.
+- Menambahkan `PresensiAuditService` untuk memindahkan query audit presensi terkini dari controller ke service.
+- Menambahkan `PresensiJamSiswaService` untuk memindahkan listing presensi jam siswa dari controller ke service.
+- Menambahkan `PresensiSessionWarningService` untuk memindahkan logic check warning sesi dari controller ke service.
+- Menambahkan `RequestFactory` dan `RequestContext` sebagai boundary request snapshot di backend core.
 
 ### Changed
 
-* Mengonsolidasikan controller kecil ke controller gabungan berbasis method route.
-* Mengubah route handler agar dapat memakai format `[ControllerClass, method]`.
-* Mengurangi business/query logic langsung di controller dan memindahkannya ke service layer.
-* Mengubah flow request test agar memakai request snapshot melalui container/test context.
-* Mempertahankan kontrak endpoint API tanpa perubahan path, method, permission, request, atau response.
+- Mengonsolidasikan controller kecil ke controller gabungan berbasis method route.
+- Mengubah route handler agar dapat memakai format `[ControllerClass, method]`.
+- Mengurangi business/query logic langsung di controller dan memindahkannya ke service layer.
+- Mengubah flow request test agar memakai request snapshot melalui container/test context.
+- Mempertahankan kontrak endpoint API tanpa perubahan path, method, permission, request, atau response.
 
 ### Removed
 
-* Menghapus controller kecil legacy yang sudah digabung ke controller utama.
-* Menghapus fallback request global/superglobal dari jalur test backend.
+- Menghapus controller kecil legacy yang sudah digabung ke controller utama.
+- Menghapus fallback request global/superglobal dari jalur test backend.
 
-
-## Review Backend
+## [Addition] - Review Backend
 
 - Merapikan HTTP core: `Request`, `Response`, `RouteDispatcher`, `HttpException`, `ExceptionHandler`, dan `RequestValidator`.
 - Merapikan support bootstrap/config melalui `Env` dan `Config`.

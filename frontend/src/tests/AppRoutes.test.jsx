@@ -1,7 +1,12 @@
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, render, screen } from '@testing-library/preact';
 
 import { AppRoutes } from '../routes/AppRoutes.jsx';
+import { listSiswa } from '../api/siswaApi.js';
+
+vi.mock('../api/siswaApi.js', () => ({
+  listSiswa: vi.fn(),
+}));
 
 afterEach(() => {
   cleanup();
@@ -13,6 +18,31 @@ function renderRoute(path) {
 
   return render(<AppRoutes />);
 }
+
+beforeEach(() => {
+  listSiswa.mockResolvedValue({
+    ok: true,
+    status: 200,
+    data: {
+      success: true,
+      message: 'Daftar siswa.',
+      data: {
+        items: [],
+        pagination: {
+          page: 1,
+          per_page: 10,
+          total: 0,
+          total_pages: 1,
+        },
+        options: {
+          jurusan: [],
+          rombel: [],
+          statuses: [],
+        },
+      },
+    },
+  });
+});
 
 describe('AppRoutes', () => {
   it('renders LoginPage for root route', () => {

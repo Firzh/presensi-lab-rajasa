@@ -13,6 +13,14 @@ const columns = Object.freeze([
   'AKSI',
 ]);
 
+function getVisiblePages(currentPage, totalPages) {
+  const safeCurrentPage = Math.min(Math.max(1, currentPage), totalPages);
+  const startPage = Math.max(1, safeCurrentPage - 2);
+  const endPage = Math.min(totalPages, safeCurrentPage + 2);
+
+  return Array.from({ length: endPage - startPage + 1 }, (_, index) => startPage + index);
+}
+
 export function SiswaTable({
   students,
   theme = 'light',
@@ -122,7 +130,7 @@ export function SiswaTable({
             ‹
           </button>
 
-          {Array.from({ length: totalPages }, (_, index) => index + 1).map((page) => (
+          {getVisiblePages(currentPage, totalPages).map((page) => (
             <button
               key={page}
               type="button"

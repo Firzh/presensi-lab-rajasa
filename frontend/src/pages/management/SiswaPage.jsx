@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'preact/hooks';
+import { useEffect, useState } from 'preact/hooks';
 import clsx from 'clsx';
 
 import { DashboardSidebar, DashboardTopbar } from '../../components/dashboard/index.js';
@@ -7,29 +7,14 @@ import { AppIcon } from '../../components/ui/AppIcon.jsx';
 import { STORAGE_KEYS } from '../../constants/storageKeys.js';
 import { appStorage } from '../../lib/storage.js';
 
-const initialStudents = Object.freeze(
-  Array.from({ length: 10 }, (_, index) => ({
-    id: index + 1,
-    nisn: '0068234587',
-    nama: 'RACHMAD HIDAYAT',
-    jurusan: 'TKJ',
-    kelas: 'X-1',
-    gender: 'L',
-    status: 'Aktif',
-    tempatLahir: 'Surabaya',
-    tanggalLahir: '2010-03-30',
-    catatan: '',
-  }))
-);
+import { listSiswa } from '../../api/siswaApi.js';
 
 const initialFilters = Object.freeze({
   keyword: '',
-  jurusan: '',
-  kelas: '',
+  jurusan_id: '',
+  rombel_id: '',
   status: '',
 });
-
-const PAGE_SIZE = 10;
 
 function getInitialTheme() {
   const savedTheme = appStorage.getRaw(STORAGE_KEYS.THEME, 'light');
@@ -38,7 +23,20 @@ function getInitialTheme() {
 
 export function SiswaPage() {
   const [theme, setTheme] = useState(getInitialTheme);
-  const [students, setStudents] = useState(initialStudents);
+  const [students, setStudents] = useState([]);
+  const [options, setOptions] = useState({
+    jurusan: [],
+    rombel: [],
+    statuses: [],
+  });
+  const [pagination, setPagination] = useState({
+    page: 1,
+    per_page: 10,
+    total: 0,
+    total_pages: 1,
+  });
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   const [filters, setFilters] = useState(initialFilters);
   const [formMode, setFormMode] = useState('list');
   const [selectedStudent, setSelectedStudent] = useState(null);
@@ -51,29 +49,9 @@ export function SiswaPage() {
     appStorage.setRaw(STORAGE_KEYS.THEME, theme);
   }, [theme]);
 
-  const filteredStudents = useMemo(() => {
-    const keyword = filters.keyword.trim().toLowerCase();
-
-    return students.filter((student) => {
-      const matchesKeyword =
-        !keyword ||
-        student.nisn.toLowerCase().includes(keyword) ||
-        student.nama.toLowerCase().includes(keyword);
-
-      const matchesJurusan = !filters.jurusan || student.jurusan === filters.jurusan;
-      const matchesKelas = !filters.kelas || student.kelas === filters.kelas;
-      const matchesStatus = !filters.status || student.status === filters.status;
-
-      return matchesKeyword && matchesJurusan && matchesKelas && matchesStatus;
-    });
-  }, [filters, students]);
-
-  const totalPages = Math.max(1, Math.ceil(filteredStudents.length / PAGE_SIZE));
-
-  const paginatedStudents = useMemo(() => {
-    const startIndex = (currentPage - 1) * PAGE_SIZE;
-    return filteredStudents.slice(startIndex, startIndex + PAGE_SIZE);
-  }, [currentPage, filteredStudents]);
+  useEffect(() => {
+    fetchStudents(currentPage);
+  }, [currentPage, filters]);
 
   useEffect(() => {
     setCurrentPage(1);
@@ -81,6 +59,44 @@ export function SiswaPage() {
 
   function toggleTheme() {
     setTheme((current) => (current === 'light' ? 'dark' : 'light'));
+  }
+
+  async function fetchStudents(page = currentPage) {
+    setIsLoading(true);
+    setErrorMessage('');
+
+    try {
+      const result = await listSiswa({
+        q: filters.keyword,
+        jurusan_id: filters.jurusan_id,
+        rombel_id: filters.rombel_id,
+        status: filters.status,
+        page,
+        per_page: 10,
+      });
+
+      if (!result.ok || result.data?.success === false) {
+        throw new Error(result.data?.message || 'Gagal memuat data siswa.');
+      }
+
+      const payload = result.data?.data ?? {};
+
+      setStudents(payload.items ?? []);
+      setOptions(payload.options ?? { jurusan: [], rombel: [], statuses: [] });
+      setPagination(
+        payload.pagination ?? {
+          page,
+          per_page: 10,
+          total: 0,
+          total_pages: 1,
+        }
+      );
+    } catch (error) {
+      setStudents([]);
+      setErrorMessage(error.message || 'Gagal memuat data siswa.');
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   function openCreateForm() {
@@ -174,12 +190,29 @@ export function SiswaPage() {
 
         {formMode === 'list' ? (
           <>
-            <SiswaFilterBar filters={filters} theme={theme} onChange={setFilters} />
-            <SiswaTable
-              students={paginatedStudents}
+            <SiswaFilterBar
+              filters={filters}
+              options={options}
               theme={theme}
-              currentPage={currentPage}
-              totalPages={totalPages}
+              onChange={(nextFilters) => {
+                setFilters(nextFilters);
+                setCurrentPage(1);
+              }}
+            />
+            {errorMessage ? (
+              <p className="mt-4 rounded-xl bg-red-500/10 px-4 py-3 text-sm font-bold text-red-400">
+                {errorMessage}
+              </p>
+            ) : null}
+
+            {isLoading ? (
+              <p className="mt-4 text-sm font-bold text-[#8b9298]">Memuat data siswa...</p>
+            ) : null}
+            <SiswaTable
+              students={students}
+              theme={theme}
+              currentPage={pagination.page}
+              totalPages={pagination.total_pages}
               onPageChange={setCurrentPage}
               onEdit={openEditForm}
             />

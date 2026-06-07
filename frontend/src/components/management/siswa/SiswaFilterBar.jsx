@@ -1,13 +1,14 @@
 import clsx from 'clsx';
 
 import { AppIcon } from '../../ui/AppIcon.jsx';
+import { AppSelect } from '../../ui/AppSelect.jsx';
 
-export function SiswaFilterBar({ filters, theme = 'light', onChange }) {
+export function SiswaFilterBar({ filters, options, theme = 'light', onChange }) {
   const inputClass = clsx(
-    'h-12 w-full rounded-md border-0 px-4 text-sm font-medium outline-none appearance-none',
+    'h-12 w-full rounded-xl border px-4 text-sm font-medium outline-none transition',
     theme === 'dark'
-      ? 'bg-[#56616d] text-[#f4f1ec] placeholder:text-[#d6dce2]'
-      : 'bg-[#f1f2f5] text-[#43505a] placeholder:text-[#8b9298]'
+      ? 'border-[#64717d] bg-[#56616d] text-[#F0EDE4] placeholder:text-[#F0EDE4]/70 focus:border-[#F0EDE4] focus:ring-2 focus:ring-[#F0EDE4]/20'
+      : 'border-[#d5dde8] bg-white text-[#43505a] placeholder:text-[#8b9298] focus:border-[#7ea4d4] focus:ring-2 focus:ring-[#7ea4d4]/20'
   );
 
   function updateFilter(key, value) {
@@ -26,63 +27,59 @@ export function SiswaFilterBar({ filters, theme = 'light', onChange }) {
       aria-label="Filter data siswa"
     >
       <label className="relative">
-        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#62707a]">
+        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#F0EDE4]">
           <AppIcon name="magnifyingGlass" />
         </span>
         <input
           type="search"
-          className={clsx(inputClass, 'pl-14 pr-12')}
+          className={clsx(inputClass, 'pl-14')}
           placeholder="Cari NISN, NIS, atau nama..."
           value={filters.keyword}
           onInput={(event) => updateFilter('keyword', event.currentTarget.value)}
         />
       </label>
 
-      <label className="relative">
-        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#62707a]">
-          <AppIcon name="building" />
-        </span>
-        <select
-          className={clsx(inputClass, 'pl-14 pr-12')}
-          value={filters.jurusan}
-          onInput={(event) => updateFilter('jurusan', event.currentTarget.value)}
-        >
-          <option value="">Semua Jurusan</option>
-          <option value="TKJ">TKJ</option>
-          <option value="RPL">RPL</option>
-        </select>
-      </label>
+      <AppSelect
+        icon="building"
+        theme={theme}
+        value={filters.jurusan_id}
+        onInput={(event) => updateFilter('jurusan_id', event.currentTarget.value)}
+      >
+        <option value="">Semua Jurusan</option>
+        {(options?.jurusan ?? []).map((jurusan) => (
+          <option key={jurusan.jurusan_id} value={jurusan.jurusan_id}>
+            {jurusan.kode_jurusan}
+          </option>
+        ))}
+      </AppSelect>
 
-      <label className="relative">
-        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#62707a]">
-          <AppIcon name="graduationCap" />
-        </span>
-        <select
-          className={clsx(inputClass, 'pl-14 pr-12')}
-          value={filters.kelas}
-          onInput={(event) => updateFilter('kelas', event.currentTarget.value)}
-        >
-          <option value="">Semua Kelas</option>
-          <option value="X-1">X-1</option>
-          <option value="X-2">X-2</option>
-          <option value="XI-1">XI-1</option>
-        </select>
-      </label>
+      <AppSelect
+        icon="graduationCap"
+        theme={theme}
+        value={filters.rombel_id}
+        onInput={(event) => updateFilter('rombel_id', event.currentTarget.value)}
+      >
+        <option value="">Semua Kelas</option>
+        {(options?.rombel ?? []).map((rombel) => (
+          <option key={rombel.rombel_id} value={rombel.rombel_id}>
+            {rombel.label}
+          </option>
+        ))}
+      </AppSelect>
 
-      <label className="relative">
-        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#62707a]">
-          <AppIcon name="circleCheck" />
-        </span>
-        <select
-          className={clsx(inputClass, 'pl-14 pr-12')}
-          value={filters.status}
-          onInput={(event) => updateFilter('status', event.currentTarget.value)}
-        >
-          <option value="">Semua Status</option>
-          <option value="Aktif">Aktif</option>
-          <option value="Nonaktif">Nonaktif</option>
-        </select>
-      </label>
+      <AppSelect
+        icon="circleCheck"
+        theme={theme}
+        value={filters.status}
+        onInput={(event) => updateFilter('status', event.currentTarget.value)}
+      >
+        <option value="">Semua Status</option>
+        {(options?.statuses ?? []).map((status) => (
+          <option key={status.value} value={status.value}>
+            {status.label}
+          </option>
+        ))}
+      </AppSelect>
     </section>
   );
 }

@@ -5,11 +5,11 @@ import { DashboardSidebarLink } from './DashboardSidebarLink.jsx';
 import { DashboardSidebarSection } from './DashboardSidebarSection.jsx';
 
 const managementItems = Object.freeze([
-  { key: 'presensi', icon: 'clipboardList', label: 'Presensi', href: '/presensi' },
   { key: 'siswa', icon: 'userGraduate', label: 'Data Siswa', href: '/siswa' },
   { key: 'jurusan', icon: 'building', label: 'Data Jurusan', href: '/jurusan' },
   { key: 'ruangan', icon: 'doorOpen', label: 'Data Ruangan', href: '/ruangan' },
   { key: 'laporan', icon: 'list', label: 'Laporan', href: '#laporan' },
+  { key: 'presensi', icon: 'clipboardList', label: 'Presensi', href: '/presensi' },
 ]);
 
 const adminItems = Object.freeze([
@@ -32,7 +32,7 @@ export function DashboardSidebar({ theme = 'light', activeKey = 'dashboard' }) {
         <div
           className={clsx(
             'grid h-11 w-11 place-items-center rounded-full',
-            theme === 'dark' ? 'bg-[#263544] text-[#9cc2e8]' : 'bg-[#e7f1fb] text-[#3975aa]'
+            theme === 'dark' ? 'bg-[#f4f1ec] text-[#263544]' : 'bg-[#f8f4ea] text-[#3975aa]'
           )}
         >
           <AppIcon name="microscope" className="text-2xl" />

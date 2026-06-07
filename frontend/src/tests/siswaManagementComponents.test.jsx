@@ -40,6 +40,12 @@ describe('siswa management page', () => {
     expect(screen.getByRole('heading', { name: 'Data Siswa' })).toBeTruthy();
   });
 
+  it('does not show pagination when data is only one page', () => {
+    render(<SiswaPage />);
+
+    expect(screen.queryByRole('button', { name: 'Halaman berikutnya' })).toBeFalsy();
+  });
+
   it('opens edit form from table action', () => {
     render(<SiswaPage />);
 

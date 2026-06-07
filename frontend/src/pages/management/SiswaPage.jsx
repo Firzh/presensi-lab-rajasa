@@ -29,6 +29,8 @@ const initialFilters = Object.freeze({
   status: '',
 });
 
+const PAGE_SIZE = 10;
+
 function getInitialTheme() {
   const savedTheme = appStorage.getRaw(STORAGE_KEYS.THEME, 'light');
   return savedTheme === 'dark' ? 'dark' : 'light';
@@ -40,6 +42,7 @@ export function SiswaPage() {
   const [filters, setFilters] = useState(initialFilters);
   const [formMode, setFormMode] = useState('list');
   const [selectedStudent, setSelectedStudent] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
 
   const isDark = theme === 'dark';
 
@@ -64,6 +67,17 @@ export function SiswaPage() {
       return matchesKeyword && matchesJurusan && matchesKelas && matchesStatus;
     });
   }, [filters, students]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredStudents.length / PAGE_SIZE));
+
+  const paginatedStudents = useMemo(() => {
+    const startIndex = (currentPage - 1) * PAGE_SIZE;
+    return filteredStudents.slice(startIndex, startIndex + PAGE_SIZE);
+  }, [currentPage, filteredStudents]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filters]);
 
   function toggleTheme() {
     setTheme((current) => (current === 'light' ? 'dark' : 'light'));
@@ -161,7 +175,14 @@ export function SiswaPage() {
         {formMode === 'list' ? (
           <>
             <SiswaFilterBar filters={filters} theme={theme} onChange={setFilters} />
-            <SiswaTable students={filteredStudents} theme={theme} onEdit={openEditForm} />
+            <SiswaTable
+              students={paginatedStudents}
+              theme={theme}
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+              onEdit={openEditForm}
+            />
           </>
         ) : (
           <SiswaForm

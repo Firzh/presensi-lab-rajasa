@@ -4,7 +4,7 @@ import { AppIcon } from '../../ui/AppIcon.jsx';
 
 export function SiswaFilterBar({ filters, theme = 'light', onChange }) {
   const inputClass = clsx(
-    'h-12 w-full rounded-md border-0 px-4 text-sm font-medium outline-none',
+    'h-12 w-full rounded-md border-0 px-4 text-sm font-medium outline-none appearance-none',
     theme === 'dark'
       ? 'bg-[#56616d] text-[#f4f1ec] placeholder:text-[#d6dce2]'
       : 'bg-[#f1f2f5] text-[#43505a] placeholder:text-[#8b9298]'
@@ -31,7 +31,7 @@ export function SiswaFilterBar({ filters, theme = 'light', onChange }) {
         </span>
         <input
           type="search"
-          className={clsx(inputClass, 'pl-14')}
+          className={clsx(inputClass, 'pl-14 pr-12')}
           placeholder="Cari NISN, NIS, atau nama..."
           value={filters.keyword}
           onInput={(event) => updateFilter('keyword', event.currentTarget.value)}
@@ -43,7 +43,7 @@ export function SiswaFilterBar({ filters, theme = 'light', onChange }) {
           <AppIcon name="building" />
         </span>
         <select
-          className={clsx(inputClass, 'pl-14')}
+          className={clsx(inputClass, 'pl-14 pr-12')}
           value={filters.jurusan}
           onInput={(event) => updateFilter('jurusan', event.currentTarget.value)}
         >
@@ -58,7 +58,7 @@ export function SiswaFilterBar({ filters, theme = 'light', onChange }) {
           <AppIcon name="graduationCap" />
         </span>
         <select
-          className={clsx(inputClass, 'pl-14')}
+          className={clsx(inputClass, 'pl-14 pr-12')}
           value={filters.kelas}
           onInput={(event) => updateFilter('kelas', event.currentTarget.value)}
         >
@@ -74,7 +74,7 @@ export function SiswaFilterBar({ filters, theme = 'light', onChange }) {
           <AppIcon name="circleCheck" />
         </span>
         <select
-          className={clsx(inputClass, 'pl-14')}
+          className={clsx(inputClass, 'pl-14 pr-12')}
           value={filters.status}
           onInput={(event) => updateFilter('status', event.currentTarget.value)}
         >

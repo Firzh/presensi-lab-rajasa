@@ -13,7 +13,14 @@ const columns = Object.freeze([
   'AKSI',
 ]);
 
-export function SiswaTable({ students, theme = 'light', onEdit }) {
+export function SiswaTable({
+  students,
+  theme = 'light',
+  currentPage = 1,
+  totalPages = 1,
+  onPageChange,
+  onEdit,
+}) {
   return (
     <section
       className={clsx(
@@ -98,15 +105,48 @@ export function SiswaTable({ students, theme = 'light', onEdit }) {
         </tbody>
       </table>
 
-      {students.length > 0 ? (
-        <div className="mt-3 flex justify-center gap-4 text-base font-bold text-[#43505a]">
-          <button type="button" aria-label="Halaman sebelumnya">
+      {students.length > 0 && totalPages > 1 ? (
+        <div
+          className={clsx(
+            'mt-4 flex justify-center gap-4 text-base font-bold',
+            theme === 'dark' ? 'text-[#cfd8e3]' : 'text-[#43505a]'
+          )}
+        >
+          <button
+            type="button"
+            aria-label="Halaman sebelumnya"
+            disabled={currentPage === 1}
+            className="disabled:opacity-30"
+            onClick={() => onPageChange?.(Math.max(1, currentPage - 1))}
+          >
             ‹
           </button>
-          <span className="rounded-md bg-[#d8dee5] px-2">1</span>
-          <span>2</span>
-          <span>3</span>
-          <button type="button" aria-label="Halaman berikutnya">
+
+          {Array.from({ length: totalPages }, (_, index) => index + 1).map((page) => (
+            <button
+              key={page}
+              type="button"
+              className={clsx(
+                'min-w-7 rounded-md px-2',
+                page === currentPage
+                  ? theme === 'dark'
+                    ? 'bg-[#f4f1ec] text-[#1d262e]'
+                    : 'bg-[#d8dee5] text-[#43505a]'
+                  : 'opacity-70'
+              )}
+              onClick={() => onPageChange?.(page)}
+            >
+              {page}
+            </button>
+          ))}
+
+          <button
+            type="button"
+            aria-label="Halaman berikutnya"
+            disabled={currentPage === totalPages}
+            className="disabled:opacity-30"
+            onClick={() => onPageChange?.(Math.min(totalPages, currentPage + 1))}
+          >
             ›
           </button>
         </div>

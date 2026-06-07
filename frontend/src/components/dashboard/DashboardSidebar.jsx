@@ -5,6 +5,7 @@ import { DashboardSidebarLink } from './DashboardSidebarLink.jsx';
 import { DashboardSidebarSection } from './DashboardSidebarSection.jsx';
 
 const managementItems = Object.freeze([
+  { key: 'presensi', icon: 'clipboardList', label: 'Presensi', href: '/presensi' },
   { key: 'siswa', icon: 'userGraduate', label: 'Data Siswa', href: '/siswa' },
   { key: 'jurusan', icon: 'building', label: 'Data Jurusan', href: '/jurusan' },
   { key: 'ruangan', icon: 'doorOpen', label: 'Data Ruangan', href: '/ruangan' },

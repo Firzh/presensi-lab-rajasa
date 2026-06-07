@@ -4,6 +4,7 @@ export const ROUTES = Object.freeze({
   DEV_IMPORT: '/dev/import',
   DEV_ATTENDANCE_AUDIT: '/dev/attendance-audit',
   DASHBOARD: '/dashboard',
+  PRESENSI: '/presensi',
   SISWA: '/siswa',
   JURUSAN: '/jurusan',
   RUANGAN: '/ruangan',

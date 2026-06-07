@@ -28,7 +28,8 @@ describe('dashboard components', () => {
   it('renders dashboard page shell', () => {
     render(<DashboardPage />);
 
-    expect(screen.getByText('Presensi')).toBeTruthy();
+    expect(screen.getByText('SMK RAJASA SURABAYA')).toBeTruthy();
+    expect(screen.getByRole('link', { name: 'Presensi' })).toBeTruthy();
     expect(screen.getByRole('heading', { name: 'Dashboard' })).toBeTruthy();
     expect(screen.getByText('Senin, 30 Maret 2026')).toBeTruthy();
     expect(screen.getByText('Presensi Terbaru')).toBeTruthy();

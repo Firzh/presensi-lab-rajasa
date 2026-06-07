@@ -47,6 +47,13 @@ describe('AppRoutes', () => {
     expect(screen.getByText('Total Siswa')).toBeTruthy();
   });
 
+  it('renders SiswaPage route', () => {
+    renderRoute('/siswa');
+
+    expect(screen.getByRole('heading', { name: 'Data Siswa' })).toBeTruthy();
+    expect(screen.getByText('Kelola data siswa SMK Rajasa Surabaya')).toBeTruthy();
+  });
+
   it('renders NotFoundPage for unknown route', () => {
     renderRoute('/route-tidak-ada');
 

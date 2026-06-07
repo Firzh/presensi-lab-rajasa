@@ -1,4 +1,3 @@
-import { h } from 'preact';
 import { afterEach, describe, expect, it } from 'vitest';
 import { cleanup, render, screen } from '@testing-library/preact';
 
@@ -16,15 +15,15 @@ function renderRoute(path) {
 }
 
 describe('AppRoutes', () => {
-  it('renders HomePageDev for root route', () => {
+  it('renders LoginPage for root route', () => {
     renderRoute('/');
 
-    expect(screen.getByText('Frontend Baseline')).toBeTruthy();
-    expect(screen.getByText('Buka Dev Scanner')).toBeTruthy();
+    expect(screen.getByText('Sistem Presensi Lab')).toBeTruthy();
+    expect(screen.getByText('Selamat Datang')).toBeTruthy();
   });
 
   it('renders DevScanPage route', () => {
-    renderRoute('/dev/scan');
+    renderRoute('/dev');
 
     expect(screen.getByText('Demo Scan QR Presensi')).toBeTruthy();
   });
@@ -39,6 +38,13 @@ describe('AppRoutes', () => {
     renderRoute('/dev/attendance-audit');
 
     expect(screen.getByText('Hasil Presensi Terkini')).toBeTruthy();
+  });
+
+  it('renders DashboardPage route', () => {
+    renderRoute('/dashboard');
+
+    expect(screen.getByRole('heading', { name: 'Dashboard' })).toBeTruthy();
+    expect(screen.getByText('Total Siswa')).toBeTruthy();
   });
 
   it('renders NotFoundPage for unknown route', () => {

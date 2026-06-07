@@ -21,7 +21,7 @@ export function DashboardSidebar({ theme = 'light', activeKey = 'dashboard' }) {
   return (
     <aside
       className={clsx(
-        'fixed left-0 top-0 z-20 flex h-screen w-[260px] flex-col border-r px-6 py-4',
+        'fixed left-0 top-0 z-20 flex h-screen w-65 flex-col border-r px-6 py-4',
         theme === 'dark'
           ? 'border-[#1f2933] bg-[#141b23] text-white'
           : 'border-[#edf0f3] bg-white text-[#43505a]'

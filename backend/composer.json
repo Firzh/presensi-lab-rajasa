@@ -42,8 +42,8 @@
     "phpunit/phpunit": "^11.5"
   },
   "scripts": {
-    "test": "phpunit",
-    "test:unit": "phpunit --testsuite Unit",
-    "test:feature": "phpunit --testsuite Feature"
+    "test": "@php vendor/bin/phpunit",
+    "test:unit": "@php vendor/bin/phpunit --testsuite Unit",
+    "test:feature": "@php vendor/bin/phpunit --testsuite Feature"
   }
 }

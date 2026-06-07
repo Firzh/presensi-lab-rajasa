@@ -15,6 +15,8 @@ use Rajasa\PresensiSiswa\Http\Controllers\PresensiManualEditController;
 use Rajasa\PresensiSiswa\Http\Controllers\PresensiSesiController;
 use Rajasa\PresensiSiswa\Http\Controllers\RombelController;
 
+use Rajasa\PresensiSiswa\Http\Controllers\SiswaController;
+
 return function (RouteCollector $route): void {
     $route->get('/api/health', HealthController::class);
 
@@ -23,6 +25,7 @@ return function (RouteCollector $route): void {
     $route->get('/api/me', MeController::class);
 
     $route->get('/api/rombel/options', RombelController::class);
+    $route->get('/api/siswa', [SiswaController::class, 'index']);
 
     $route->post('/api/presensi/sesi', [PresensiSesiController::class, 'create']);
     $route->get('/api/presensi/sesi/aktif', [PresensiSesiController::class, 'active']);

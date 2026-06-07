@@ -4,6 +4,7 @@ import { LoginBrandPanel } from '../../components/auth/LoginBrandPanel.jsx';
 import { LoginForm } from '../../components/auth/LoginForm.jsx';
 import { ThemeToggle } from '../../components/auth/ThemeToggle.jsx';
 import { STORAGE_KEYS } from '../../constants/storageKeys.js';
+import { ROUTES } from '../../constants/routes.js';
 import { appStorage } from '../../lib/storage.js';
 import '../../styles/login.css';
 
@@ -24,6 +25,10 @@ export function LoginPage() {
     setTheme((current) => (current === 'light' ? 'dark' : 'light'));
   }
 
+  function handleLoginSuccess() {
+    window.location.assign(ROUTES.DASHBOARD);
+  }
+
   return (
     <main className="login-page">
       <section className="login-shell" aria-label="Halaman login sistem presensi lab">
@@ -39,7 +44,8 @@ export function LoginPage() {
                 <p>Silahkan masuk untuk mengakses sistem</p>
               </header>
 
-              <LoginForm />
+              {/* <LoginForm /> */}
+              <LoginForm onSuccess={handleLoginSuccess} />
             </div>
           </div>
 

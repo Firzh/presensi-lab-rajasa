@@ -40,6 +40,13 @@ describe('AppRoutes', () => {
     expect(screen.getByText('Hasil Presensi Terkini')).toBeTruthy();
   });
 
+  it('renders DashboardPage route', () => {
+    renderRoute('/dashboard');
+
+    expect(screen.getByRole('heading', { name: 'Dashboard' })).toBeTruthy();
+    expect(screen.getByText('Total Siswa')).toBeTruthy();
+  });
+
   it('renders NotFoundPage for unknown route', () => {
     renderRoute('/route-tidak-ada');
 

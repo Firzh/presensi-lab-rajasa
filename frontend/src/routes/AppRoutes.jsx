@@ -4,6 +4,7 @@ import { ROUTES } from '../constants/routes.js';
 import { NotFoundPage } from '../pages/NotFoundPage.jsx';
 import { LoginPage } from '../pages/auth/LoginPage.jsx';
 import { DevAttendanceAuditPage } from '../pages/dev/DevAttendanceAuditPage.jsx';
+import { DashboardPage } from '../pages/dashboard/DashboardPage.jsx';
 import { DevImportPage } from '../pages/dev/DevImportPage.jsx';
 import { DevScanPage } from '../pages/dev/DevScanPage.jsx';
 
@@ -15,6 +16,7 @@ export function AppRoutes() {
         <Route path={ROUTES.DEV_SCAN} component={DevScanPage} />
         <Route path={ROUTES.DEV_IMPORT} component={DevImportPage} />
         <Route path={ROUTES.DEV_ATTENDANCE_AUDIT} component={DevAttendanceAuditPage} />
+        <Route path={ROUTES.DASHBOARD} component={DashboardPage} />
         <Route default component={NotFoundPage} />
       </Router>
     </LocationProvider>

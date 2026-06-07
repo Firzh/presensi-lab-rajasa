@@ -1,6 +1,7 @@
 import {
   faAngleDown,
   faArrowRightToBracket,
+  faArrowRightFromBracket,
   faBell,
   faBuilding,
   faCalendar,
@@ -14,6 +15,9 @@ import {
   faDoorOpen,
   faEye,
   faEyeSlash,
+  faFileExport,
+  faInbox,
+  faList,
   faGear,
   faGraduationCap,
   faHouse,
@@ -26,6 +30,7 @@ import {
   faShieldHalved,
   faTriangleExclamation,
   faUser,
+  faUserShield,
   faUserCheck,
   faUserGraduate,
   faUsers,
@@ -36,6 +41,7 @@ import {
 const iconMap = Object.freeze({
   angleDown: faAngleDown,
   arrowRightToBracket: faArrowRightToBracket,
+  arrowRightFromBracket: faArrowRightFromBracket,
   bell: faBell,
   building: faBuilding,
   calendar: faCalendar,
@@ -49,6 +55,9 @@ const iconMap = Object.freeze({
   doorOpen: faDoorOpen,
   eye: faEye,
   eyeSlash: faEyeSlash,
+  fileExport: faFileExport,
+  inbox: faInbox,
+  list: faList,
   gear: faGear,
   graduationCap: faGraduationCap,
   house: faHouse,
@@ -61,6 +70,7 @@ const iconMap = Object.freeze({
   shieldHalved: faShieldHalved,
   triangleExclamation: faTriangleExclamation,
   user: faUser,
+  userShield: faUserShield,
   userCheck: faUserCheck,
   userGraduate: faUserGraduate,
   users: faUsers,
@@ -88,9 +98,7 @@ export function AppIcon({
   const [width, height, , , svgPathData] = selectedIcon.icon;
   const paths = Array.isArray(svgPathData) ? svgPathData : [svgPathData];
 
-  const ariaProps = title
-    ? { role: 'img', 'aria-label': title }
-    : { 'aria-hidden': 'true' };
+  const ariaProps = title ? { role: 'img', 'aria-label': title } : { 'aria-hidden': 'true' };
 
   return (
     <svg

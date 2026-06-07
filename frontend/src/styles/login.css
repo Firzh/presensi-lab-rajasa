@@ -1,32 +1,44 @@
 :root {
-  --login-bg: #eaf3ff;
-  --login-shell-bg: #ffffff;
-  --login-brand-start: #38bdf8;
-  --login-brand-end: #1d4ed8;
-  --login-text: #0f172a;
-  --login-muted: #64748b;
-  --login-border: #dbeafe;
-  --login-input-bg: #ffffff;
-  --login-primary: #2563eb;
-  --login-primary-dark: #1d4ed8;
-  --login-danger: #dc2626;
-  --login-success: #16a34a;
-  --login-shadow: 0 24px 70px rgba(15, 23, 42, 0.16);
+  --login-page-start: #5e7fb4;
+  --login-page-end: #ddd8d1;
+  --login-shell-bg: #f4f4f4;
+  --login-brand-start: #a9c1e3;
+  --login-brand-end: #314f7f;
+  --login-form-surface: #f5f5f5;
+  --login-text: #2d3748;
+  --login-muted: #8d8d8d;
+  --login-border: #8d8d8d;
+  --login-input-bg: #f8f8f8;
+  --login-primary: #7da3cf;
+  --login-primary-dark: #7da3cf;
+  --login-button-text: #1f2937;
+  --login-feature-card-bg: rgba(255, 255, 255, 0.72);
+  --login-feature-icon-bg: #f8fafc;
+  --login-feature-icon-color: #4f76af;
+  --login-toggle-bg: rgba(255, 255, 255, 0.92);
+  --login-toggle-color: #334155;
+  --login-shadow: 0 24px 70px rgba(15, 23, 42, 0.22);
 }
 
 html[data-theme='dark'] {
-  --login-bg: #06111f;
-  --login-shell-bg: #0f172a;
-  --login-brand-start: #0ea5e9;
-  --login-brand-end: #1e3a8a;
-  --login-text: #e5edf7;
-  --login-muted: #94a3b8;
-  --login-border: #1e293b;
-  --login-input-bg: #111827;
-  --login-primary: #38bdf8;
-  --login-primary-dark: #0284c7;
-  --login-danger: #f87171;
-  --login-success: #4ade80;
+  --login-page-start: #6d8195;
+  --login-page-end: #07111d;
+  --login-shell-bg: #101826;
+  --login-brand-start: #8fa5bc;
+  --login-brand-end: #5d7084;
+  --login-form-surface: #182130;
+  --login-text: #f3f4f6;
+  --login-muted: #9aa4b2;
+  --login-border: #7b8796;
+  --login-input-bg: #182130;
+  --login-primary: #7da3cf;
+  --login-primary-dark: #7da3cf;
+  --login-button-text: #ffffff;
+  --login-feature-card-bg: rgba(17, 24, 39, 0.35);
+  --login-feature-icon-bg: #f8fafc;
+  --login-feature-icon-color: #4f76af;
+  --login-toggle-bg: rgba(255, 255, 255, 0.92);
+  --login-toggle-color: #334155;
   --login-shadow: 0 24px 70px rgba(0, 0, 0, 0.45);
 }
 
@@ -35,15 +47,11 @@ html[data-theme='dark'] {
   padding: 2rem;
   display: grid;
   place-items: center;
-  background:
-    radial-gradient(circle at top left, rgba(56, 189, 248, 0.22), transparent 32rem),
-    linear-gradient(135deg, var(--login-bg), #f8fbff);
+  background: linear-gradient(135deg, var(--login-page-start), var(--login-page-end));
 }
 
 html[data-theme='dark'] .login-page {
-  background:
-    radial-gradient(circle at top left, rgba(14, 165, 233, 0.22), transparent 32rem),
-    linear-gradient(135deg, #020617, var(--login-bg));
+  background: linear-gradient(135deg, var(--login-page-start), var(--login-page-end));
 }
 
 .login-shell {
@@ -69,8 +77,8 @@ html[data-theme='dark'] .login-page {
   place-items: center;
   border: 0;
   border-radius: 999px;
-  color: var(--login-primary);
-  background: rgba(255, 255, 255, 0.82);
+  color: var(--login-toggle-color);
+  background: var(--login-toggle-bg);
   box-shadow: 0 12px 28px rgba(15, 23, 42, 0.12);
   cursor: pointer;
 }
@@ -86,19 +94,11 @@ html[data-theme='dark'] .login-theme-toggle {
   place-items: center;
   padding: 3rem;
   color: #ffffff;
-  background:
-    radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.26), transparent 13rem),
-    linear-gradient(145deg, var(--login-brand-start), var(--login-brand-end));
+  background: linear-gradient(180deg, var(--login-brand-start), var(--login-brand-end));
 }
 
 .login-brand-panel::after {
-  content: '';
-  position: absolute;
-  inset: auto -5rem -7rem auto;
-  width: 19rem;
-  height: 19rem;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.14);
+  content: none;
 }
 
 .login-brand-content {
@@ -112,14 +112,14 @@ html[data-theme='dark'] .login-theme-toggle {
 }
 
 .login-main-logo {
-  width: 7.25rem;
-  height: 7.25rem;
+  width: 7rem;
+  height: 7rem;
   display: grid;
   place-items: center;
-  border-radius: 2rem;
-  color: #ffffff;
-  background: rgba(255, 255, 255, 0.18);
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.24);
+  border-radius: 999px;
+  color: #4f76af;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: none;
 }
 
 .login-main-logo svg {
@@ -154,8 +154,8 @@ html[data-theme='dark'] .login-theme-toggle {
   justify-items: center;
   align-content: center;
   border-radius: 1.2rem;
-  background: rgba(255, 255, 255, 0.16);
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.18);
+  background: var(--login-feature-card-bg);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.2);
 }
 
 .login-feature-card p {
@@ -170,8 +170,8 @@ html[data-theme='dark'] .login-theme-toggle {
   display: grid;
   place-items: center;
   border-radius: 999px;
-  color: #1d4ed8;
-  background: #ffffff;
+  color: var(--login-feature-icon-color);
+  background: var(--login-feature-icon-bg);
 }
 
 .login-form-panel {
@@ -179,6 +179,7 @@ html[data-theme='dark'] .login-theme-toggle {
   flex-direction: column;
   padding: 3rem;
   color: var(--login-text);
+  background: var(--login-form-surface);
 }
 
 .login-form-main {
@@ -340,11 +341,11 @@ html[data-theme='dark'] .login-theme-toggle {
   gap: 0.7rem;
   border: 0;
   border-radius: 1rem;
-  color: #ffffff;
+  color: var(--login-button-text);
   background: linear-gradient(135deg, var(--login-primary), var(--login-primary-dark));
   font-weight: 800;
   cursor: pointer;
-  box-shadow: 0 16px 28px rgba(37, 99, 235, 0.28);
+  box-shadow: none;
 }
 
 .login-button:disabled {
@@ -354,14 +355,18 @@ html[data-theme='dark'] .login-theme-toggle {
 
 .login-footer {
   display: flex;
-  justify-content: space-between;
-  gap: 1rem;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.15rem;
+  text-align: center;
   color: var(--login-muted);
   font-size: 0.82rem;
 }
 
 .login-footer p {
   margin: 0;
+  text-align: center;
 }
 
 @media (max-width: 860px) {
@@ -387,7 +392,6 @@ html[data-theme='dark'] .login-theme-toggle {
     grid-template-columns: 1fr;
   }
 
-  .login-footer,
   .login-form-row {
     align-items: flex-start;
     flex-direction: column;

@@ -3,9 +3,14 @@ import { cleanup, render, screen } from '@testing-library/preact';
 
 import { AppRoutes } from '../routes/AppRoutes.jsx';
 import { listSiswa } from '../api/siswaApi.js';
+import { listJurusan } from "../api/jurusanApi.js";
 
 vi.mock('../api/siswaApi.js', () => ({
   listSiswa: vi.fn(),
+}));
+
+vi.mock('../api/jurusanApi.js', () => ({
+  listJurusan: vi.fn(),
 }));
 
 afterEach(() => {
@@ -18,6 +23,27 @@ function renderRoute(path) {
 
   return render(<AppRoutes />);
 }
+
+listJurusan.mockResolvedValue({
+  ok: true,
+  status: 200,
+  data: {
+    success: true,
+    message: 'Daftar jurusan.',
+    data: {
+      items: [],
+      pagination: {
+        page: 1,
+        per_page: 4,
+        total: 0,
+        total_pages: 1,
+      },
+      options: {
+        statuses: [],
+      },
+    },
+  },
+});
 
 beforeEach(() => {
   listSiswa.mockResolvedValue({
@@ -84,6 +110,13 @@ describe('AppRoutes', () => {
     expect(screen.getByText('Kelola data siswa SMK Rajasa Surabaya')).toBeTruthy();
   });
 
+  it('renders JurusanPage route', () => {
+    renderRoute('/jurusan');
+
+    expect(screen.getByRole('heading', { name: 'Data Jurusan' })).toBeTruthy();
+    expect(screen.getByText('Kelola data jurusan SMK Rajasa Surabaya')).toBeTruthy();
+  });
+  
   it('renders NotFoundPage for unknown route', () => {
     renderRoute('/route-tidak-ada');
 

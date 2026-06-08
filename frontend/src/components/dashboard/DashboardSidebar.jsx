@@ -7,7 +7,7 @@ import { DashboardSidebarSection } from './DashboardSidebarSection.jsx';
 const managementItems = Object.freeze([
   { key: 'siswa', icon: 'userGraduate', label: 'Data Siswa', href: '/siswa' },
   { key: 'jurusan', icon: 'building', label: 'Data Jurusan', href: '/jurusan' },
-  { key: 'ruangan', icon: 'doorOpen', label: 'Data Ruangan', href: '/ruangan' },
+  // { key: 'ruangan', icon: 'doorOpen', label: 'Data Ruangan', href: '/ruangan' },
   { key: 'laporan', icon: 'list', label: 'Laporan', href: '#laporan' },
   { key: 'presensi', icon: 'clipboardList', label: 'Presensi', href: '/presensi' },
 ]);

@@ -6,6 +6,7 @@ import { LoginPage } from '../pages/auth/LoginPage.jsx';
 import { DevAttendanceAuditPage } from '../pages/dev/DevAttendanceAuditPage.jsx';
 import { DashboardPage } from '../pages/dashboard/DashboardPage.jsx';
 import { SiswaPage } from '../pages/management/SiswaPage.jsx';
+import { JurusanPage } from '../pages/management/JurusanPage.jsx';
 import { DevImportPage } from '../pages/dev/DevImportPage.jsx';
 import { DevScanPage } from '../pages/dev/DevScanPage.jsx';
 
@@ -19,6 +20,7 @@ export function AppRoutes() {
         <Route path={ROUTES.DEV_ATTENDANCE_AUDIT} component={DevAttendanceAuditPage} />
         <Route path={ROUTES.DASHBOARD} component={DashboardPage} />
         <Route path={ROUTES.SISWA} component={SiswaPage} />
+        <Route path={ROUTES.JURUSAN} component={JurusanPage} />
         <Route default component={NotFoundPage} />
       </Router>
     </LocationProvider>

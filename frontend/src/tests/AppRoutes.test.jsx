@@ -4,6 +4,7 @@ import { cleanup, render, screen } from '@testing-library/preact';
 import { AppRoutes } from '../routes/AppRoutes.jsx';
 import { listSiswa } from '../api/siswaApi.js';
 import { listJurusan } from "../api/jurusanApi.js";
+import { fetchPresensiToday, fetchRombelOptions } from '../api/presensiApi.js';
 
 vi.mock('../api/siswaApi.js', () => ({
   listSiswa: vi.fn(),
@@ -11,6 +12,11 @@ vi.mock('../api/siswaApi.js', () => ({
 
 vi.mock('../api/jurusanApi.js', () => ({
   listJurusan: vi.fn(),
+}));
+
+vi.mock('../api/presensiApi.js', () => ({
+  fetchPresensiToday: vi.fn(),
+  fetchRombelOptions: vi.fn(),
 }));
 
 afterEach(() => {
@@ -41,6 +47,28 @@ listJurusan.mockResolvedValue({
       options: {
         statuses: [],
       },
+    },
+  },
+});
+
+fetchRombelOptions.mockResolvedValue({
+  ok: true,
+  status: 200,
+  data: {
+    success: true,
+    data: {
+      rombel: [],
+    },
+  },
+});
+
+fetchPresensiToday.mockResolvedValue({
+  ok: true,
+  status: 200,
+  data: {
+    success: true,
+    data: {
+      items: [],
     },
   },
 });
@@ -115,6 +143,13 @@ describe('AppRoutes', () => {
 
     expect(screen.getByRole('heading', { name: 'Data Jurusan' })).toBeTruthy();
     expect(screen.getByText('Kelola data jurusan SMK Rajasa Surabaya')).toBeTruthy();
+  });
+
+  it('renders PresensiPage route', () => {
+    renderRoute('/presensi');
+
+    expect(screen.getByRole('heading', { name: 'Presensi' })).toBeTruthy();
+    expect(screen.getByText('Buat sesi, scan QR, dan pantau presensi siswa hari ini.')).toBeTruthy();
   });
   
   it('renders NotFoundPage for unknown route', () => {

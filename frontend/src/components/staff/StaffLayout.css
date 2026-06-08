@@ -1,0 +1,204 @@
+/**
+ * StaffLayout.css
+ *
+ * Styles for the staff dashboard layout.
+ * Header (Level 2) + Sidebar (Level 3).
+ * Font: Poppins 16.5 per FigJam spec.
+ *
+ * @author fashich/dashboard-staff-page
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --staff-primary:        #0284c7;
+  --staff-primary-light:  #e0f2fe;
+  --staff-primary-dark:   #0369a1;
+  --staff-accent:         #10b981;
+  --staff-danger:         #ef4444;
+  --staff-white:          #ffffff;
+  --staff-bg:             #f1f5f9;
+  --staff-border:         #e2e8f0;
+  --staff-text-base:      #1e293b;
+  --staff-text-muted:     #64748b;
+  --staff-text-subtle:    #94a3b8;
+  --staff-sidebar-bg:     #ffffff;
+  --staff-sidebar-width:  240px;
+  --staff-header-height:  64px;
+  --staff-font:           'Poppins', sans-serif;
+  --staff-transition:     0.2s ease;
+  --staff-shadow-sm:      0 1px 3px rgba(0,0,0,.06);
+}
+
+:root[data-theme='dark'] {
+  --staff-primary:        #38bdf8;
+  --staff-primary-light:  #0c4a6e;
+  --staff-primary-dark:   #7dd3fc;
+  --staff-white:          #1e2a35;
+  --staff-bg:             #111827;
+  --staff-border:         #374151;
+  --staff-text-base:      #f1f5f9;
+  --staff-text-muted:     #94a3b8;
+  --staff-text-subtle:    #64748b;
+  --staff-sidebar-bg:     #1a2332;
+  --staff-shadow-sm:      0 1px 3px rgba(0,0,0,.3);
+}
+
+.staff-layout {
+  display: flex;
+  min-height: 100vh;
+  background: var(--staff-bg);
+  font-family: var(--staff-font);
+}
+
+/* ─── Header ──────────────────────────────────────────────────────────────── */
+.staff-header {
+  display: flex;
+  align-items: center;
+  height: var(--staff-header-height);
+  background: var(--staff-white);
+  border-bottom: 1px solid var(--staff-border);
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  box-shadow: var(--staff-shadow-sm);
+  padding: 0 1rem 0 1.25rem;
+  gap: 1rem;
+}
+
+.staff-header-toggle {
+  width: 36px; height: 36px;
+  border: none; background: transparent;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--staff-text-muted);
+  cursor: pointer; flex-shrink: 0;
+  transition: background var(--staff-transition), color var(--staff-transition);
+}
+.staff-header-toggle:hover { background: var(--staff-primary-light); color: var(--staff-primary); }
+.staff-header-toggle svg  { width: 20px; height: 20px; fill: currentColor; }
+
+.staff-header-brand {
+  display: flex; align-items: center; gap: 0.6rem;
+}
+.staff-header-brand-icon {
+  width: 34px; height: 34px; border-radius: 8px;
+  background: linear-gradient(135deg, var(--staff-accent), #059669);
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; flex-shrink: 0;
+}
+.staff-header-brand-icon svg { width: 18px; height: 18px; fill: currentColor; }
+.staff-header-brand-text { font-size: 0.9rem; font-weight: 600; color: var(--staff-text-base); white-space: nowrap; }
+
+.staff-header-nav {
+  display: flex; align-items: center; gap: 0.25rem; flex: 1;
+}
+.staff-header-nav-item {
+  display: flex; align-items: center; gap: 0.5rem;
+  padding: 0.45rem 1rem; border: none; background: transparent;
+  border-radius: 8px; font-family: var(--staff-font);
+  font-size: 0.875rem; font-weight: 500; color: var(--staff-text-muted);
+  cursor: pointer; white-space: nowrap;
+  transition: background var(--staff-transition), color var(--staff-transition);
+  position: relative;
+}
+.staff-header-nav-item:hover { background: var(--staff-primary-light); color: var(--staff-primary-dark); }
+.staff-header-nav-item.active { color: var(--staff-primary); background: var(--staff-primary-light); font-weight: 600; }
+.staff-header-nav-item.active::after {
+  content: ''; position: absolute; bottom: -1px;
+  left: 0.75rem; right: 0.75rem; height: 3px;
+  background: var(--staff-primary); border-radius: 3px 3px 0 0;
+}
+.staff-header-nav-item .nav-icon svg { width: 16px; height: 16px; fill: currentColor; }
+
+.staff-header-user {
+  display: flex; align-items: center; gap: 0.75rem; margin-left: auto;
+  padding: 0.35rem 0.65rem; border-radius: 10px;
+}
+.staff-header-user-avatar {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--staff-accent), #059669);
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-weight: 600; font-size: 0.9rem; flex-shrink: 0;
+}
+.staff-header-user-name { font-size: 0.85rem; font-weight: 600; color: var(--staff-text-base); }
+.staff-header-user-role { font-size: 0.72rem; color: var(--staff-text-muted); }
+.staff-header-user-info { display: flex; flex-direction: column; line-height: 1.2; }
+
+/* ─── Sidebar ─────────────────────────────────────────────────────────────── */
+.staff-sidebar {
+  width: var(--staff-sidebar-width);
+  background: var(--staff-sidebar-bg);
+  border-right: 1px solid var(--staff-border);
+  display: flex; flex-direction: column;
+  position: fixed; top: var(--staff-header-height); left: 0;
+  height: calc(100vh - var(--staff-header-height));
+  z-index: 80; overflow: hidden;
+  transition: width var(--staff-transition);
+  box-shadow: var(--staff-shadow-sm);
+}
+.staff-layout.sidebar-collapsed .staff-sidebar { width: 72px; }
+
+.staff-sidebar-brand {
+  display: flex; align-items: center; gap: 0.75rem;
+  padding: 1.25rem 1.25rem 1rem;
+  border-bottom: 1px solid var(--staff-border); min-height: 68px;
+}
+.staff-sidebar-brand-icon {
+  width: 40px; height: 40px; border-radius: 10px;
+  background: linear-gradient(135deg, var(--staff-accent), #059669);
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; flex-shrink: 0;
+}
+.staff-sidebar-brand-icon svg { width: 22px; height: 22px; fill: currentColor; }
+.staff-sidebar-brand-text strong { display: block; font-size: 0.9rem; font-weight: 600; color: var(--staff-text-base); }
+.staff-sidebar-brand-text span  { font-size: 0.72rem; color: var(--staff-text-muted); }
+
+.staff-sidebar-nav { flex: 1; padding: 1rem 0.75rem; overflow-y: auto; }
+.staff-sidebar-nav-label {
+  font-size: 0.68rem; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.8px; color: var(--staff-text-subtle);
+  padding: 0.5rem 0.75rem 0.25rem; white-space: nowrap;
+}
+.staff-sidebar-nav-item {
+  display: flex; align-items: center; gap: 0.75rem;
+  width: 100%; padding: 0.6rem 0.75rem;
+  border: none; background: transparent; border-radius: 8px;
+  color: var(--staff-text-muted); font-family: var(--staff-font);
+  font-size: 0.875rem; font-weight: 500; text-align: left;
+  cursor: pointer; white-space: nowrap; margin-bottom: 2px;
+  transition: background var(--staff-transition), color var(--staff-transition);
+}
+.staff-sidebar-nav-item:hover { background: var(--staff-primary-light); color: var(--staff-primary-dark); }
+.staff-sidebar-nav-item.active { background: var(--staff-primary); color: #fff; box-shadow: 0 2px 8px rgba(2,132,199,.3); }
+.staff-sidebar-nav-item .nav-icon { width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.staff-sidebar-nav-item .nav-icon svg { width: 18px; height: 18px; fill: currentColor; }
+.staff-sidebar-empty { padding: 1.5rem 1rem; text-align: center; color: var(--staff-text-subtle); font-size: 0.8rem; }
+
+.staff-sidebar-footer { padding: 0.75rem; border-top: 1px solid var(--staff-border); }
+.staff-sidebar-logout {
+  display: flex; align-items: center; gap: 0.75rem; width: 100%;
+  padding: 0.65rem 0.75rem; border: 1px solid var(--staff-border);
+  border-radius: 8px; background: var(--staff-white);
+  color: var(--staff-text-muted); font-family: var(--staff-font);
+  font-size: 0.875rem; font-weight: 500; cursor: pointer; white-space: nowrap; overflow: hidden;
+  transition: background var(--staff-transition), color var(--staff-transition);
+}
+.staff-sidebar-logout:hover { background: #fff5f5; color: var(--staff-danger); border-color: #fca5a5; }
+.staff-sidebar-logout .nav-icon { width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.staff-sidebar-logout .nav-icon svg { width: 18px; height: 18px; fill: currentColor; }
+
+/* ─── Main content ────────────────────────────────────────────────────────── */
+.staff-content {
+  flex: 1; margin-left: var(--staff-sidebar-width);
+  margin-top: var(--staff-header-height);
+  min-height: calc(100vh - var(--staff-header-height));
+  transition: margin-left var(--staff-transition);
+}
+.staff-layout.sidebar-collapsed .staff-content { margin-left: 72px; }
+.staff-page-content { padding: 1.75rem; }
+
+@media (max-width: 768px) {
+  :root { --staff-sidebar-width: 200px; }
+  .staff-header-user-info, .staff-header-brand-text { display: none; }
+}

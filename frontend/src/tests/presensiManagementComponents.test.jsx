@@ -9,13 +9,15 @@ import {
 } from '../api/presensiApi.js';
 import { PresensiPage } from '../pages/management/PresensiPage.jsx';
 import { toggleConsecutiveJam } from '../lib/presensiUtils.js';
+import { PresensiScanPage } from '../pages/management/PresensiScanPage.jsx';
+import { saveActivePresensiSession } from '../lib/presensiSessionStore.js';
 
 vi.mock('../api/presensiApi.js', () => ({
   checkPresensiSessionWarning: vi.fn(() =>
     Promise.resolve({
       ok: true,
       data: { success: true, data: { has_warning: false, conflicts: [] } },
-    }),
+    })
   ),
   createPresensiSession: vi.fn(),
   fetchPresensiToday: vi.fn(),
@@ -62,7 +64,11 @@ beforeEach(() => {
           {
             presensi_id: 1,
             status: 'alpha',
-            siswa: { nisn: '0096672112', nama_lengkap: 'AISYAH LISTYA NARISTA', kelas_aktif: '10 TKJ 1' },
+            siswa: {
+              nisn: '0096672112',
+              nama_lengkap: 'AISYAH LISTYA NARISTA',
+              kelas_aktif: '10 TKJ 1',
+            },
             rombel: { label_rombel: '10 TKJ 1' },
             jam: { jam_id: 1, jam_ke: 1 },
             keterangan: null,
@@ -124,7 +130,9 @@ describe('presensi management page', () => {
 
     expect(screen.getByRole('heading', { name: 'Presensi' })).toBeTruthy();
     expect(screen.getByText('Setup Presensi')).toBeTruthy();
-    expect(screen.getByText('Scan QR')).toBeTruthy();
+    expect(screen.getByText('Presensi Hari Ini')).toBeTruthy();
+    expect(screen.queryByText('Scan QR')).toBeFalsy();
+    expect(screen.queryByPlaceholderText('Payload QR manual...')).toBeFalsy();
 
     expect(await screen.findByText('AISYAH LISTYA NARISTA')).toBeTruthy();
   });
@@ -143,11 +151,49 @@ describe('presensi management page', () => {
           modePresensi: 'rombel',
           jamIds: [1],
           ruangPilihan: 'kelas',
-        }),
+        })
       );
     });
 
     expect(await screen.findByText(/Sesi presensi berhasil dibuat/i)).toBeTruthy();
+  });
+
+  it('filters rombel by jurusan and angkatan', async () => {
+    fetchRombelOptions.mockResolvedValueOnce({
+      ok: true,
+      status: 200,
+      data: {
+        success: true,
+        data: {
+          rombel: [
+            { rombel_id: 5, label_rombel: '10 TKJ 1', kode_jurusan: 'TKJ', tingkatan: 10 },
+            { rombel_id: 6, label_rombel: '11 TKJ 1', kode_jurusan: 'TKJ', tingkatan: 11 },
+            { rombel_id: 7, label_rombel: '10 AKL 1', kode_jurusan: 'AKL', tingkatan: 10 },
+          ],
+        },
+      },
+    });
+
+    render(<PresensiPage />);
+
+    await waitFor(() => {
+      expect(screen.getByLabelText('Rombel').children.length).toBeGreaterThan(1);
+    });
+
+    fireEvent.input(screen.getByLabelText('Filter Jurusan'), {
+      target: { value: 'TKJ' },
+    });
+
+    fireEvent.input(screen.getByLabelText('Filter Angkatan'), {
+      target: { value: '10' },
+    });
+
+    const rombelSelect = screen.getByLabelText('Rombel');
+
+    expect(Array.from(rombelSelect.options).map((option) => option.textContent)).toEqual([
+      'Pilih Rombel',
+      '10 TKJ 1',
+    ]);
   });
 
   it('rejects non consecutive jam selection', () => {
@@ -157,48 +203,23 @@ describe('presensi management page', () => {
     expect(result.error).toBe('Jam pembelajaran harus berurutan.');
   });
 
-  it('shows warning modal when scan returns wrong rombel warning', async () => {
-    submitPresensiQrScan.mockResolvedValueOnce({
-      ok: true,
-      status: 201,
-      data: {
-        success: true,
-        data: {
-          status_scan: 'warning',
-          warning_reason: 'siswa_tidak_sesuai_rombel',
-          message: 'Siswa tidak sesuai rombel.',
-          siswa: {
-            nisn: '0106325606',
-            nama_lengkap: 'AISYAH NUR AMALINA',
-            kelas_aktif: '10 MP',
-          },
-        },
-      },
+  it('renders scan page from active session', () => {
+    saveActivePresensiSession({
+      presensi_sesi_id: '99',
+      mode_presensi: 'rombel',
+      rombel_id: '5',
+      rombel_label: '10 TKJ 1',
+      jam_ids: [1],
+      jam_label: 'Jam 1',
+      ruang_pilihan: 'kelas',
+      ruang_label: 'Kelas 10 TKJ 1',
+      paused: false,
     });
 
-    render(<PresensiPage />);
+    render(<PresensiScanPage />);
 
-    await screen.findByText('AISYAH LISTYA NARISTA');
-    await waitUntilRombelLoaded();
-
-    fireEvent.click(screen.getByRole('button', { name: /mulai presensi/i }));
-
-    await screen.findByText(/Sesi presensi berhasil dibuat/i);
-
-    fireEvent.input(screen.getByPlaceholderText('Payload QR manual...'), {
-      target: { value: 'payload-warning' },
-    });
-
-    fireEvent.click(screen.getByRole('button', { name: /kirim manual/i }));
-
-    expect(await screen.findByText('Warning Kartu Tidak Sesuai')).toBeTruthy();
-    expect(
-      screen.getByText((content, element) => {
-        return (
-          element?.tagName.toLowerCase() === 'p' &&
-          content.includes('AISYAH NUR AMALINA terdeteksi tidak sesuai rombel')
-        );
-      }),
-    ).toBeTruthy();
+    expect(screen.getByRole('heading', { name: 'Scan QR Presensi' })).toBeTruthy();
+    expect(screen.getByText('10 TKJ 1 | Jam 1')).toBeTruthy();
+    expect(screen.queryByPlaceholderText('Payload QR manual...')).toBeFalsy();
   });
 });

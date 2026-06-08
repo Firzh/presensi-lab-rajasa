@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
+import { useEffect, useMemo, useState } from 'preact/hooks';
 import clsx from 'clsx';
 
 import {
@@ -7,18 +7,15 @@ import {
   fetchPresensiToday,
   fetchRombelOptions,
   finishPresensiSession,
-  heartbeatPresensiSession,
-  pausePresensiSession,
   resumePresensiSession,
-  submitPresensiQrScan,
 } from '../../api/presensiApi.js';
 import { DashboardSidebar, DashboardTopbar } from '../../components/dashboard/index.js';
 import {
   PresensiModal,
-  PresensiScanPanel,
   PresensiSetupPanel,
   PresensiTodayTable,
 } from '../../components/management/presensi/index.js';
+import { ROUTES } from '../../constants/routes.js';
 import { STORAGE_KEYS } from '../../constants/storageKeys.js';
 import { getAuthToken } from '../../lib/authSession.js';
 import {
@@ -27,8 +24,13 @@ import {
   sortJamIds,
   toggleConsecutiveJam,
 } from '../../lib/presensiUtils.js';
+import {
+  clearActivePresensiSession,
+  getActivePresensiSession,
+  saveActivePresensiSession,
+  updateActivePresensiSession,
+} from '../../lib/presensiSessionStore.js';
 import { appStorage } from '../../lib/storage.js';
-import { useQrScanner } from '../../hooks/useQrScanner.js';
 
 function getInitialTheme() {
   const savedTheme = appStorage.getRaw(STORAGE_KEYS.THEME, 'light');
@@ -39,10 +41,12 @@ function getToday() {
   return new Date().toISOString().slice(0, 10);
 }
 
-export function PresensiPage() {
-  const processedPayloadsRef = useRef(new Set());
-  const isSubmittingRef = useRef(false);
+function goToPresensiScan() {
+  window.history.pushState({}, '', ROUTES.PRESENSI_SCAN);
+  window.dispatchEvent(new PopStateEvent('popstate'));
+}
 
+export function PresensiPage() {
   const [theme, setTheme] = useState(getInitialTheme);
   const [modePresensi, setModePresensi] = useState('rombel');
   const [rombelOptions, setRombelOptions] = useState([]);
@@ -51,12 +55,7 @@ export function PresensiPage() {
   const [isJamDropdownOpen, setIsJamDropdownOpen] = useState(false);
   const [ruangPilihan, setRuangPilihan] = useState('kelas');
 
-  const [presensiSesiId, setPresensiSesiId] = useState('');
-  const [sessionLabel, setSessionLabel] = useState('');
   const [attendanceRows, setAttendanceRows] = useState([]);
-  const [warningRows, setWarningRows] = useState([]);
-
-  const [payloadRaw, setPayloadRaw] = useState('');
   const [statusMessage, setStatusMessage] = useState('Siap membuat sesi presensi.');
   const [statusType, setStatusType] = useState('info');
   const [isLoading, setIsLoading] = useState(false);
@@ -64,16 +63,12 @@ export function PresensiPage() {
 
   const token = getAuthToken();
   const isDark = theme === 'dark';
-  const isSessionActive = Boolean(presensiSesiId);
 
   const selectedRombel = useMemo(() => {
-    return rombelOptions.find((item) => String(item.rombel_id) === String(selectedRombelId)) || null;
+    return (
+      rombelOptions.find((item) => String(item.rombel_id) === String(selectedRombelId)) || null
+    );
   }, [rombelOptions, selectedRombelId]);
-
-  const { isScanning, scannerError, startScanner, stopScanner } = useQrScanner({
-    elementId: 'presensi-qr-reader',
-    onScanSuccess: handleSubmitScan,
-  });
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
@@ -83,21 +78,12 @@ export function PresensiPage() {
   useEffect(() => {
     loadRombelOptions();
     loadAttendanceRows();
+    showPausedSessionModalIfNeeded();
   }, []);
 
   useEffect(() => {
     loadAttendanceRows();
   }, [selectedRombelId, selectedJamIds, modePresensi]);
-
-  useEffect(() => {
-    if (!presensiSesiId) return undefined;
-
-    const timer = window.setInterval(() => {
-      heartbeatPresensiSession(presensiSesiId).catch(() => {});
-    }, 60_000);
-
-    return () => window.clearInterval(timer);
-  }, [presensiSesiId]);
 
   async function loadRombelOptions() {
     if (!token) {
@@ -140,7 +126,37 @@ export function PresensiPage() {
     const selectedSet = new Set(selectedJamIds.map(Number));
     const rows = result.data?.data?.items || [];
 
-    setAttendanceRows(rows.filter((row) => selectedSet.has(Number(row.jam?.jam_id))));
+    setAttendanceRows(rows.filter((row) => selectedSet.has(Number(row.jam?.jam_id ?? row.jam_id))));
+  }
+
+  function showPausedSessionModalIfNeeded() {
+    const activeSession = getActivePresensiSession();
+
+    if (!activeSession?.paused) {
+      return;
+    }
+
+    setModal({
+      title: 'Presensi Dijeda',
+      message:
+        'Sesi presensi sedang dijeda. Pilih lanjutkan untuk kembali scan, atau akhiri untuk menutup sesi.',
+      actionLabel: 'Lanjutkan Presensi',
+      secondaryLabel: 'Akhiri Presensi',
+      onAction: async () => {
+        setModal(null);
+        await resumePresensiSession(activeSession.presensi_sesi_id).catch(() => {});
+        updateActivePresensiSession({ paused: false });
+        goToPresensiScan();
+      },
+      onSecondary: async () => {
+        setModal(null);
+        await finishPresensiSession(activeSession.presensi_sesi_id).catch(() => {});
+        clearActivePresensiSession();
+        setStatusType('success');
+        setStatusMessage('Sesi presensi selesai.');
+        await loadAttendanceRows();
+      },
+    });
   }
 
   function toggleTheme() {
@@ -204,7 +220,9 @@ export function PresensiPage() {
       }
 
       if (warning.data?.data?.has_warning) {
-        const lanjut = window.confirm('Jam ini sudah pernah dipakai hari ini. Tetap buat sesi baru?');
+        const lanjut = window.confirm(
+          'Jam ini sudah pernah dipakai hari ini. Tetap buat sesi baru?'
+        );
 
         if (!lanjut) {
           setStatusType('warning');
@@ -231,15 +249,23 @@ export function PresensiPage() {
         throw new Error('Response sesi presensi tidak memiliki ID sesi.');
       }
 
-      processedPayloadsRef.current.clear();
-      setWarningRows([]);
-      setPresensiSesiId(String(sessionId));
-
       const label = modePresensi === 'piket' ? 'Piket' : getRombelLabel(selectedRombel);
-      setSessionLabel(`${label} | ${getSelectedJamLabel(jamIds)} | ${session?.ruang_label_snapshot || ruangPilihan}`);
+
+      saveActivePresensiSession({
+        presensi_sesi_id: String(sessionId),
+        mode_presensi: modePresensi,
+        rombel_id: selectedRombelId,
+        rombel_label: label,
+        jam_ids: jamIds,
+        jam_label: getSelectedJamLabel(jamIds),
+        ruang_pilihan: ruangPilihan,
+        ruang_label: session?.ruang_label_snapshot || ruangPilihan,
+        paused: false,
+      });
+
       setStatusType('success');
-      setStatusMessage('Sesi presensi berhasil dibuat.');
-      await loadAttendanceRows();
+      setStatusMessage('Sesi presensi berhasil dibuat. Mengarahkan ke halaman scan...');
+      goToPresensiScan();
     } catch (error) {
       setStatusType('error');
       setStatusMessage(error.message || 'Gagal membuat sesi.');
@@ -248,202 +274,67 @@ export function PresensiPage() {
     }
   }
 
-  async function handlePauseScanner() {
-    await stopScanner();
-
-    if (presensiSesiId) {
-      await pausePresensiSession(presensiSesiId).catch(() => {});
-    }
-
-    setModal({
-      title: 'Scan Dijeda',
-      message: 'Scan QR sedang dijeda. Tekan tombol lanjut untuk membuka kamera kembali.',
-      actionLabel: 'Lanjutkan Scan',
-      onAction: async () => {
-        setModal(null);
-        if (presensiSesiId) {
-          await resumePresensiSession(presensiSesiId).catch(() => {});
-        }
-        await startScanner();
-      },
-    });
-  }
-
-  async function handleFinishSession() {
-    await stopScanner();
-
-    if (!presensiSesiId) return;
-
-    const result = await finishPresensiSession(presensiSesiId);
-
-    if (!result.ok || result.data?.success === false) {
-      setStatusType('error');
-      setStatusMessage(result.data?.message || 'Gagal menyelesaikan sesi.');
-      return;
-    }
-
-    setPresensiSesiId('');
-    setSessionLabel('');
-    setStatusType('success');
-    setStatusMessage('Sesi presensi selesai.');
-    await loadAttendanceRows();
-  }
-
-  async function handleSubmitScan(scannedPayload = '') {
-    if (isSubmittingRef.current) return;
-
-    const cleanPayload = String(scannedPayload || payloadRaw || '').trim();
-
-    if (!presensiSesiId) {
-      setStatusType('error');
-      setStatusMessage('Buat sesi presensi terlebih dahulu.');
-      return;
-    }
-
-    if (!cleanPayload) {
-      setStatusType('error');
-      setStatusMessage('Payload QR kosong.');
-      return;
-    }
-
-    if (processedPayloadsRef.current.has(cleanPayload)) {
-      setStatusType('warning');
-      setStatusMessage('QR ini sudah diproses di sesi ini.');
-      return;
-    }
-
-    isSubmittingRef.current = true;
-    setPayloadRaw(cleanPayload);
-    setStatusType('info');
-    setStatusMessage('Mengirim hasil scan...');
-
-    const result = await submitPresensiQrScan({
-      presensiSesiId,
-      payloadRaw: cleanPayload,
-    });
-
-    isSubmittingRef.current = false;
-
-    if (!result.ok || result.data?.success === false) {
-      setStatusType('error');
-      setStatusMessage(result.data?.message || 'Scan gagal.');
-      return;
-    }
-
-    const scan = result.data?.data || {};
-    processedPayloadsRef.current.add(cleanPayload);
-
-    if (scan.status_scan === 'warning') {
-      await stopScanner();
-
-      const siswa = scan.siswa || {};
-      const warningRow = {
-        scan_log_id: scan.scan_log_id || Date.now(),
-        nama_lengkap: siswa.nama_lengkap,
-        nisn: siswa.nisn,
-        kelas_aktif: siswa.kelas_aktif,
-        warning_reason: scan.warning_reason,
-        message: scan.message || 'Siswa tidak sesuai rombel.',
-      };
-
-      setWarningRows((current) => [warningRow, ...current]);
-      setStatusType('warning');
-      setStatusMessage(`${siswa.nama_lengkap || 'Siswa'} perlu perhatian.`);
-
-      setModal({
-        title: 'Warning Kartu Tidak Sesuai',
-        message:
-          `${siswa.nama_lengkap || 'Siswa'} terdeteksi tidak sesuai rombel.\n\n` +
-          `NISN: ${siswa.nisn || '-'}\n` +
-          `Kelas aktif: ${siswa.kelas_aktif || '-'}\n\n` +
-          'Catat manual nama siswa pembawa kartu sebelum melanjutkan scan.',
-        actionLabel: 'Saya Mengerti',
-        danger: true,
-        onAction: () => setModal(null),
-      });
-
-      await loadAttendanceRows();
-      return;
-    }
-
-    if (scan.status_scan === 'berhasil') {
-      setStatusType('success');
-      setStatusMessage(`${scan.siswa?.nama_lengkap || 'Siswa'} berhasil presensi.`);
-      await loadAttendanceRows();
-      return;
-    }
-
-    if (scan.status_scan === 'ditolak') {
-      setStatusType('warning');
-      setStatusMessage(`${scan.siswa?.nama_lengkap || 'Siswa'} sudah presensi pada jam ini.`);
-      await loadAttendanceRows();
-      return;
-    }
-
-    if (scan.status_scan === 'invalid') {
-      setStatusType('error');
-      setStatusMessage('QR tidak dikenal. Data tidak masuk presensi.');
-      return;
-    }
-
-    setStatusType('info');
-    setStatusMessage(`Scan selesai dengan status: ${scan.status_scan}.`);
-    await loadAttendanceRows();
-  }
-
   return (
-    <div className={isDark ? 'min-h-screen bg-[#1d262e] text-[#f4f1ec]' : 'min-h-screen bg-[#f3f3f3] text-[#444b51]'}>
+    <div
+      className={
+        isDark
+          ? 'min-h-screen bg-[#1d262e] text-[#f4f1ec]'
+          : 'min-h-screen bg-[#f3f3f3] text-[#444b51]'
+      }
+    >
       <DashboardSidebar theme={theme} activeKey="presensi" />
       <DashboardTopbar theme={theme} onToggleTheme={toggleTheme} />
 
-      <main className="ml-[260px] min-h-screen px-10 pb-8 pt-[118px]">
+      <main className="ml-65 min-h-screen px-10 pb-8 pt-29.5">
         <header className="mb-9">
-          <h1 className={clsx('m-0 text-[2rem] font-extrabold leading-none tracking-wide', isDark ? 'text-[#f4f1ec]' : 'text-[#43505a]')}>
+          <h1
+            className={clsx(
+              'm-0 text-[2rem] font-extrabold leading-none tracking-wide',
+              isDark ? 'text-[#f4f1ec]' : 'text-[#43505a]'
+            )}
+          >
             Presensi
           </h1>
           <p className="m-0 mt-4 text-base font-bold text-[#8b9298]">
-            Buat sesi, scan QR, dan pantau presensi siswa hari ini.
+            Buat sesi, lalu pantau presensi siswa hari ini.
           </p>
         </header>
 
-        <section className="grid gap-6 xl:grid-cols-[420px_1fr]">
-          <div className="grid content-start gap-6">
-            <PresensiSetupPanel
-              theme={theme}
-              modePresensi={modePresensi}
-              rombelOptions={rombelOptions}
-              selectedRombelId={selectedRombelId}
-              selectedJamIds={selectedJamIds}
-              ruangPilihan={ruangPilihan}
-              isJamDropdownOpen={isJamDropdownOpen}
-              isSessionActive={isSessionActive}
-              isLoading={isLoading}
-              sessionLabel={sessionLabel}
-              onModeChange={handleModeChange}
-              onRombelChange={setSelectedRombelId}
-              onJamDropdownToggle={() => setIsJamDropdownOpen((current) => !current)}
-              onToggleJam={handleToggleJam}
-              onRuangChange={setRuangPilihan}
-              onCreateSession={handleCreateSession}
-            />
-
-            <PresensiTodayTable rows={attendanceRows} warningRows={warningRows} theme={theme} />
-          </div>
-
-          <PresensiScanPanel
+        <section className="grid gap-6">
+          <PresensiSetupPanel
             theme={theme}
-            isSessionActive={isSessionActive}
-            isScanning={isScanning}
-            scannerError={scannerError}
-            payloadRaw={payloadRaw}
-            statusMessage={statusMessage}
-            statusType={statusType}
-            onStartScanner={startScanner}
-            onPauseScanner={handlePauseScanner}
-            onFinishSession={handleFinishSession}
-            onPayloadChange={setPayloadRaw}
-            onSubmitManual={() => handleSubmitScan()}
+            modePresensi={modePresensi}
+            rombelOptions={rombelOptions}
+            selectedRombelId={selectedRombelId}
+            selectedJamIds={selectedJamIds}
+            ruangPilihan={ruangPilihan}
+            isJamDropdownOpen={isJamDropdownOpen}
+            isSessionActive={false}
+            isLoading={isLoading}
+            sessionLabel=""
+            onModeChange={handleModeChange}
+            onRombelChange={setSelectedRombelId}
+            onJamDropdownToggle={() => setIsJamDropdownOpen((current) => !current)}
+            onToggleJam={handleToggleJam}
+            onRuangChange={setRuangPilihan}
+            onCreateSession={handleCreateSession}
           />
+
+          {statusMessage ? (
+            <p
+              className={clsx(
+                'rounded-xl px-4 py-3 text-sm font-bold',
+                statusType === 'success' && 'bg-green-500/10 text-green-400',
+                statusType === 'warning' && 'bg-yellow-500/10 text-yellow-400',
+                statusType === 'error' && 'bg-red-500/10 text-red-400',
+                statusType === 'info' && 'bg-blue-500/10 text-blue-400'
+              )}
+            >
+              {statusMessage}
+            </p>
+          ) : null}
+
+          <PresensiTodayTable rows={attendanceRows} warningRows={[]} theme={theme} />
         </section>
       </main>
 
@@ -452,9 +343,10 @@ export function PresensiPage() {
           title={modal.title}
           message={modal.message}
           actionLabel={modal.actionLabel}
-          danger={modal.danger}
+          secondaryLabel={modal.secondaryLabel}
           onAction={modal.onAction}
-          onClose={modal.onClose}
+          onSecondary={modal.onSecondary}
+          onClose={() => setModal(null)}
         />
       ) : null}
     </div>

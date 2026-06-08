@@ -10,4 +10,5 @@ export const STORAGE_KEYS = Object.freeze({
   SISWA_LIST: `${STORAGE_PREFIX}:siswa_list`,
   JURUSAN_LIST: `${STORAGE_PREFIX}:jurusan_list`,
   RUANGAN_LIST: `${STORAGE_PREFIX}:ruangan_list`,
+  PRESENSI_ACTIVE_SESSION: `${STORAGE_PREFIX}:presensi_active_session`,
 });

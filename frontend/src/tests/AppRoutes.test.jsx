@@ -3,7 +3,7 @@ import { cleanup, render, screen } from '@testing-library/preact';
 
 import { AppRoutes } from '../routes/AppRoutes.jsx';
 import { listSiswa } from '../api/siswaApi.js';
-import { listJurusan } from "../api/jurusanApi.js";
+import { listJurusan } from '../api/jurusanApi.js';
 import { fetchPresensiToday, fetchRombelOptions } from '../api/presensiApi.js';
 
 vi.mock('../api/siswaApi.js', () => ({
@@ -149,9 +149,15 @@ describe('AppRoutes', () => {
     renderRoute('/presensi');
 
     expect(screen.getByRole('heading', { name: 'Presensi' })).toBeTruthy();
-    expect(screen.getByText('Buat sesi, scan QR, dan pantau presensi siswa hari ini.')).toBeTruthy();
+    expect(screen.getByText('Buat sesi, lalu pantau presensi siswa hari ini.')).toBeTruthy();
   });
-  
+
+  it('renders PresensiScanPage route', () => {
+    renderRoute('/presensi/scan');
+
+    expect(screen.getByRole('heading', { name: 'Scan QR Presensi' })).toBeTruthy();
+  });
+
   it('renders NotFoundPage for unknown route', () => {
     renderRoute('/route-tidak-ada');
 

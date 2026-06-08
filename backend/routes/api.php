@@ -14,6 +14,7 @@ use Rajasa\PresensiSiswa\Http\Controllers\PresensiJamSiswaController;
 use Rajasa\PresensiSiswa\Http\Controllers\PresensiManualEditController;
 use Rajasa\PresensiSiswa\Http\Controllers\PresensiSesiController;
 use Rajasa\PresensiSiswa\Http\Controllers\RombelController;
+use Rajasa\PresensiSiswa\Http\Controllers\JurusanController;
 
 use Rajasa\PresensiSiswa\Http\Controllers\SiswaController;
 
@@ -26,6 +27,10 @@ return function (RouteCollector $route): void {
 
     $route->get('/api/rombel/options', RombelController::class);
     $route->get('/api/siswa', [SiswaController::class, 'index']);
+    $route->get('/api/jurusan', [JurusanController::class, 'index']);
+    $route->post('/api/jurusan', [JurusanController::class, 'store']);
+    $route->patch('/api/jurusan/{id:\d+}', [JurusanController::class, 'update']);
+    $route->delete('/api/jurusan/{id:\d+}', [JurusanController::class, 'destroy']);
 
     $route->post('/api/presensi/sesi', [PresensiSesiController::class, 'create']);
     $route->get('/api/presensi/sesi/aktif', [PresensiSesiController::class, 'active']);

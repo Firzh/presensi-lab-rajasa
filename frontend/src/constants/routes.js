@@ -9,4 +9,5 @@ export const ROUTES = Object.freeze({
   SISWA: '/siswa',
   JURUSAN: '/jurusan',
   RUANGAN: '/ruangan',
+  LAPORAN: '/laporan',
 });

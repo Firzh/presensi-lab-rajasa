@@ -4,6 +4,7 @@ import { cleanup, render, screen } from '@testing-library/preact';
 import { AppRoutes } from '../routes/AppRoutes.jsx';
 import { listSiswa } from '../api/siswaApi.js';
 import { listJurusan } from '../api/jurusanApi.js';
+import { listLaporanPresensi } from '../api/laporanApi.js';
 import { fetchPresensiToday, fetchRombelOptions } from '../api/presensiApi.js';
 
 vi.mock('../api/siswaApi.js', () => ({
@@ -17,6 +18,10 @@ vi.mock('../api/jurusanApi.js', () => ({
 vi.mock('../api/presensiApi.js', () => ({
   fetchPresensiToday: vi.fn(),
   fetchRombelOptions: vi.fn(),
+}));
+
+vi.mock('../api/laporanApi.js', () => ({
+  listLaporanPresensi: vi.fn(),
 }));
 
 afterEach(() => {
@@ -63,6 +68,17 @@ fetchRombelOptions.mockResolvedValue({
 });
 
 fetchPresensiToday.mockResolvedValue({
+  ok: true,
+  status: 200,
+  data: {
+    success: true,
+    data: {
+      items: [],
+    },
+  },
+});
+
+listLaporanPresensi.mockResolvedValue({
   ok: true,
   status: 200,
   data: {
@@ -156,6 +172,13 @@ describe('AppRoutes', () => {
     renderRoute('/presensi/scan');
 
     expect(screen.getByRole('heading', { name: 'Scan QR Presensi' })).toBeTruthy();
+  });
+
+  it('renders LaporanPage route', () => {
+    renderRoute('/laporan');
+
+    expect(screen.getByRole('heading', { name: 'Laporan Presensi' })).toBeTruthy();
+    expect(screen.getByText('Kelola dan pantau laporan presensi siswa')).toBeTruthy();
   });
 
   it('renders NotFoundPage for unknown route', () => {

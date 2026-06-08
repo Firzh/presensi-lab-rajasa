@@ -251,7 +251,7 @@ export function PresensiSetupPanel({
           {isJamDropdownOpen ? (
             <div
               className={clsx(
-                'absolute left-0 right-0 top-[74px] z-30 overflow-hidden rounded-xl border shadow-lg',
+                'absolute left-0 right-0 top-18.5 z-30 overflow-hidden rounded-xl border shadow-lg',
                 isDark ? 'border-[#64717d] bg-[#56616d]' : 'border-[#d5dde8] bg-white'
               )}
             >

@@ -22,7 +22,12 @@ export function PresensiScanPanel({
     <section className={clsx('rounded-xl p-5', isDark ? 'bg-[#313b45]' : 'bg-white')}>
       <div className="mb-5 flex items-center justify-between">
         <div>
-          <h2 className={clsx('m-0 text-xl font-extrabold', isDark ? 'text-[#f4f1ec]' : 'text-[#43505a]')}>
+          <h2
+            className={clsx(
+              'm-0 text-xl font-extrabold',
+              isDark ? 'text-[#f4f1ec]' : 'text-[#43505a]'
+            )}
+          >
             Scan QR
           </h2>
           <p className="m-0 mt-2 text-sm font-semibold text-[#8b9298]">
@@ -30,7 +35,12 @@ export function PresensiScanPanel({
           </p>
         </div>
 
-        <span className={clsx('rounded-md px-3 py-1 text-xs font-extrabold', isScanning ? 'bg-green-500/20 text-green-400' : 'bg-slate-400/20 text-[#8b9298]')}>
+        <span
+          className={clsx(
+            'rounded-md px-3 py-1 text-xs font-extrabold',
+            isScanning ? 'bg-green-500/20 text-green-400' : 'bg-slate-400/20 text-[#8b9298]'
+          )}
+        >
           {isScanning ? 'Scanning' : 'Standby'}
         </span>
       </div>
@@ -38,8 +48,8 @@ export function PresensiScanPanel({
       <div
         id="presensi-qr-reader"
         className={clsx(
-          'grid min-h-[360px] place-items-center overflow-hidden rounded-2xl border',
-          isDark ? 'border-[#64717d] bg-[#1d262e]' : 'border-[#d5dde8] bg-[#f3f3f3]',
+          'grid min-h-90 place-items-center overflow-hidden rounded-2xl border',
+          isDark ? 'border-[#64717d] bg-[#1d262e]' : 'border-[#d5dde8] bg-[#f3f3f3]'
         )}
       >
         {!isScanning ? (
@@ -63,7 +73,7 @@ export function PresensiScanPanel({
             statusType === 'success' && 'bg-green-500/10 text-green-400',
             statusType === 'warning' && 'bg-yellow-500/10 text-yellow-400',
             statusType === 'error' && 'bg-red-500/10 text-red-400',
-            statusType === 'info' && 'bg-blue-500/10 text-blue-400',
+            statusType === 'info' && 'bg-blue-500/10 text-blue-400'
           )}
         >
           {statusMessage}
@@ -96,7 +106,7 @@ export function PresensiScanPanel({
             'min-h-24 rounded-xl border px-4 py-3 text-xs font-medium outline-none',
             isDark
               ? 'border-[#64717d] bg-[#56616d] text-[#F0EDE4]'
-              : 'border-[#d5dde8] bg-white text-[#43505a]',
+              : 'border-[#d5dde8] bg-white text-[#43505a]'
           )}
           value={payloadRaw}
           placeholder="Payload QR manual..."

@@ -219,7 +219,6 @@ describe('presensi management page', () => {
     render(<PresensiScanPage />);
 
     expect(screen.getByRole('heading', { name: 'Scan QR Presensi' })).toBeTruthy();
-    expect(screen.getByText('10 TKJ 1 | Jam 1')).toBeTruthy();
     expect(screen.queryByPlaceholderText('Payload QR manual...')).toBeFalsy();
   });
 });

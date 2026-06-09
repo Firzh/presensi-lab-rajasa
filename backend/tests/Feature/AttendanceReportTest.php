@@ -91,6 +91,34 @@ final class AttendanceReportTest extends TestCase
         }
     }
 
+    public function test_attendance_report_can_filter_siswa_jam_and_mode(): void
+    {
+        $token = $this->loginAndGetToken();
+        $fixture = $this->createFixture();
+
+        try {
+            $response = $this->runApp(
+                'GET',
+                '/api/reports/presensi?date_from=' . $fixture['tanggal']
+                    . '&date_to=' . $fixture['tanggal']
+                    . '&siswa_id=' . $fixture['siswa_ids'][0]
+                    . '&jam_ke=' . $fixture['jam_ke']
+                    . '&mode=manual',
+                [],
+                ['Authorization' => 'Bearer ' . $token]
+            );
+
+            $this->assertSame(200, $response['__status_code']);
+            $this->assertSame(1, $response['data']['summary']['total']);
+            $this->assertCount(1, $response['data']['items']);
+            $this->assertSame($fixture['siswa_ids'][0], $response['data']['items'][0]['siswa']['siswa_id']);
+            $this->assertSame($fixture['jam_ke'], $response['data']['items'][0]['jam_ke']);
+            $this->assertSame('manual', $response['data']['items'][0]['mode']);
+        } finally {
+            $this->cleanupFixture($fixture);
+        }
+    }
+
     public function test_attendance_report_rejects_invalid_status(): void
     {
         $token = $this->loginAndGetToken();
@@ -105,6 +133,78 @@ final class AttendanceReportTest extends TestCase
         $this->assertSame(422, $response['__status_code']);
         $this->assertFalse($response['success']);
         $this->assertSame('Status filter tidak valid.', $response['message']);
+    }
+
+    public function test_attendance_report_rejects_invalid_mode(): void
+    {
+        $token = $this->loginAndGetToken();
+
+        $response = $this->runApp(
+            'GET',
+            '/api/reports/presensi?mode=salah',
+            [],
+            ['Authorization' => 'Bearer ' . $token]
+        );
+
+        $this->assertSame(422, $response['__status_code']);
+        $this->assertFalse($response['success']);
+        $this->assertSame('Mode filter tidak valid.', $response['message']);
+    }
+
+    public function test_attendance_report_rejects_invalid_date_format(): void
+    {
+        $token = $this->loginAndGetToken();
+
+        $response = $this->runApp(
+            'GET',
+            '/api/reports/presensi?date_from=2026-99-99',
+            [],
+            ['Authorization' => 'Bearer ' . $token]
+        );
+
+        $this->assertSame(422, $response['__status_code']);
+        $this->assertFalse($response['success']);
+        $this->assertSame('Tanggal tidak valid.', $response['message']);
+    }
+
+    public function test_attendance_report_rejects_invalid_date_range(): void
+    {
+        $token = $this->loginAndGetToken();
+
+        $response = $this->runApp(
+            'GET',
+            '/api/reports/presensi?date_from=2026-06-10&date_to=2026-06-09',
+            [],
+            ['Authorization' => 'Bearer ' . $token]
+        );
+
+        $this->assertSame(422, $response['__status_code']);
+        $this->assertFalse($response['success']);
+        $this->assertSame('Rentang tanggal tidak valid.', $response['message']);
+    }
+
+    public function test_attendance_report_caps_per_page_to_one_hundred(): void
+    {
+        $token = $this->loginAndGetToken();
+        $fixture = $this->createFixture();
+
+        try {
+            $response = $this->runApp(
+                'GET',
+                '/api/reports/presensi?date_from=' . $fixture['tanggal']
+                    . '&date_to=' . $fixture['tanggal']
+                    . '&rombel_id=' . $fixture['rombel_id']
+                    . '&per_page=999',
+                [],
+                ['Authorization' => 'Bearer ' . $token]
+            );
+
+            $this->assertSame(200, $response['__status_code']);
+            $this->assertSame(100, $response['data']['pagination']['per_page']);
+            $this->assertSame(2, $response['data']['pagination']['total']);
+        } finally {
+            $this->cleanupFixture($fixture);
+        }
     }
 
     private function createFixture(): array
@@ -152,7 +252,13 @@ final class AttendanceReportTest extends TestCase
             'updated_at' => $now,
         ]);
 
-        $jamId = (int) DB::table('jam_pembelajaran')->value('jam_id');
+        $jam = DB::table('jam_pembelajaran')
+            ->select(['jam_id', 'jam_ke'])
+            ->orderBy('jam_ke')
+            ->first();
+
+        $jamId = (int) $jam->jam_id;
+        $jamKe = (int) $jam->jam_ke;
 
         $siswaAId = (int) DB::table('siswa')->insertGetId([
             'nisn' => (string) random_int(8000000000, 8999999999),
@@ -211,6 +317,7 @@ final class AttendanceReportTest extends TestCase
             'rombel_id' => $rombelId,
             'siswa_ids' => [$siswaAId, $siswaBId],
             'presensi_ids' => [$presensiAId, $presensiBId],
+            'jam_ke' => $jamKe,
         ];
     }
 

@@ -48,3 +48,12 @@ textarea {
 .qr-reader-enhanced #qr-reader__scan_region {
   min-height: 460px;
 }
+@media (max-width: 640px) {
+  .qr-reader-enhanced #qr-reader__scan_region {
+    min-height: 320px;
+  }
+
+  .qr-reader-enhanced video {
+    min-height: 320px;
+  }
+}

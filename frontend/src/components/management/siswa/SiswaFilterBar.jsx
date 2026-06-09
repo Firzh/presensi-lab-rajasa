@@ -21,7 +21,7 @@ export function SiswaFilterBar({ filters, options, theme = 'light', onChange }) 
   return (
     <section
       className={clsx(
-        'grid grid-cols-[1.2fr_1fr_1fr_1fr] gap-5 rounded-xl p-5',
+        'grid grid-cols-1 gap-4 rounded-xl p-4 sm:grid-cols-2 sm:p-5 xl:grid-cols-[1.2fr_1fr_1fr_1fr] xl:gap-5',
         theme === 'dark' ? 'bg-[#313b45]' : 'bg-white'
       )}
       aria-label="Filter data siswa"

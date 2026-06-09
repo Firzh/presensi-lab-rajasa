@@ -6,7 +6,7 @@ export function DashboardEmptyState({ theme = 'light' }) {
   return (
     <section
       className={clsx(
-        'grid min-h-70 place-items-center rounded-xl',
+        'grid min-h-55 place-items-center rounded-xl px-4 py-8 sm:min-h-70',
         theme === 'dark' ? 'bg-[#313b45]' : 'bg-white'
       )}
     >

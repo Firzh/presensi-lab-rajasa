@@ -19,8 +19,8 @@ export function PresensiScanPanel({
   const isDark = theme === 'dark';
 
   return (
-    <section className={clsx('rounded-xl p-5', isDark ? 'bg-[#313b45]' : 'bg-white')}>
-      <div className="mb-5 flex items-center justify-between">
+    <section className={clsx('rounded-xl p-4 sm:p-5', isDark ? 'bg-[#313b45]' : 'bg-white')}>
+      <div className="mb-5 flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
         <div>
           <h2
             className={clsx(
@@ -48,7 +48,7 @@ export function PresensiScanPanel({
       <div
         id="presensi-qr-reader"
         className={clsx(
-          'grid min-h-90 place-items-center overflow-hidden rounded-2xl border',
+          'grid min-h-[300px] place-items-center overflow-hidden rounded-2xl border sm:min-h-90',
           isDark ? 'border-[#64717d] bg-[#1d262e]' : 'border-[#d5dde8] bg-[#f3f3f3]'
         )}
       >
@@ -80,7 +80,7 @@ export function PresensiScanPanel({
         </p>
       ) : null}
 
-      <div className="mt-5 grid grid-cols-2 gap-4">
+      <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
         <button
           type="button"
           className="h-12 rounded-xl bg-[#a9c9f4] font-extrabold text-[#4f6b8b] transition hover:bg-[#8ab7ef] disabled:opacity-50"
@@ -100,7 +100,7 @@ export function PresensiScanPanel({
         </button>
       </div>
 
-      <div className="mt-4 grid grid-cols-2 gap-4">
+      <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
         <textarea
           className={clsx(
             'min-h-24 rounded-xl border px-4 py-3 text-xs font-medium outline-none',

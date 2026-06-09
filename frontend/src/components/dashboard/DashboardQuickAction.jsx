@@ -7,7 +7,7 @@ export function DashboardQuickAction({ icon, label, href = '#', theme = 'light' 
     <a
       href={href}
       className={clsx(
-        'flex min-h-16 items-center justify-center gap-4 rounded-md text-base font-medium no-underline',
+        'flex min-h-16 items-center justify-start gap-4 rounded-md px-4 text-base font-medium no-underline sm:justify-center',
         theme === 'dark' ? 'bg-[#313b45] text-[#f4f1ec]' : 'bg-white text-[#444b51]'
       )}
     >

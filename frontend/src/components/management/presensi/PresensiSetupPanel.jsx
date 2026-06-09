@@ -108,8 +108,8 @@ export function PresensiSetupPanel({
   }
 
   return (
-    <section className={clsx('rounded-xl p-5', isDark ? 'bg-[#313b45]' : 'bg-white')}>
-      <div className="mb-5 flex items-center justify-between">
+    <section className={clsx('rounded-xl p-4 sm:p-5', isDark ? 'bg-[#313b45]' : 'bg-white')}>
+      <div className="mb-5 flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
         <div>
           <h2
             className={clsx(
@@ -138,7 +138,7 @@ export function PresensiSetupPanel({
         <div className="grid gap-3">
           <span className="text-sm font-bold text-[#8b9298]">Mode Presensi</span>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <button
               type="button"
               className={clsx(
@@ -251,7 +251,7 @@ export function PresensiSetupPanel({
           {isJamDropdownOpen ? (
             <div
               className={clsx(
-                'absolute left-0 right-0 top-18.5 z-30 overflow-hidden rounded-xl border shadow-lg',
+                'absolute left-0 right-0 top-18.5 z-30 max-h-64 overflow-y-auto rounded-xl border shadow-lg',
                 isDark ? 'border-[#64717d] bg-[#56616d]' : 'border-[#d5dde8] bg-white'
               )}
             >

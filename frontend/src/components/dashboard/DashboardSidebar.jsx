@@ -19,15 +19,21 @@ const adminItems = Object.freeze([
 ]);
 
 export function DashboardSidebar({ theme = 'light', activeKey = 'dashboard' }) {
+  const mobileItems = [
+    { key: 'dashboard', icon: 'house', label: 'Dashboard', href: '/dashboard' },
+    ...managementItems,
+  ];
+
   return (
-    <aside
-      className={clsx(
-        'fixed left-0 top-0 z-20 flex h-screen w-65 flex-col border-r px-6 py-4',
-        theme === 'dark'
-          ? 'border-[#1f2933] bg-[#141b23] text-white'
-          : 'border-[#edf0f3] bg-white text-[#43505a]'
-      )}
-    >
+    <>
+      <aside
+        className={clsx(
+          'fixed left-0 top-0 z-20 hidden h-screen w-65 flex-col border-r px-6 py-4 lg:flex',
+          theme === 'dark'
+            ? 'border-[#1f2933] bg-[#141b23] text-white'
+            : 'border-[#edf0f3] bg-white text-[#43505a]'
+        )}
+      >
       <div className="mb-16 flex items-center gap-3">
         <div
           className={clsx(
@@ -84,6 +90,44 @@ export function DashboardSidebar({ theme = 'light', activeKey = 'dashboard' }) {
         <AppIcon name="arrowRightFromBracket" />
         Keluar
       </a>
-    </aside>
+      </aside>
+
+      <nav
+        className={clsx(
+          'fixed inset-x-0 bottom-0 z-40 flex gap-2 overflow-x-auto border-t px-3 py-2 shadow-[0_-10px_30px_rgba(15,23,42,0.08)] lg:hidden',
+          theme === 'dark'
+            ? 'border-[#1f2933] bg-[#141b23] text-white'
+            : 'border-[#edf0f3] bg-white text-[#43505a]'
+        )}
+        aria-label="Navigasi mobile"
+      >
+        {mobileItems.map((item) => {
+          const active = item.key === activeKey;
+
+          return (
+            <a
+              key={item.key}
+              href={item.href}
+              aria-label={`${item.label} mobile`}
+              className={clsx(
+                'flex min-w-20 flex-col items-center justify-center gap-1 rounded-xl px-3 py-2 text-[0.7rem] font-bold no-underline transition',
+                active
+                  ? theme === 'dark'
+                    ? 'bg-[#f4f1ec] text-[#1d262e]'
+                    : 'bg-[#dce5f0] text-[#31527d]'
+                  : theme === 'dark'
+                    ? 'text-[#cfd8e3] hover:bg-[#25303a]'
+                    : 'text-[#6f7882] hover:bg-[#eef0f3]'
+              )}
+            >
+              <AppIcon name={item.icon} className="text-base" />
+              <span className="max-w-[4.5rem] truncate" aria-hidden="true">
+                {item.label}
+              </span>
+            </a>
+          );
+        })}
+      </nav>
+    </>
   );
 }

@@ -15,7 +15,7 @@ export function LaporanTable({ rows, theme = 'light', currentPage, totalPages, o
   const isDark = theme === 'dark';
 
   return (
-    <section className={clsx('rounded-xl p-7', isDark ? 'bg-[#313b45]' : 'bg-white')}>
+    <section className={clsx('rounded-xl p-4 sm:p-7', isDark ? 'bg-[#313b45]' : 'bg-white')}>
       <div className="overflow-x-auto">
         <table className="w-full min-w-245 border-collapse text-left text-sm">
           <thead>
@@ -84,7 +84,7 @@ export function LaporanTable({ rows, theme = 'light', currentPage, totalPages, o
       </div>
 
       {totalPages > 1 ? (
-        <div className="mt-8 flex justify-center gap-4 text-base font-bold">
+        <div className="mt-8 flex flex-wrap justify-center gap-3 text-base font-bold sm:gap-4">
           <button
             type="button"
             aria-label="Halaman sebelumnya"

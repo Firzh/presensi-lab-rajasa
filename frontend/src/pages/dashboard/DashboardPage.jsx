@@ -53,15 +53,15 @@ export function DashboardPage() {
       <DashboardSidebar theme={theme} activeKey="dashboard" />
       <DashboardTopbar theme={theme} onToggleTheme={toggleTheme} />
 
-      <main className="ml-65 min-h-screen px-14 pb-9 pt-33">
+      <main className="min-h-screen px-4 pb-28 pt-36 sm:px-6 lg:ml-65 lg:px-14 lg:pb-9 lg:pt-33">
         <section className="mb-10">
-          <h1 className="m-0 text-[2.35rem] font-extrabold leading-none tracking-wide text-[#6d747b]">
+          <h1 className="m-0 text-[2rem] font-extrabold leading-none tracking-wide text-[#6d747b] sm:text-[2.35rem]">
             Dashboard
           </h1>
           <p className="m-0 mt-3 text-base font-medium text-[#8d8d8d]">Senin, 30 Maret 2026</p>
         </section>
 
-        <section className="grid grid-cols-4 gap-5" aria-label="Ringkasan dashboard">
+        <section className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4" aria-label="Ringkasan dashboard">
           {stats.map((stat) => (
             <DashboardStatCard key={stat.label} {...stat} theme={theme} />
           ))}
@@ -81,7 +81,7 @@ export function DashboardPage() {
         <section className="mt-6">
           <h2 className="mb-4 text-base font-extrabold text-[#77808a]">Aksi Cepat</h2>
 
-          <div className="grid grid-cols-4 gap-7">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4 xl:gap-7">
             {quickActions.map((action) => (
               <DashboardQuickAction key={action.label} {...action} theme={theme} />
             ))}

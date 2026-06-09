@@ -23,7 +23,7 @@ export function DashboardStatCard({ icon, value, label, tone = 'sky', theme = 'l
   return (
     <article
       className={clsx(
-        'flex min-h-19.5 items-center justify-between rounded-xl px-6 py-3',
+        'flex min-h-19.5 items-center justify-between gap-4 rounded-xl px-4 py-4 sm:px-6 sm:py-3',
         theme === 'dark' ? 'bg-[#313b45] text-[#f4f1ec]' : 'bg-white text-[#444b51]'
       )}
     >
@@ -32,8 +32,8 @@ export function DashboardStatCard({ icon, value, label, tone = 'sky', theme = 'l
       </div>
 
       <div className="text-right">
-        <p className="m-0 text-4xl font-extrabold leading-none tracking-wide">{value}</p>
-        <p className="m-0 mt-1 text-lg font-medium">{label}</p>
+        <p className="m-0 text-3xl font-extrabold leading-none tracking-wide sm:text-4xl">{value}</p>
+        <p className="m-0 mt-1 text-base font-medium sm:text-lg">{label}</p>
       </div>
     </article>
   );

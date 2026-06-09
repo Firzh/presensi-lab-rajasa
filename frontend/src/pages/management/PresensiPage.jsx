@@ -285,11 +285,11 @@ export function PresensiPage() {
       <DashboardSidebar theme={theme} activeKey="presensi" />
       <DashboardTopbar theme={theme} onToggleTheme={toggleTheme} />
 
-      <main className="ml-65 min-h-screen px-10 pb-8 pt-29.5">
+      <main className="min-h-screen px-4 pb-28 pt-36 sm:px-6 lg:ml-65 lg:px-10 lg:pb-8 lg:pt-29.5">
         <header className="mb-9">
           <h1
             className={clsx(
-              'm-0 text-[2rem] font-extrabold leading-none tracking-wide',
+              'm-0 text-[1.75rem] font-extrabold leading-none tracking-wide sm:text-[2rem]',
               isDark ? 'text-[#f4f1ec]' : 'text-[#43505a]'
             )}
           >

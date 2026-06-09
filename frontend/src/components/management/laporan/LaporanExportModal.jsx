@@ -4,14 +4,14 @@ export function LaporanExportModal({ theme = 'light', onClose, onExport }) {
   const isDark = theme === 'dark';
 
   return (
-    <div className="fixed inset-0 z-50 grid place-items-center bg-black/45 px-5">
+    <div className="fixed inset-0 z-50 grid place-items-center overflow-y-auto bg-black/45 px-4 py-6 sm:px-5">
       <section
         className={clsx(
-          'w-full max-w-4xl rounded-2xl p-8 shadow-2xl',
+          'w-full max-w-4xl rounded-2xl p-5 shadow-2xl sm:p-8',
           isDark ? 'bg-[#313b45]' : 'bg-white'
         )}
       >
-        <div className="mb-7 flex items-start justify-between">
+        <div className="mb-6 flex flex-col gap-4 sm:mb-7 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <h2
               className={clsx(
@@ -28,14 +28,14 @@ export function LaporanExportModal({ theme = 'light', onClose, onExport }) {
 
           <button
             type="button"
-            className="h-10 rounded-xl bg-[#e9e9e9] px-4 font-bold text-[#43505a] transition hover:bg-[#d8dee5]"
+            className="h-10 w-full rounded-xl bg-[#e9e9e9] px-4 font-bold text-[#43505a] transition hover:bg-[#d8dee5] sm:w-auto"
             onClick={onClose}
           >
             Tutup
           </button>
         </div>
 
-        <div className="grid gap-5 md:grid-cols-4">
+        <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-4 md:gap-5">
           <button
             type="button"
             className="h-14 rounded-xl bg-[#e9e9e9] px-5 font-bold text-[#6f7882] transition hover:bg-[#4f8fe7] hover:text-white"

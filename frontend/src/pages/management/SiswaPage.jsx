@@ -150,12 +150,12 @@ export function SiswaPage() {
       <DashboardSidebar theme={theme} activeKey="siswa" />
       <DashboardTopbar theme={theme} onToggleTheme={toggleTheme} />
 
-      <main className="ml-65 min-h-screen px-10 pb-8 pt-29.5">
-        <header className="mb-9 flex items-start justify-between">
+      <main className="min-h-screen px-4 pb-28 pt-36 sm:px-6 lg:ml-65 lg:px-10 lg:pb-8 lg:pt-29.5">
+        <header className="mb-7 flex flex-col items-stretch justify-between gap-4 sm:mb-9 sm:flex-row sm:items-start">
           <div>
             <h1
               className={clsx(
-                'm-0 text-[2rem] font-extrabold leading-none tracking-wide',
+                'm-0 text-[1.75rem] font-extrabold leading-none tracking-wide sm:text-[2rem]',
                 isDark ? 'text-[#f4f1ec]' : 'text-[#43505a]'
               )}
             >
@@ -175,7 +175,7 @@ export function SiswaPage() {
             <button
               type="button"
               className={clsx(
-                'flex h-12 items-center gap-3 rounded-md px-6 text-base font-bold transition',
+                'flex h-12 w-full items-center justify-center gap-3 rounded-md px-6 text-base font-bold transition sm:w-auto',
                 isDark
                   ? 'bg-[#313b45] text-[#f4f1ec] hover:bg-[#31527d]'
                   : 'bg-white text-[#456da1] hover:bg-[#bfcee3]'

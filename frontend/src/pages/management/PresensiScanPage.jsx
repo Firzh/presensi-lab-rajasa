@@ -193,12 +193,12 @@ export function PresensiScanPage() {
       <DashboardSidebar theme={theme} activeKey="presensi" />
       <DashboardTopbar theme={theme} onToggleTheme={toggleTheme} />
 
-      <main className="ml-65 min-h-screen px-10 pb-8 pt-29.5">
-        <header className="mb-9 flex items-start justify-between gap-4">
+      <main className="min-h-screen px-4 pb-28 pt-36 sm:px-6 lg:ml-65 lg:px-10 lg:pb-8 lg:pt-29.5">
+        <header className="mb-7 flex flex-col items-stretch justify-between gap-4 sm:mb-9 sm:flex-row sm:items-start">
           <div>
             <h1
               className={clsx(
-                'm-0 text-[2rem] font-extrabold leading-none tracking-wide',
+                'm-0 text-[1.75rem] font-extrabold leading-none tracking-wide sm:text-[2rem]',
                 isDark ? 'text-[#f4f1ec]' : 'text-[#43505a]'
               )}
             >
@@ -211,7 +211,7 @@ export function PresensiScanPage() {
 
           <button
             type="button"
-            className="h-12 rounded-xl bg-[#56616d] px-5 font-bold text-[#F0EDE4] transition hover:bg-[#64717d]"
+            className="h-12 w-full rounded-xl bg-[#56616d] px-5 font-bold text-[#F0EDE4] transition hover:bg-[#64717d] sm:w-auto"
             onClick={handlePauseScanner}
           >
             Pause Scan
@@ -221,7 +221,7 @@ export function PresensiScanPage() {
         {!activeSession ? (
           <section
             className={clsx(
-              'grid min-h-105 place-items-center rounded-xl p-8 text-center',
+              'grid min-h-75 place-items-center rounded-xl p-5 text-center sm:min-h-105 sm:p-8',
               isDark ? 'bg-[#313b45]' : 'bg-white'
             )}
           >
@@ -238,7 +238,7 @@ export function PresensiScanPage() {
             </div>
           </section>
         ) : (
-          <section className={clsx('rounded-xl p-6', isDark ? 'bg-[#313b45]' : 'bg-white')}>
+          <section className={clsx('rounded-xl p-4 sm:p-6', isDark ? 'bg-[#313b45]' : 'bg-white')}>
             <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
               <div>
                 <h2
@@ -267,7 +267,7 @@ export function PresensiScanPage() {
             <div
               id="presensi-qr-reader"
               className={clsx(
-                'grid min-h-105 place-items-center overflow-hidden rounded-2xl border',
+                'grid min-h-[320px] place-items-center overflow-hidden rounded-2xl border sm:min-h-105',
                 isDark ? 'border-[#64717d] bg-[#1d262e]' : 'border-[#d5dde8] bg-[#f3f3f3]'
               )}
             >
@@ -299,7 +299,7 @@ export function PresensiScanPage() {
               </p>
             ) : null}
 
-            <div className="mt-5 grid gap-4 md:grid-cols-3">
+            <div className="mt-5 grid gap-3 sm:grid-cols-3 sm:gap-4">
               <button
                 type="button"
                 className="h-12 rounded-xl bg-[#a9c9f4] font-extrabold text-[#4f6b8b] transition hover:bg-[#8ab7ef] disabled:opacity-50"

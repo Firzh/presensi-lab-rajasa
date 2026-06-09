@@ -32,11 +32,12 @@ export function SiswaTable({
   return (
     <section
       className={clsx(
-        'mt-6 min-h-105 rounded-xl px-7 py-5',
+        'mt-6 min-h-75 rounded-xl px-4 py-4 sm:min-h-105 sm:px-7 sm:py-5',
         theme === 'dark' ? 'bg-[#313b45]' : 'bg-white'
       )}
     >
-      <table className="w-full border-collapse text-left text-sm">
+      <div className="overflow-x-auto">
+        <table className="w-full min-w-[760px] border-collapse text-left text-sm">
         <thead>
           <tr
             className={theme === 'dark' ? 'border-b border-[#1d262e]' : 'border-b border-[#c8d4e7]'}
@@ -112,11 +113,12 @@ export function SiswaTable({
           )}
         </tbody>
       </table>
+      </div>
 
       {students.length > 0 && totalPages > 1 ? (
         <div
           className={clsx(
-            'mt-4 flex justify-center gap-4 text-base font-bold',
+            'mt-4 flex flex-wrap justify-center gap-3 text-base font-bold sm:gap-4',
             theme === 'dark' ? 'text-[#cfd8e3]' : 'text-[#43505a]'
           )}
         >

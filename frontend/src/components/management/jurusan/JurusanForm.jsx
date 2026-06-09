@@ -35,13 +35,13 @@ export function JurusanForm({ initialData, theme = 'light', onCancel, onSubmit, 
   }
 
   return (
-    <section className={clsx('mt-8 rounded-xl px-12 py-10', isDark ? 'bg-[#313b45]' : 'bg-white')}>
+    <section className={clsx('mt-8 rounded-xl px-4 py-6 sm:px-8 sm:py-8 xl:px-12 xl:py-10', isDark ? 'bg-[#313b45]' : 'bg-white')}>
       <h2 className={clsx('mb-8 text-2xl font-extrabold', isDark ? 'text-[#f4f1ec]' : 'text-[#43505a]')}>
         {initialData ? 'Edit Data Jurusan' : 'Tambah Data Jurusan'}
       </h2>
 
-      <form className="grid gap-7" onSubmit={handleSubmit}>
-        <div className="grid grid-cols-2 gap-7">
+      <form className="grid gap-5 sm:gap-7" onSubmit={handleSubmit}>
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-2 md:gap-7">
           <label className="grid gap-3 text-sm font-bold text-[#8b9298]">
             Kode Jurusan
             <input
@@ -63,7 +63,7 @@ export function JurusanForm({ initialData, theme = 'light', onCancel, onSubmit, 
           </label>
         </div>
 
-        <div className="grid grid-cols-2 gap-7">
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-2 md:gap-7">
           <label className="grid gap-3 text-sm font-bold text-[#8b9298]">
             Ketua Jurusan
             <input
@@ -97,11 +97,11 @@ export function JurusanForm({ initialData, theme = 'light', onCancel, onSubmit, 
           />
         </label>
 
-        <div className="flex justify-end gap-5">
+        <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end sm:gap-5">
           {initialData ? (
             <button
               type="button"
-              className="h-12 w-44 rounded-md bg-[#ff6568] font-bold text-white transition hover:bg-[#ef4444]"
+              className="h-12 w-full rounded-md bg-[#ff6568] font-bold text-white transition hover:bg-[#ef4444] sm:w-44"
               onClick={() => onDisable?.(initialData)}
             >
               Nonaktifkan
@@ -111,7 +111,7 @@ export function JurusanForm({ initialData, theme = 'light', onCancel, onSubmit, 
           <button
             type="button"
             className={clsx(
-              'h-12 w-44 rounded-md font-bold transition',
+              'h-12 w-full rounded-md font-bold transition sm:w-44',
               isDark ? 'bg-[#56616d] text-[#F0EDE4] hover:bg-[#64717d]' : 'bg-[#e9e9e9] text-[#43505a] hover:bg-[#d8dee5]',
             )}
             onClick={onCancel}
@@ -121,7 +121,7 @@ export function JurusanForm({ initialData, theme = 'light', onCancel, onSubmit, 
 
           <button
             type="submit"
-            className="h-12 w-44 rounded-md bg-[#a9c9f4] font-bold text-[#4f6b8b] transition hover:bg-[#8ab7ef]"
+            className="h-12 w-full rounded-md bg-[#a9c9f4] font-bold text-[#4f6b8b] transition hover:bg-[#8ab7ef] sm:w-44"
           >
             Simpan
           </button>

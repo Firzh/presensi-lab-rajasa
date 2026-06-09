@@ -169,12 +169,12 @@ export function JurusanPage() {
       <DashboardSidebar theme={theme} activeKey="jurusan" />
       <DashboardTopbar theme={theme} onToggleTheme={toggleTheme} />
 
-      <main className="ml-[260px] min-h-screen px-10 pb-8 pt-[118px]">
-        <header className="mb-9 flex items-start justify-between">
+      <main className="min-h-screen px-4 pb-28 pt-36 sm:px-6 lg:ml-65 lg:px-10 lg:pb-8 lg:pt-29.5">
+        <header className="mb-7 flex flex-col items-stretch justify-between gap-4 sm:mb-9 sm:flex-row sm:items-start">
           <div>
             <h1
               className={clsx(
-                'm-0 text-[2rem] font-extrabold leading-none tracking-wide',
+                'm-0 text-[1.75rem] font-extrabold leading-none tracking-wide sm:text-[2rem]',
                 isDark ? 'text-[#f4f1ec]' : 'text-[#43505a]',
               )}
             >
@@ -189,7 +189,7 @@ export function JurusanPage() {
             <button
               type="button"
               className={clsx(
-                'flex h-12 items-center gap-3 rounded-md px-6 text-base font-bold transition',
+                'flex h-12 w-full items-center justify-center gap-3 rounded-md px-6 text-base font-bold transition sm:w-auto',
                 isDark
                   ? 'bg-[#313b45] text-[#f4f1ec] hover:bg-[#31527d]'
                   : 'bg-white text-[#456da1] hover:bg-[#bfcee3]',
@@ -212,7 +212,7 @@ export function JurusanPage() {
           <>
             <section
               className={clsx(
-                'mb-7 grid grid-cols-[1fr_260px] gap-5 rounded-xl p-5',
+                'mb-7 grid grid-cols-1 gap-4 rounded-xl p-4 sm:p-5 lg:grid-cols-[1fr_260px] lg:gap-5',
                 isDark ? 'bg-[#313b45]' : 'bg-white',
               )}
             >
@@ -250,7 +250,7 @@ export function JurusanPage() {
               <p className="text-sm font-bold text-[#8b9298]">Memuat data jurusan...</p>
             ) : null}
 
-            <section className="grid grid-cols-4 gap-6">
+            <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4 xl:gap-6">
               {items.map((jurusan) => (
                 <JurusanCard
                   key={jurusan.jurusan_id}
@@ -268,7 +268,7 @@ export function JurusanPage() {
             ) : null}
 
             {items.length > 0 && pagination.total_pages > 1 ? (
-              <div className="mt-7 flex justify-center gap-4 text-base font-bold">
+              <div className="mt-7 flex flex-wrap justify-center gap-3 text-base font-bold sm:gap-4">
                 <button
                   type="button"
                   aria-label="Halaman sebelumnya"

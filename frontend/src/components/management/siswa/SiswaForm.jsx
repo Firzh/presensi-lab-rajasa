@@ -40,7 +40,7 @@ export function SiswaForm({ initialData, theme = 'light', onCancel, onSubmit }) 
   return (
     <section
       className={clsx(
-        'mt-10 rounded-xl px-16 py-12',
+        'mt-8 rounded-xl px-4 py-6 sm:px-8 sm:py-8 xl:mt-10 xl:px-16 xl:py-12',
         theme === 'dark' ? 'bg-[#313b45]' : 'bg-white'
       )}
     >
@@ -53,8 +53,8 @@ export function SiswaForm({ initialData, theme = 'light', onCancel, onSubmit }) 
         {initialData ? 'Edit Data Siswa' : 'Tambah Data Siswa'}
       </h2>
 
-      <form className="grid gap-8" onSubmit={handleSubmit}>
-        <div className="grid grid-cols-[1.4fr_1.4fr_1fr_1fr] gap-9">
+      <form className="grid gap-6 sm:gap-8" onSubmit={handleSubmit}>
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-[1.4fr_1.4fr_1fr_1fr] xl:gap-9">
           <label className="grid gap-3 text-sm font-bold text-[#8b9298]">
             NISN / NIS*
             <input
@@ -103,7 +103,7 @@ export function SiswaForm({ initialData, theme = 'light', onCancel, onSubmit }) 
           </label>
         </div>
 
-        <div className="grid grid-cols-[1.4fr_1.4fr_1.4fr] gap-9">
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-[1.4fr_1.4fr_1.4fr] xl:gap-9">
           <label className="grid gap-3 text-sm font-bold text-[#8b9298]">
             Jurusan*
             <select
@@ -144,7 +144,7 @@ export function SiswaForm({ initialData, theme = 'light', onCancel, onSubmit }) 
           </label>
         </div>
 
-        <div className="grid grid-cols-[120px_180px_1fr] gap-9">
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-[120px_180px_1fr] xl:gap-9">
           <label className="grid gap-3 text-sm font-bold text-[#8b9298]">
             Gender*
             <select
@@ -171,17 +171,17 @@ export function SiswaForm({ initialData, theme = 'light', onCancel, onSubmit }) 
             </select>
           </label>
 
-          <div className="flex items-end justify-end gap-9">
+          <div className="flex flex-col gap-3 sm:col-span-2 sm:flex-row sm:items-end sm:justify-end xl:col-span-1 xl:gap-9">
             <button
               type="submit"
-              className="h-12 w-44 rounded-md bg-[#a9c9f4] font-bold text-[#4f6b8b] transition hover:bg-[#8ab7ef]"
+              className="h-12 w-full rounded-md bg-[#a9c9f4] font-bold text-[#4f6b8b] transition hover:bg-[#8ab7ef] sm:w-44"
             >
               Simpan
             </button>
 
             <button
               type="button"
-              className="h-12 w-44 rounded-md bg-[#ff6568] font-bold text-white transition hover:bg-[#ef4444]"
+              className="h-12 w-full rounded-md bg-[#ff6568] font-bold text-white transition hover:bg-[#ef4444] sm:w-44"
               onClick={onCancel}
             >
               Batal

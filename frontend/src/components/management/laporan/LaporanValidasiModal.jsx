@@ -35,14 +35,14 @@ export function LaporanValidasiModal({ rows, theme = 'light', onClose, onSave })
   }
 
   return (
-    <div className="fixed inset-0 z-50 grid place-items-center bg-black/45 px-5">
+    <div className="fixed inset-0 z-50 grid place-items-center overflow-y-auto bg-black/45 px-4 py-6 sm:px-5">
       <section
         className={clsx(
-          'w-full max-w-2xl rounded-2xl p-8 shadow-2xl',
+          'w-full max-w-2xl rounded-2xl p-5 shadow-2xl sm:p-8',
           isDark ? 'bg-[#313b45]' : 'bg-white'
         )}
       >
-        <div className="mb-7 flex items-start justify-between">
+        <div className="mb-6 flex flex-col gap-4 sm:mb-7 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <h2
               className={clsx(
@@ -59,7 +59,7 @@ export function LaporanValidasiModal({ rows, theme = 'light', onClose, onSave })
 
           <button
             type="button"
-            className="h-10 rounded-xl bg-[#e9e9e9] px-4 font-bold text-[#43505a] transition hover:bg-[#d8dee5]"
+            className="h-10 w-full rounded-xl bg-[#e9e9e9] px-4 font-bold text-[#43505a] transition hover:bg-[#d8dee5] sm:w-auto"
             onClick={onClose}
           >
             Tutup
@@ -115,10 +115,10 @@ export function LaporanValidasiModal({ rows, theme = 'light', onClose, onSave })
             </section>
           ) : null}
 
-          <div className="flex justify-end gap-3">
+          <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
             <button
               type="button"
-              className="h-11 rounded-xl bg-[#e9e9e9] px-5 font-bold text-[#43505a] transition hover:bg-[#d8dee5]"
+              className="h-11 w-full rounded-xl bg-[#e9e9e9] px-5 font-bold text-[#43505a] transition hover:bg-[#d8dee5] sm:w-auto"
               onClick={onClose}
             >
               Batal
@@ -126,7 +126,7 @@ export function LaporanValidasiModal({ rows, theme = 'light', onClose, onSave })
 
             <button
               type="submit"
-              className="h-11 rounded-xl bg-[#a9c9f4] px-5 font-bold text-[#2f5278] transition hover:bg-[#4f8fe7] hover:text-white"
+              className="h-11 w-full rounded-xl bg-[#a9c9f4] px-5 font-bold text-[#2f5278] transition hover:bg-[#4f8fe7] hover:text-white sm:w-auto"
             >
               Simpan Validasi
             </button>

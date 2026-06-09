@@ -1,4 +1,4 @@
-import { h } from 'preact';
+// import { h } from 'preact';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen } from '@testing-library/preact';
 

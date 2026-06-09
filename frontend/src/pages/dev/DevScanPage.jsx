@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef, useState } from 'preact/hooks';
+import { useMemo, useRef, useState } from 'preact/hooks';
 import { useDevScanSession } from '../../hooks/useDevScanSession.js';
 import { useDevScanAuth } from '../../hooks/useDevScanAuth.js';
 import { useDevScanSubmit } from '../../hooks/useDevScanSubmit.js';

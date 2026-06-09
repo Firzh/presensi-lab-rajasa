@@ -32,6 +32,15 @@ vi.mock('../api/presensiApi.js', () => ({
 
 vi.mock('../lib/authSession.js', () => ({
   getAuthToken: vi.fn(() => 'token-demo'),
+  getAuthSession: vi.fn(() => ({
+    token: 'test-token',
+    user: {
+      username: 'admin.test',
+      user_type: 'admin',
+    },
+    roles: ['Admin'],
+    permissions: [],
+  })),
 }));
 
 vi.mock('../hooks/useQrScanner.js', () => ({

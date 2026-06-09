@@ -5,7 +5,12 @@ import { AppRoutes } from '../routes/AppRoutes.jsx';
 import { listSiswa } from '../api/siswaApi.js';
 import { listJurusan } from '../api/jurusanApi.js';
 import { listLaporanPresensi } from '../api/laporanApi.js';
+import { getDashboardData } from '../api/dashboardApi.js';
 import { fetchPresensiToday, fetchRombelOptions } from '../api/presensiApi.js';
+
+vi.mock('../api/dashboardApi.js', () => ({
+  getDashboardData: vi.fn(),
+}));
 
 vi.mock('../api/siswaApi.js', () => ({
   listSiswa: vi.fn(),
@@ -90,6 +95,16 @@ listLaporanPresensi.mockResolvedValue({
 });
 
 beforeEach(() => {
+  getDashboardData.mockResolvedValue({
+    ok: true,
+    data: {
+      totalSiswa: 0,
+      hadirHari: 0,
+      tidakHadir: 0,
+      logAksesInvalid: 0,
+      recentPresensi: [],
+    },
+  });
   listSiswa.mockResolvedValue({
     ok: true,
     status: 200,
@@ -185,7 +200,11 @@ describe('AppRoutes', () => {
     renderRoute('/pengaturan');
 
     expect(screen.getByRole('heading', { name: 'Pengaturan' })).toBeTruthy();
-    expect(screen.getByText('Pusat kontrol administratif untuk backup, jadwal rombel, dan aturan keterlambatan.')).toBeTruthy();
+    expect(
+      screen.getByText(
+        'Pusat kontrol administratif untuk backup, jadwal rombel, dan aturan keterlambatan.'
+      )
+    ).toBeTruthy();
   });
 
   it('renders NotFoundPage for unknown route', () => {

@@ -2,6 +2,8 @@ import { useState } from 'preact/hooks';
 import clsx from 'clsx';
 
 import { AppIcon } from '../ui/AppIcon.jsx';
+import { getAuthSession } from '../../lib/authSession.js';
+import { isGuruSession } from '../../lib/roleUtils.js';
 import { DashboardSidebarLink } from './DashboardSidebarLink.jsx';
 import { DashboardSidebarSection } from './DashboardSidebarSection.jsx';
 
@@ -19,11 +21,21 @@ const adminItems = Object.freeze([
   { key: 'pengaturan', icon: 'gear', label: 'Pengaturan', href: '/pengaturan' },
 ]);
 
-const mobileItems = Object.freeze([
-  { key: 'dashboard', icon: 'house', label: 'Dashboard', href: '/dashboard' },
-  ...managementItems,
-  ...adminItems,
-]);
+function getVisibleAdminItems(session) {
+  if (!isGuruSession(session)) {
+    return adminItems;
+  }
+
+  return adminItems.filter((item) => item.key !== 'log-users');
+}
+
+function getMobileItems(visibleAdminItems) {
+  return [
+    { key: 'dashboard', icon: 'house', label: 'Dashboard', href: '/dashboard' },
+    ...managementItems,
+    ...visibleAdminItems,
+  ];
+}
 
 function Brand({ theme = 'light', compact = false }) {
   return (
@@ -40,9 +52,7 @@ function Brand({ theme = 'light', compact = false }) {
       <div>
         <p className="m-0 text-2xl font-extrabold leading-tight">Presensi</p>
         {!compact ? (
-          <p className="m-0 text-[0.78rem] tracking-[0.08em] text-[#8b9298]">
-            SMK RAJASA SURABAYA
-          </p>
+          <p className="m-0 text-[0.78rem] tracking-[0.08em] text-[#8b9298]">SMK RAJASA SURABAYA</p>
         ) : null}
       </div>
     </div>
@@ -51,6 +61,9 @@ function Brand({ theme = 'light', compact = false }) {
 
 export function DashboardSidebar({ theme = 'light', activeKey = 'dashboard' }) {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const session = getAuthSession();
+  const visibleAdminItems = getVisibleAdminItems(session);
+  const mobileItems = getMobileItems(visibleAdminItems);
 
   function closeMobileSidebar() {
     setIsMobileOpen(false);
@@ -94,21 +107,15 @@ export function DashboardSidebar({ theme = 'light', activeKey = 'dashboard' }) {
             />
           </div>
 
-          <DashboardSidebarSection
-            icon="users"
-            title="Manajemen"
-            items={managementItems}
-            theme={theme}
-            activeKey={activeKey}
-          />
-
-          <DashboardSidebarSection
-            icon="userShield"
-            title="Admin"
-            items={adminItems}
-            theme={theme}
-            activeKey={activeKey}
-          />
+          {visibleAdminItems.length > 0 ? (
+            <DashboardSidebarSection
+              icon="userShield"
+              title="Admin"
+              items={visibleAdminItems}
+              theme={theme}
+              activeKey={activeKey}
+            />
+          ) : null}
         </nav>
 
         <a

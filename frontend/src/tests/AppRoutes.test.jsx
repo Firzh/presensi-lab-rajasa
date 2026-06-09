@@ -181,6 +181,13 @@ describe('AppRoutes', () => {
     expect(screen.getByText('Kelola dan pantau laporan presensi siswa')).toBeTruthy();
   });
 
+  it('renders PengaturanPage route', () => {
+    renderRoute('/pengaturan');
+
+    expect(screen.getByRole('heading', { name: 'Pengaturan' })).toBeTruthy();
+    expect(screen.getByText('Pusat kontrol administratif untuk backup, jadwal rombel, dan aturan keterlambatan.')).toBeTruthy();
+  });
+
   it('renders NotFoundPage for unknown route', () => {
     renderRoute('/route-tidak-ada');
 

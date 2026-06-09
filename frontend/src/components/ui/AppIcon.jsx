@@ -38,6 +38,7 @@ import {
   faUsers,
   faUsersGear,
   faWifi,
+  faBars,
 } from '@fortawesome/free-solid-svg-icons';
 
 const iconMap = Object.freeze({
@@ -80,6 +81,7 @@ const iconMap = Object.freeze({
   usersGear: faUsersGear,
   heartPulse: faHeartPulse,
   wifi: faWifi,
+  bars: faBars,
 });
 
 export const APP_ICON_NAMES = Object.freeze(Object.keys(iconMap));

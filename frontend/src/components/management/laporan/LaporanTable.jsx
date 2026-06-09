@@ -15,9 +15,9 @@ export function LaporanTable({ rows, theme = 'light', currentPage, totalPages, o
   const isDark = theme === 'dark';
 
   return (
-    <section className={clsx('rounded-xl p-4 sm:p-7', isDark ? 'bg-[#313b45]' : 'bg-white')}>
+    <section className={clsx('w-full min-w-0 max-w-full overflow-hidden rounded-xl p-4 sm:p-7', isDark ? 'bg-[#313b45]' : 'bg-white')}>
       <div className="overflow-x-auto">
-        <table className="w-full min-w-245 border-collapse text-left text-sm">
+        <table className="w-full min-w-[980px] border-collapse text-left text-sm">
           <thead>
             <tr className={isDark ? 'border-b border-[#64717d]' : 'border-b border-[#c8d4e7]'}>
               <th className="px-4 pb-4 text-xs font-extrabold tracking-wider text-[#6f89b9]">

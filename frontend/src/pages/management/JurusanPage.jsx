@@ -169,7 +169,7 @@ export function JurusanPage() {
       <DashboardSidebar theme={theme} activeKey="jurusan" />
       <DashboardTopbar theme={theme} onToggleTheme={toggleTheme} />
 
-      <main className="min-h-screen px-4 pb-28 pt-36 sm:px-6 lg:ml-65 lg:px-10 lg:pb-8 lg:pt-29.5">
+      <main className="min-h-screen px-4 pb-8 pt-36 sm:px-6 lg:ml-65 lg:px-10 lg:pb-8 lg:pt-29.5">
         <header className="mb-7 flex flex-col items-stretch justify-between gap-4 sm:mb-9 sm:flex-row sm:items-start">
           <div>
             <h1
@@ -250,7 +250,7 @@ export function JurusanPage() {
               <p className="text-sm font-bold text-[#8b9298]">Memuat data jurusan...</p>
             ) : null}
 
-            <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4 xl:gap-6">
+            <section className="grid grid-cols-2 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 xl:gap-6">
               {items.map((jurusan) => (
                 <JurusanCard
                   key={jurusan.jurusan_id}

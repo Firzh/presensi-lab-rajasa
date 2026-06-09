@@ -6,11 +6,11 @@ export function JurusanCard({ jurusan, theme = 'light', onEdit }) {
   const isDark = theme === 'dark';
 
   return (
-    <article className={clsx('rounded-xl p-5', isDark ? 'bg-[#313b45]' : 'bg-white')}>
-      <div className="mb-7 flex items-start justify-between">
+    <article className={clsx('rounded-xl p-3 sm:p-5', isDark ? 'bg-[#313b45]' : 'bg-white')}>
+      <div className="mb-4 flex items-start justify-between gap-2 sm:mb-7">
         <div
           className={clsx(
-            'grid h-10 min-w-14 place-items-center rounded-xl px-3 text-sm font-extrabold',
+            'grid h-9 min-w-11 place-items-center rounded-xl px-2 text-xs font-extrabold sm:h-10 sm:min-w-14 sm:px-3 sm:text-sm',
             isDark ? 'bg-[#56616d] text-[#F0EDE4]' : 'bg-[#dce5f0] text-[#43505a]',
           )}
         >
@@ -19,7 +19,7 @@ export function JurusanCard({ jurusan, theme = 'light', onEdit }) {
 
         <span
           className={clsx(
-            'rounded-md px-3 py-1 text-xs font-extrabold',
+            'rounded-md px-2 py-1 text-[0.62rem] font-extrabold sm:px-3 sm:text-xs',
             jurusan.status === 'aktif'
               ? 'bg-[#2f9e44]/20 text-[#35c46b]'
               : 'bg-[#ef4444]/20 text-[#ef4444]',
@@ -29,11 +29,16 @@ export function JurusanCard({ jurusan, theme = 'light', onEdit }) {
         </span>
       </div>
 
-      <h2 className={clsx('min-h-12 text-lg font-bold leading-tight', isDark ? 'text-[#f4f1ec]' : 'text-[#43505a]')}>
+      <h2
+        className={clsx(
+          'min-h-10 text-sm font-bold leading-tight sm:min-h-12 sm:text-lg',
+          isDark ? 'text-[#f4f1ec]' : 'text-[#43505a]',
+        )}
+      >
         {jurusan.nama_jurusan}
       </h2>
 
-      <div className={clsx('mt-7 grid gap-2 text-sm', isDark ? 'text-[#cfd8e3]' : 'text-[#6f7882]')}>
+      <div className={clsx('mt-4 grid gap-2 text-xs sm:mt-7 sm:text-sm', isDark ? 'text-[#cfd8e3]' : 'text-[#6f7882]')}>
         <p className="m-0">
           <span className="font-bold">Ketua Jurusan:</span>
           <br />
@@ -56,11 +61,11 @@ export function JurusanCard({ jurusan, theme = 'light', onEdit }) {
         </p>
       </div>
 
-      <div className="mt-10 flex justify-end">
+      <div className="mt-6 flex justify-end sm:mt-10">
         <button
           type="button"
           className={clsx(
-            'h-10 w-24 rounded-md text-sm font-bold transition',
+            'h-9 w-full rounded-md text-xs font-bold transition sm:h-10 sm:w-24 sm:text-sm',
             isDark ? 'bg-[#56616d] text-[#F0EDE4] hover:bg-[#31527d]' : 'bg-[#dce5f0] text-[#43505a] hover:bg-[#bfcee3]',
           )}
           onClick={() => onEdit?.(jurusan)}

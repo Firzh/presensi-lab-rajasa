@@ -10,4 +10,7 @@ export const ROUTES = Object.freeze({
   JURUSAN: '/jurusan',
   RUANGAN: '/ruangan',
   LAPORAN: '/laporan',
+  USERS: '/users',
+  LOG_USERS: '/log-users',
+  PENGATURAN: '/pengaturan',
 });

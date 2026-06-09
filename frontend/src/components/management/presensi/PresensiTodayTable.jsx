@@ -26,7 +26,7 @@ export function PresensiTodayTable({ rows, theme = 'light' }) {
   const items = rows || [];
 
   return (
-    <section className={clsx('rounded-xl p-4 sm:p-5', isDark ? 'bg-[#313b45]' : 'bg-white')}>
+    <section className={clsx('w-full min-w-0 max-w-full overflow-hidden rounded-xl p-4 sm:p-5', isDark ? 'bg-[#313b45]' : 'bg-white')}>
       <div className="mb-5 flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
         <div>
           <h2

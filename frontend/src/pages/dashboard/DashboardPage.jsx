@@ -53,7 +53,7 @@ export function DashboardPage() {
       <DashboardSidebar theme={theme} activeKey="dashboard" />
       <DashboardTopbar theme={theme} onToggleTheme={toggleTheme} />
 
-      <main className="min-h-screen px-4 pb-28 pt-36 sm:px-6 lg:ml-65 lg:px-14 lg:pb-9 lg:pt-33">
+      <main className="min-h-screen px-4 pb-8 pt-36 sm:px-6 lg:ml-65 lg:px-14 lg:pb-9 lg:pt-33">
         <section className="mb-10">
           <h1 className="m-0 text-[2rem] font-extrabold leading-none tracking-wide text-[#6d747b] sm:text-[2.35rem]">
             Dashboard

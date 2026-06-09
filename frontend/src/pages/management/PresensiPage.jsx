@@ -285,7 +285,7 @@ export function PresensiPage() {
       <DashboardSidebar theme={theme} activeKey="presensi" />
       <DashboardTopbar theme={theme} onToggleTheme={toggleTheme} />
 
-      <main className="min-h-screen px-4 pb-28 pt-36 sm:px-6 lg:ml-65 lg:px-10 lg:pb-8 lg:pt-29.5">
+      <main className="min-h-screen px-4 pb-8 pt-36 sm:px-6 lg:ml-65 lg:px-10 lg:pb-8 lg:pt-29.5">
         <header className="mb-9">
           <h1
             className={clsx(
@@ -300,7 +300,7 @@ export function PresensiPage() {
           </p>
         </header>
 
-        <section className="grid gap-6">
+        <section className="flex flex-col gap-6">
           <PresensiSetupPanel
             theme={theme}
             modePresensi={modePresensi}

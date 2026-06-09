@@ -134,7 +134,7 @@ export function PresensiSetupPanel({
         </span>
       </div>
 
-      <div className="grid gap-5 lg:grid-cols-2">
+      <div className="grid gap-5 md:grid-cols-2">
         <div className="grid gap-3">
           <span className="text-sm font-bold text-[#8b9298]">Mode Presensi</span>
 
@@ -230,55 +230,57 @@ export function PresensiSetupPanel({
           </AppSelect>
         </label>
 
-        <div className="relative grid gap-3">
+        <div className="grid gap-3">
           <span className="text-sm font-bold text-[#8b9298]">Jam Pembelajaran</span>
 
-          <button
-            type="button"
-            className={clsx(
-              'flex h-12 items-center justify-between rounded-xl border px-4 text-left text-sm font-medium transition',
-              isDark
-                ? 'border-[#64717d] bg-[#56616d] text-[#F0EDE4] hover:border-[#F0EDE4] hover:bg-[#64717d]'
-                : 'border-[#d5dde8] bg-white text-[#43505a] hover:border-[#a9c9f4] hover:bg-[#eef1f5]'
-            )}
-            disabled={isSessionActive}
-            onClick={onJamDropdownToggle}
-          >
-            <span>{getSelectedJamLabel(selectedJamIds)}</span>
-            <AppIcon name="angleDown" />
-          </button>
-
-          {isJamDropdownOpen ? (
-            <div
+          <div className="relative">
+            <button
+              type="button"
               className={clsx(
-                'absolute left-0 right-0 top-18.5 z-30 max-h-64 overflow-y-auto rounded-xl border shadow-lg',
-                isDark ? 'border-[#64717d] bg-[#56616d]' : 'border-[#d5dde8] bg-white'
+                'flex h-12 w-full items-center justify-between rounded-xl border px-4 text-left text-sm font-medium transition',
+                isDark
+                  ? 'border-[#64717d] bg-[#56616d] text-[#F0EDE4] hover:border-[#F0EDE4] hover:bg-[#64717d]'
+                  : 'border-[#d5dde8] bg-white text-[#43505a] hover:border-[#a9c9f4] hover:bg-[#eef1f5]'
               )}
+              disabled={isSessionActive}
+              onClick={onJamDropdownToggle}
             >
-              {JAM_OPTIONS.map((jam) => {
-                const selected = selectedJamIds.includes(jam.id);
+              <span>{getSelectedJamLabel(selectedJamIds)}</span>
+              <AppIcon name="angleDown" />
+            </button>
 
-                return (
-                  <button
-                    key={jam.id}
-                    type="button"
-                    className={clsx(
-                      'flex w-full items-center justify-between px-4 py-2 text-left text-sm font-bold transition',
-                      selected
-                        ? 'bg-[#a9c9f4] text-[#4f6b8b] hover:bg-[#8ab7ef]'
-                        : isDark
-                          ? 'text-[#F0EDE4] hover:bg-[#64717d]'
-                          : 'text-[#43505a] hover:bg-[#eef1f5]'
-                    )}
-                    onClick={() => onToggleJam(jam.id)}
-                  >
-                    <span>{jam.label}</span>
-                    {selected ? <span>✓</span> : null}
-                  </button>
-                );
-              })}
-            </div>
-          ) : null}
+            {isJamDropdownOpen ? (
+              <div
+                className={clsx(
+                  'absolute left-0 right-0 top-full z-30 mt-1 max-h-64 overflow-y-auto rounded-xl border shadow-lg',
+                  isDark ? 'border-[#64717d] bg-[#56616d]' : 'border-[#d5dde8] bg-white'
+                )}
+              >
+                {JAM_OPTIONS.map((jam) => {
+                  const selected = selectedJamIds.includes(jam.id);
+
+                  return (
+                    <button
+                      key={jam.id}
+                      type="button"
+                      className={clsx(
+                        'flex w-full items-center justify-between px-4 py-2 text-left text-sm font-bold transition',
+                        selected
+                          ? 'bg-[#a9c9f4] text-[#4f6b8b] hover:bg-[#8ab7ef]'
+                          : isDark
+                            ? 'text-[#F0EDE4] hover:bg-[#64717d]'
+                            : 'text-[#43505a] hover:bg-[#eef1f5]'
+                      )}
+                      onClick={() => onToggleJam(jam.id)}
+                    >
+                      <span>{jam.label}</span>
+                      {selected ? <span>✓</span> : null}
+                    </button>
+                  );
+                })}
+              </div>
+            ) : null}
+          </div>
         </div>
 
         <label className="grid gap-3 text-sm font-bold text-[#8b9298]">

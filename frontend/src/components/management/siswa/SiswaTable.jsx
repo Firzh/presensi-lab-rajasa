@@ -32,7 +32,7 @@ export function SiswaTable({
   return (
     <section
       className={clsx(
-        'mt-6 min-h-75 rounded-xl px-4 py-4 sm:min-h-105 sm:px-7 sm:py-5',
+        'mt-6 min-h-75 w-full min-w-0 max-w-full overflow-hidden rounded-xl px-4 py-4 sm:min-h-105 sm:px-7 sm:py-5',
         theme === 'dark' ? 'bg-[#313b45]' : 'bg-white'
       )}
     >

@@ -140,7 +140,7 @@ export function LaporanPage() {
       <DashboardSidebar theme={theme} activeKey="laporan" />
       <DashboardTopbar theme={theme} onToggleTheme={toggleTheme} />
 
-      <main className="min-h-screen px-4 pb-28 pt-36 sm:px-6 lg:ml-65 lg:px-10 lg:pb-8 lg:pt-29.5">
+      <main className="min-h-screen px-4 pb-8 pt-36 sm:px-6 lg:ml-65 lg:px-10 lg:pb-8 lg:pt-29.5">
         <header className="mb-7 flex flex-col items-stretch justify-between gap-4 sm:mb-9 sm:flex-row sm:items-start">
           <div>
             <h1
@@ -187,8 +187,8 @@ export function LaporanPage() {
           </div>
         </header>
 
-        <section className="grid gap-6">
-          <div className="grid gap-4 sm:grid-cols-2 lg:gap-5 xl:grid-cols-5">
+        <section className="flex flex-col gap-6">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
             {LAPORAN_SUMMARY_ITEMS.map((item) => (
               <LaporanStatCard key={item.key} item={item} value={summary[item.key]} theme={theme} />
             ))}

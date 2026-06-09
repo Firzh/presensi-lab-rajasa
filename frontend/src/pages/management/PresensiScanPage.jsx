@@ -12,6 +12,7 @@ import { PresensiModal } from '../../components/management/presensi/index.js';
 import { ROUTES } from '../../constants/routes.js';
 import { STORAGE_KEYS } from '../../constants/storageKeys.js';
 import { appStorage } from '../../lib/storage.js';
+import { getAppTodayDate } from '../../lib/dateUtils.js';
 import {
   clearActivePresensiSession,
   getActivePresensiSession,
@@ -30,12 +31,27 @@ function goToPresensi() {
   window.dispatchEvent(new PopStateEvent('popstate'));
 }
 
+function getInitialActivePresensiSession() {
+  const activeSession = getActivePresensiSession();
+
+  if (!activeSession?.presensi_sesi_id) {
+    return null;
+  }
+
+  if (activeSession.tanggal !== getAppTodayDate()) {
+    clearActivePresensiSession();
+    return null;
+  }
+
+  return activeSession;
+}
+
 export function PresensiScanPage() {
   const processedPayloadsRef = useRef(new Set());
   const isSubmittingRef = useRef(false);
 
   const [theme, setTheme] = useState(getInitialTheme);
-  const [activeSession, setActiveSession] = useState(getActivePresensiSession);
+  const [activeSession, setActiveSession] = useState(getInitialActivePresensiSession);
   const [statusMessage, setStatusMessage] = useState('Siap membuka kamera.');
   const [statusType, setStatusType] = useState('info');
   const [modal, setModal] = useState(null);
@@ -267,7 +283,7 @@ export function PresensiScanPage() {
             <div
               id="presensi-qr-reader"
               className={clsx(
-                'grid min-h-[320px] place-items-center overflow-hidden rounded-2xl border sm:min-h-105',
+                'grid min-h-80 place-items-center overflow-hidden rounded-2xl border sm:min-h-105',
                 isDark ? 'border-[#64717d] bg-[#1d262e]' : 'border-[#d5dde8] bg-[#f3f3f3]'
               )}
             >

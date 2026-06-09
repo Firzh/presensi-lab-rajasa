@@ -18,6 +18,7 @@ import {
 import { ROUTES } from '../../constants/routes.js';
 import { STORAGE_KEYS } from '../../constants/storageKeys.js';
 import { getAuthToken } from '../../lib/authSession.js';
+import { getAppTodayDate } from '../../lib/dateUtils.js';
 import {
   getRombelLabel,
   getSelectedJamLabel,
@@ -35,10 +36,6 @@ import { appStorage } from '../../lib/storage.js';
 function getInitialTheme() {
   const savedTheme = appStorage.getRaw(STORAGE_KEYS.THEME, 'light');
   return savedTheme === 'dark' ? 'dark' : 'light';
-}
-
-function getToday() {
-  return new Date().toISOString().slice(0, 10);
 }
 
 function goToPresensiScan() {
@@ -110,7 +107,7 @@ export function PresensiPage() {
 
   async function loadAttendanceRows() {
     const params = {
-      tanggal: getToday(),
+      tanggal: getAppTodayDate(),
     };
 
     if (modePresensi === 'rombel' && selectedRombelId) {
@@ -132,7 +129,16 @@ export function PresensiPage() {
   function showPausedSessionModalIfNeeded() {
     const activeSession = getActivePresensiSession();
 
-    if (!activeSession?.paused) {
+    if (!activeSession?.presensi_sesi_id) {
+      return;
+    }
+
+    if (activeSession.tanggal !== getAppTodayDate()) {
+      clearActivePresensiSession();
+      return;
+    }
+
+    if (!activeSession.paused) {
       return;
     }
 
@@ -253,6 +259,7 @@ export function PresensiPage() {
 
       saveActivePresensiSession({
         presensi_sesi_id: String(sessionId),
+        tanggal: getAppTodayDate(),
         mode_presensi: modePresensi,
         rombel_id: selectedRombelId,
         rombel_label: label,

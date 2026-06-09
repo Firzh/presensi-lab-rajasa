@@ -11,6 +11,7 @@ import { PresensiPage } from '../pages/management/PresensiPage.jsx';
 import { toggleConsecutiveJam } from '../lib/presensiUtils.js';
 import { PresensiScanPage } from '../pages/management/PresensiScanPage.jsx';
 import { saveActivePresensiSession } from '../lib/presensiSessionStore.js';
+import { getAppTodayDate } from '../lib/dateUtils.js';
 
 vi.mock('../api/presensiApi.js', () => ({
   checkPresensiSessionWarning: vi.fn(() =>
@@ -203,8 +204,14 @@ describe('presensi management page', () => {
     expect(result.error).toBe('Jam pembelajaran harus berurutan.');
   });
 
+  it('uses Asia/Jakarta date when local day changes', () => {
+    expect(getAppTodayDate(new Date('2026-06-09T16:59:59.000Z'))).toBe('2026-06-09');
+    expect(getAppTodayDate(new Date('2026-06-09T17:00:00.000Z'))).toBe('2026-06-10');
+  });
+
   it('renders scan page from active session', () => {
     saveActivePresensiSession({
+      tanggal: getAppTodayDate(),
       presensi_sesi_id: '99',
       mode_presensi: 'rombel',
       rombel_id: '5',

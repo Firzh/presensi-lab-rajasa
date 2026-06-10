@@ -21,19 +21,19 @@ const adminItems = Object.freeze([
   { key: 'pengaturan', icon: 'gear', label: 'Pengaturan', href: '/pengaturan' },
 ]);
 
+// LOGIKA BARU: Menyaring seluruh menu admin berdasarkan role
 function getVisibleAdminItems(session) {
-  if (!isGuruSession(session)) {
-    return adminItems;
+  if (isGuruSession(session)) {
+    return []; // Guru tidak mendapatkan menu admin apa pun
   }
-
-  return adminItems.filter((item) => item.key !== 'log-users');
+  return adminItems; // Admin mendapatkan semua menu
 }
 
 function getMobileItems(visibleAdminItems) {
   return [
     { key: 'dashboard', icon: 'house', label: 'Dashboard', href: '/dashboard' },
     ...managementItems,
-    ...visibleAdminItems,
+    ...visibleAdminItems, // Jika array kosong, bagian ini tidak akan menambah item apa pun
   ];
 }
 
@@ -107,6 +107,16 @@ export function DashboardSidebar({ theme = 'light', activeKey = 'dashboard' }) {
             />
           </div>
 
+          {/* Menu Manajemen akan selalu muncul untuk Admin maupun Guru */}
+          <DashboardSidebarSection
+            icon="users"
+            title="Manajemen"
+            items={managementItems}
+            theme={theme}
+            activeKey={activeKey}
+          />
+
+          {/* Menu Admin hanya muncul di desktop jika item di dalamnya lebih dari 0 (khusus Admin) */}
           {visibleAdminItems.length > 0 ? (
             <DashboardSidebarSection
               icon="userShield"

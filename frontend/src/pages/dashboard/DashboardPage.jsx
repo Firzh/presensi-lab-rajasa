@@ -216,7 +216,7 @@ export function DashboardPage() {
         </section>
 
         <section
-          className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4"
+          className="flex flex-wrap justify-center gap-5 [&>*]:w-full sm:[&>*]:basis-[calc((100%_-_1.25rem)_/_2)] xl:[&>*]:basis-[calc((100%_-_3.75rem)_/_4)]"
           aria-label="Ringkasan dashboard"
         >
           {stats.map((stat) => (
@@ -258,7 +258,7 @@ export function DashboardPage() {
         <section className="mt-6">
           <h2 className="mb-4 text-base font-extrabold text-[#77808a]">Aksi Cepat</h2>
 
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4 xl:gap-7">
+          <div className="flex flex-wrap justify-center gap-4 [&>*]:w-full sm:[&>*]:basis-[calc((100%_-_1rem)_/_2)] xl:gap-7 xl:[&>*]:basis-[calc((100%_-_5.25rem)_/_4)]">
             {quickActions.map((action) => (
               <DashboardQuickAction key={action.label} {...action} theme={theme} />
             ))}

@@ -1,10 +1,19 @@
 export const ADMIN_USER_FILTER_OPTIONS = Object.freeze([
-  { value: '', label: 'Pilih Filter' },
-  { value: 'role:admin', label: 'Role Admin' },
-  { value: 'role:operator', label: 'Role Operator' },
+  { value: 'user_type:siswa', label: 'Jenis User Siswa' },
+  { value: 'user_type:super_admin', label: 'Jenis User Super Admin' },
+  { value: 'user_type:admin', label: 'Jenis User Admin' },
+  { value: 'user_type:guru', label: 'Jenis User Guru' },
+  { value: 'user_type:staff', label: 'Jenis User Staff' },
+  { value: 'user_type:intern', label: 'Jenis User Intern' },
   { value: 'role:siswa', label: 'Role Siswa' },
+  { value: 'role:super_admin', label: 'Role Super Admin' },
+  { value: 'role:admin', label: 'Role Admin' },
+  { value: 'role:guru', label: 'Role Guru' },
+  { value: 'role:staff', label: 'Role Staff' },
+  { value: 'role:intern_presensi', label: 'Role Intern Presensi' },
   { value: 'status:aktif', label: 'Status Aktif' },
   { value: 'status:nonaktif', label: 'Status Nonaktif' },
+  { value: 'status:suspended', label: 'Status Suspended' },
 ]);
 
 export const LOG_USER_FILTER_OPTIONS = Object.freeze([
@@ -17,15 +26,19 @@ export const LOG_USER_FILTER_OPTIONS = Object.freeze([
 ]);
 
 export const USER_ROLE_OPTIONS = Object.freeze([
-  { value: 'Admin', label: 'Admin' },
-  { value: 'Operator', label: 'Operator' },
-  { value: 'Siswa', label: 'Siswa' },
+  { value: 'super_admin', label: 'Super Admin' },
+  { value: 'admin', label: 'Admin' },
+  { value: 'guru', label: 'Guru' },
+  { value: 'staff', label: 'Staff' },
+  { value: 'intern_presensi', label: 'Intern Presensi' },
 ]);
 
 export const USER_TYPE_OPTIONS = Object.freeze([
-  { value: 'Admin', label: 'Admin' },
-  { value: 'Operator', label: 'Operator' },
-  { value: 'Siswa', label: 'Siswa' },
+  { value: 'super_admin', label: 'Super Admin' },
+  { value: 'admin', label: 'Admin' },
+  { value: 'guru', label: 'Guru' },
+  { value: 'staff', label: 'Staff' },
+  { value: 'intern', label: 'Intern' },
 ]);
 
 export const USER_JURUSAN_OPTIONS = Object.freeze([
@@ -349,28 +362,56 @@ export function paginateRows(rows, page = 1, perPage = 10) {
   };
 }
 
+function getSelectedFilterValues(filters = {}, type) {
+  const selectedFilters = Array.isArray(filters.selectedFilters)
+    ? filters.selectedFilters
+    : filters.filter
+      ? [filters.filter]
+      : [];
+
+  return selectedFilters
+    .map((item) => String(item ?? '').split(':'))
+    .filter(([key, value]) => key === type && value)
+    .map(([, value]) => value.toLowerCase());
+}
+
+function normalizeUserValue(value) {
+  return String(value ?? '').trim().toLowerCase().replace(/\s+/g, '_');
+}
+
 export function filterUsers(users, filters = {}) {
   const keyword = String(filters.keyword ?? '').trim().toLowerCase();
-  const [filterKey, filterValue] = String(filters.filter ?? '').split(':');
+  const roleFilters = getSelectedFilterValues(filters, 'role');
+  const statusFilters = getSelectedFilterValues(filters, 'status');
+  const userTypeFilters = getSelectedFilterValues(filters, 'user_type');
+  const includeSiswa = keyword
+    || roleFilters.includes('siswa')
+    || userTypeFilters.includes('siswa');
 
   return users.filter((user) => {
     const searchableText = [
       user.username,
       user.nama_lengkap,
       user.role,
+      user.role_slug,
       user.tipe_user,
+      user.user_type,
       user.jurusan,
       user.status,
     ]
       .join(' ')
       .toLowerCase();
 
+    const role = normalizeUserValue(user.role_slug ?? user.role);
+    const userType = normalizeUserValue(user.user_type ?? user.tipe_user);
+    const status = normalizeUserValue(user.status);
     const keywordMatch = !keyword || searchableText.includes(keyword);
-    const filterMatch = !filterValue
-      || (filterKey === 'role' && user.role.toLowerCase() === filterValue)
-      || (filterKey === 'status' && user.status.toLowerCase() === filterValue);
+    const roleMatch = roleFilters.length === 0 || roleFilters.includes(role);
+    const userTypeMatch = userTypeFilters.length === 0 || userTypeFilters.includes(userType);
+    const statusMatch = statusFilters.length === 0 || statusFilters.includes(status);
+    const defaultSiswaMatch = includeSiswa || userType !== 'siswa' || userTypeFilters.includes('siswa');
 
-    return keywordMatch && filterMatch;
+    return keywordMatch && roleMatch && userTypeMatch && statusMatch && defaultSiswaMatch;
   });
 }
 

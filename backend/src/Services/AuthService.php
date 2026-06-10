@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Rajasa\PresensiSiswa\Services;
 
+use Illuminate\Database\Capsule\Manager as DB;
 use Rajasa\PresensiSiswa\Core\HttpException;
 use Rajasa\PresensiSiswa\Models\User;
 
@@ -11,7 +12,8 @@ final class AuthService
 {
     public function __construct(
         private readonly TokenService $tokenService,
-        private readonly PermissionService $permissionService
+        private readonly PermissionService $permissionService,
+        private readonly UserActivityService $activityService
     ) {
     }
 
@@ -22,13 +24,22 @@ final class AuthService
             ->first();
 
         if (!$user || !password_verify($password, $user->password_hash)) {
+            $this->activityService->record(null, 'login_failed', 'auth', 'Percobaan login gagal.', [
+                'username' => $username,
+            ]);
             throw new HttpException('Username atau password salah.', 401);
         }
 
         if ($user->status !== 'aktif') {
+            $this->activityService->record((int) $user->user_id, 'login_failed', 'auth', 'Login ditolak karena akun tidak aktif.');
             throw new HttpException('Akun tidak aktif.', 403);
         }
 
+        DB::table('users')->where('user_id', (int) $user->user_id)->update([
+            'last_login_at' => date('Y-m-d H:i:s'),
+        ]);
+
+        $this->activityService->record((int) $user->user_id, 'login', 'auth', 'User berhasil login.');
         $token = $this->tokenService->create((int) $user->user_id);
 
         return [

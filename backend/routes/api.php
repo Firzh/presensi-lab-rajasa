@@ -5,14 +5,20 @@ declare(strict_types=1);
 use FastRoute\RouteCollector;
 use Rajasa\PresensiSiswa\Http\Controllers\AuthController;
 use Rajasa\PresensiSiswa\Http\Controllers\HealthController;
-use Rajasa\PresensiSiswa\Http\Controllers\ImportController;
 use Rajasa\PresensiSiswa\Http\Controllers\MeController;
+
+use Rajasa\PresensiSiswa\Http\Controllers\AdminUserController;
+use Rajasa\PresensiSiswa\Http\Controllers\SettingsController;
+use Rajasa\PresensiSiswa\Http\Controllers\UserActivityController;
+
+use Rajasa\PresensiSiswa\Http\Controllers\ImportController;
 use Rajasa\PresensiSiswa\Http\Controllers\ScanController;
 use Rajasa\PresensiSiswa\Http\Controllers\PresensiAuditController;
 use Rajasa\PresensiSiswa\Http\Controllers\PresensiEditReasonController;
 use Rajasa\PresensiSiswa\Http\Controllers\PresensiJamSiswaController;
 use Rajasa\PresensiSiswa\Http\Controllers\PresensiManualEditController;
 use Rajasa\PresensiSiswa\Http\Controllers\PresensiSesiController;
+
 use Rajasa\PresensiSiswa\Http\Controllers\RombelController;
 use Rajasa\PresensiSiswa\Http\Controllers\JurusanController;
 
@@ -31,6 +37,18 @@ return function (RouteCollector $route): void {
     $route->post('/api/jurusan', [JurusanController::class, 'store']);
     $route->patch('/api/jurusan/{id:\d+}', [JurusanController::class, 'update']);
     $route->delete('/api/jurusan/{id:\d+}', [JurusanController::class, 'destroy']);
+
+    $route->get('/api/admin/users', [AdminUserController::class, 'index']);
+    $route->post('/api/admin/users', [AdminUserController::class, 'store']);
+    $route->patch('/api/admin/users/{id:\d+}', [AdminUserController::class, 'update']);
+
+    $route->get('/api/admin/user-activities', [UserActivityController::class, 'index']);
+
+    $route->get('/api/settings', [SettingsController::class, 'index']);
+    $route->post('/api/settings/backup', [SettingsController::class, 'backup']);
+    $route->get('/api/settings/backup/download', [SettingsController::class, 'downloadBackup']);
+    $route->patch('/api/settings/rombel-schedule', [SettingsController::class, 'updateRombelSchedule']);
+    $route->patch('/api/settings/late-rule', [SettingsController::class, 'updateLateRule']);
 
     $route->post('/api/presensi/sesi', [PresensiSesiController::class, 'create']);
     $route->get('/api/presensi/sesi/aktif', [PresensiSesiController::class, 'active']);

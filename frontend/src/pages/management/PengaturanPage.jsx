@@ -10,10 +10,15 @@ import {
 } from '../../components/management/pengaturan/index.js';
 import { STORAGE_KEYS } from '../../constants/storageKeys.js';
 import {
-  buildBackupDownloadText,
+  createDatabaseBackup,
+  downloadDatabaseBackup,
+  getPengaturanData,
+  updateLateRule,
+  updateRombelSchedule,
+} from '../../api/settingsApi.js';
+import {
   calculateScheduleRows,
   countSlotsByType,
-  createBackupRecord,
   createScheduleSlot,
   defaultLateRule,
   filterRombelOptions,
@@ -52,28 +57,86 @@ export function PengaturanPage() {
   const [bulkDuration, setBulkDuration] = useState(40);
   const [lateRule, setLateRule] = useState(() => ({ ...defaultLateRule }));
   const [toastMessage, setToastMessage] = useState('');
+  const [backendRombelOptions, setBackendRombelOptions] = useState(null);
+  const [isSaving, setIsSaving] = useState(false);
 
   const isDark = theme === 'dark';
   const scheduleRows = useMemo(() => calculateScheduleRows(slots, startTime), [slots, startTime]);
   const validationMessage = useMemo(() => validateScheduleRows(scheduleRows), [scheduleRows]);
   const batchEditableRombelOptions = useMemo(
-    () => filterRombelOptions(rombelSettingOptions, jurusanFilter, yearFilter),
-    [jurusanFilter, yearFilter]
+    () => filterRombelOptions(backendRombelOptions ?? rombelSettingOptions, jurusanFilter, yearFilter),
+    [backendRombelOptions, jurusanFilter, yearFilter]
   );
   const rombelOptions = useMemo(
     () =>
       filterRombelOptions(
-        rombelSettingOptions.filter((rombel) => batchRombelIds.includes(rombel.id)),
+        (backendRombelOptions ?? rombelSettingOptions).filter((rombel) => batchRombelIds.includes(String(rombel.id))),
         jurusanFilter,
         yearFilter
       ),
-    [batchRombelIds, jurusanFilter, yearFilter]
+    [backendRombelOptions, batchRombelIds, jurusanFilter, yearFilter]
   );
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
     appStorage.setRaw(STORAGE_KEYS.THEME, theme);
   }, [theme]);
+
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadSettings() {
+      try {
+        const result = await getPengaturanData();
+
+        if (!isMounted || !result.ok) return;
+
+        const data = result.data?.data ?? {};
+        const rombelSchedule = data.rombel_schedule ?? {};
+
+        if (Array.isArray(data.backup_history)) {
+          setBackupHistory(data.backup_history);
+        }
+
+        if (data.late_rule) {
+          setLateRule({ ...defaultLateRule, ...data.late_rule });
+        }
+
+        if (Array.isArray(rombelSchedule.rombel_options)) {
+          setBackendRombelOptions(rombelSchedule.rombel_options);
+        }
+
+        if (Array.isArray(rombelSchedule.batch_rombel_ids)) {
+          setBatchRombelIds(rombelSchedule.batch_rombel_ids.map(String));
+        }
+
+        if (Array.isArray(rombelSchedule.selected_rombel_ids)) {
+          setSelectedRombelIds(rombelSchedule.selected_rombel_ids.map(String));
+        }
+
+        if (rombelSchedule.attendance_cutoff) {
+          setAttendanceCutoff(rombelSchedule.attendance_cutoff);
+        }
+
+        if (rombelSchedule.start_time) {
+          setStartTime(rombelSchedule.start_time);
+        }
+
+        if (Array.isArray(rombelSchedule.slots) && rombelSchedule.slots.length) {
+          setSlots(renumberScheduleSlots(rombelSchedule.slots));
+        }
+      } catch (_error) {
+        setToastMessage('Backend pengaturan belum bisa diakses. Data fallback ditampilkan.');
+      }
+    }
+
+    loadSettings();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   useEffect(() => {
     if (!toastMessage) return undefined;
@@ -112,22 +175,51 @@ export function PengaturanPage() {
     setIsBatchEditMode((current) => !current);
   }
 
-  function backupNow() {
-    const nextBackup = createBackupRecord(backupHistory);
-    setBackupHistory((current) => [nextBackup, ...current]);
-    setToastMessage('Backup database berhasil dibuat.');
+  async function backupNow() {
+    setIsSaving(true);
+
+    try {
+      const result = await createDatabaseBackup();
+
+      if (!result.ok) {
+        setToastMessage(result.data?.message ?? 'Backup database gagal.');
+        return;
+      }
+
+      const data = result.data?.data ?? {};
+      if (data.backup) {
+        setBackupHistory((current) => [data.backup, ...current]);
+      }
+      setToastMessage('Backup database berhasil dibuat.');
+    } catch (_error) {
+      setToastMessage('Backup database gagal diproses oleh backend.');
+    } finally {
+      setIsSaving(false);
+    }
   }
 
-  function downloadBackup(item) {
-    const blob = new Blob([buildBackupDownloadText(item)], { type: 'text/plain;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const anchor = document.createElement('a');
+  async function downloadBackup(item) {
+    try {
+      const result = await downloadDatabaseBackup(item.fileName);
 
-    anchor.href = url;
-    anchor.download = item.fileName.replace('.sql', '.txt');
-    anchor.click();
-    URL.revokeObjectURL(url);
-    setToastMessage(`File ${item.fileName} siap diunduh.`);
+      if (!result.ok) {
+        setToastMessage(result.data?.message ?? 'File backup gagal diunduh.');
+        return;
+      }
+
+      const content = result.data?.data?.content ?? '';
+      const blob = new Blob([content], { type: 'text/plain;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement('a');
+
+      anchor.href = url;
+      anchor.download = item.fileName;
+      anchor.click();
+      URL.revokeObjectURL(url);
+      setToastMessage(`File ${item.fileName} siap diunduh.`);
+    } catch (_error) {
+      setToastMessage('File backup gagal diunduh dari backend.');
+    }
   }
 
   function addSlot(type) {
@@ -179,8 +271,47 @@ export function PengaturanPage() {
     setToastMessage('Durasi slot berhasil diterapkan massal.');
   }
 
-  function saveLateRule() {
-    setToastMessage('Aturan keterlambatan berhasil disimpan.');
+  async function saveRombelSchedule() {
+    if (validationMessage) {
+      setToastMessage(validationMessage);
+      return;
+    }
+
+    setIsSaving(true);
+
+    try {
+      const result = await updateRombelSchedule({
+        batch_rombel_ids: batchRombelIds,
+        selected_rombel_ids: selectedRombelIds,
+        day,
+        schedule_mode: scheduleMode,
+        attendance_cutoff: attendanceCutoff,
+        start_time: startTime,
+        slots: scheduleRows,
+      });
+
+      setToastMessage(result.ok ? 'Jadwal rombel berhasil disimpan.' : result.data?.message ?? 'Jadwal gagal disimpan.');
+    } catch (_error) {
+      setToastMessage('Jadwal gagal disimpan ke backend.');
+    } finally {
+      setIsSaving(false);
+    }
+  }
+
+  async function saveLateRule() {
+    setIsSaving(true);
+
+    try {
+      const result = await updateLateRule(lateRule);
+
+      setToastMessage(
+        result.ok ? 'Aturan keterlambatan berhasil disimpan.' : result.data?.message ?? 'Aturan gagal disimpan.'
+      );
+    } catch (_error) {
+      setToastMessage('Aturan keterlambatan gagal disimpan ke backend.');
+    } finally {
+      setIsSaving(false);
+    }
   }
 
   return (
@@ -238,7 +369,7 @@ export function PengaturanPage() {
           <BackupDatabasePanel
             theme={theme}
             backups={backupHistory}
-            onBackupNow={backupNow}
+            onBackupNow={isSaving ? undefined : backupNow}
             onDownload={downloadBackup}
           />
         ) : null}
@@ -278,6 +409,7 @@ export function PengaturanPage() {
             onUpdateSlotDuration={updateSlotDuration}
             onBulkDurationChange={setBulkDuration}
             onApplyBulkDuration={applyBulkDuration}
+            onSaveSchedule={saveRombelSchedule}
           />
         ) : null}
 
@@ -286,7 +418,7 @@ export function PengaturanPage() {
             theme={theme}
             rule={lateRule}
             onChange={setLateRule}
-            onSave={saveLateRule}
+            onSave={isSaving ? undefined : saveLateRule}
           />
         ) : null}
       </main>

@@ -63,6 +63,7 @@ export function RombelSchedulePanel({
   onUpdateSlotDuration,
   onBulkDurationChange,
   onApplyBulkDuration,
+  onSaveSchedule,
 }) {
   const [dragIndex, setDragIndex] = useState(null);
   const isDark = theme === 'dark';
@@ -95,13 +96,26 @@ export function RombelSchedulePanel({
           </p>
         </div>
 
-        <div
-          className={clsx(
-            'rounded-xl px-4 py-3 text-sm font-extrabold',
-            isDark ? 'bg-[#25303a] text-[#cfd8e3]' : 'bg-[#eef3f9] text-[#6d8bb3]'
-          )}
-        >
-          {selectedRombelIds.length} dipilih / {batchRombelIds.length} dalam batch
+        <div className="grid gap-3 sm:grid-cols-[auto_auto]">
+          <div
+            className={clsx(
+              'rounded-xl px-4 py-3 text-sm font-extrabold',
+              isDark ? 'bg-[#25303a] text-[#cfd8e3]' : 'bg-[#eef3f9] text-[#6d8bb3]'
+            )}
+          >
+            {selectedRombelIds.length} dipilih / {batchRombelIds.length} dalam batch
+          </div>
+
+          <button
+            type="button"
+            className={clsx(
+              'h-12 rounded-xl px-5 text-sm font-extrabold transition hover:-translate-y-0.5',
+              isDark ? 'bg-[#4f8fe7] text-white hover:bg-[#6fa6ef]' : 'bg-[#31527d] text-white hover:bg-[#456da1]'
+            )}
+            onClick={onSaveSchedule}
+          >
+            Simpan Jadwal
+          </button>
         </div>
       </div>
 

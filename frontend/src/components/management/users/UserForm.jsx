@@ -15,9 +15,9 @@ const emptyForm = Object.freeze({
   username: '',
   nama_lengkap: '',
   password: '',
-  role: 'Siswa',
-  tipe_user: 'Siswa',
-  jurusan: 'TKJ',
+  role: 'admin',
+  tipe_user: 'admin',
+  jurusan: '-',
   status: 'Aktif',
   valid_hingga: '',
   catatan: '',
@@ -52,6 +52,8 @@ export function UserForm({ initialData, theme = 'light', onCancel, onSubmit }) {
       valid_hingga: formatDateFromInput(form.valid_hingga),
       login_terakhir: initialData?.login_terakhir ?? '-',
       id: initialData?.id ?? Date.now(),
+      role_slug: form.role,
+      user_type: form.tipe_user,
     });
   }
 

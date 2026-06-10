@@ -15,6 +15,13 @@ const columns = Object.freeze([
   'AKSI',
 ]);
 
+function isSiswaUser(user) {
+  const values = [user.user_type, user.tipe_user, user.role_slug, user.role]
+    .map((value) => String(value ?? '').trim().toLowerCase().replace(/\s+/g, '_'));
+
+  return values.includes('siswa');
+}
+
 export function UsersTable({ users, theme = 'light', currentPage = 1, totalPages = 1, onPageChange, onEdit }) {
   const isDark = theme === 'dark';
 
@@ -45,40 +52,51 @@ export function UsersTable({ users, theme = 'light', currentPage = 1, totalPages
 
           <tbody>
             {users.length > 0 ? (
-              users.map((user) => (
-                <tr
-                  key={user.id}
-                  className={clsx(
-                    'transition',
-                    isDark
-                      ? 'text-[#f4f1ec] hover:bg-[#56616d]/35'
-                      : 'text-[#86a0c3] hover:bg-[#f4f7fb]'
-                  )}
-                >
-                  <td className="px-3 py-3 font-bold">{user.username}</td>
-                  <td className="px-3 py-3 font-bold">{user.nama_lengkap}</td>
-                  <td className="px-3 py-3 font-bold">{user.role}</td>
-                  <td className="px-3 py-3 font-bold">{user.tipe_user}</td>
-                  <td className="px-3 py-3 font-bold">{user.jurusan}</td>
-                  <td className="px-3 py-3 font-bold">{user.status}</td>
-                  <td className="px-3 py-3 font-bold">{user.valid_hingga}</td>
-                  <td className="px-3 py-3 font-bold">{user.login_terakhir}</td>
-                  <td className="px-3 py-2">
-                    <button
-                      type="button"
-                      className={clsx(
-                        'h-9 min-w-20 rounded-md px-4 text-sm font-medium transition hover:-translate-y-0.5',
-                        isDark
-                          ? 'bg-[#4b5561] text-[#f4f1ec] hover:bg-[#31527d]'
-                          : 'bg-[#dce5f0] text-[#43505a] hover:bg-[#bfcee3]'
-                      )}
-                      onClick={() => onEdit?.(user)}
-                    >
-                      Edit
-                    </button>
-                  </td>
-                </tr>
-              ))
+              users.map((user) => {
+                const isSiswa = isSiswaUser(user);
+
+                return (
+                  <tr
+                    key={user.id}
+                    className={clsx(
+                      'transition',
+                      isDark
+                        ? 'text-[#f4f1ec] hover:bg-[#56616d]/35'
+                        : 'text-[#86a0c3] hover:bg-[#f4f7fb]'
+                    )}
+                  >
+                    <td className="px-3 py-3 font-bold">{user.username}</td>
+                    <td className="px-3 py-3 font-bold">{user.nama_lengkap}</td>
+                    <td className="px-3 py-3 font-bold">{user.role}</td>
+                    <td className="px-3 py-3 font-bold">{user.tipe_user}</td>
+                    <td className="px-3 py-3 font-bold">{user.jurusan}</td>
+                    <td className="px-3 py-3 font-bold">{user.status}</td>
+                    <td className="px-3 py-3 font-bold">{user.valid_hingga}</td>
+                    <td className="px-3 py-3 font-bold">{user.login_terakhir}</td>
+                    <td className="px-3 py-2">
+                      <button
+                        type="button"
+                        className={clsx(
+                          'h-9 min-w-20 rounded-md px-4 text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-60',
+                          !isSiswa ? 'hover:-translate-y-0.5' : '',
+                          isDark
+                            ? 'bg-[#4b5561] text-[#f4f1ec] hover:bg-[#31527d]'
+                            : 'bg-[#dce5f0] text-[#43505a] hover:bg-[#bfcee3]'
+                        )}
+                        disabled={isSiswa}
+                        title={isSiswa ? 'User siswa hanya ditampilkan, bukan diedit dari halaman ini.' : 'Edit user'}
+                        onClick={() => {
+                          if (!isSiswa) {
+                            onEdit?.(user);
+                          }
+                        }}
+                      >
+                        {isSiswa ? 'Siswa' : 'Edit'}
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })
             ) : (
               <tr>
                 <td colSpan={columns.length}>
@@ -97,7 +115,7 @@ export function UsersTable({ users, theme = 'light', currentPage = 1, totalPages
                           isDark ? 'text-[#cfd8e3]' : 'text-[#c9d4e4]'
                         )}
                       >
-                        Tidak ada data siswa
+                        Tidak ada data users
                       </p>
                     </div>
                   </div>

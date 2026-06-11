@@ -160,6 +160,14 @@ export function PengaturanPage() {
     });
   }
 
+  function selectSingleRombel(rombelId) {
+    setSelectedRombelIds(rombelId ? [rombelId] : []);
+  }
+
+  function useBatchModeSelection() {
+    setSelectedRombelIds((current) => current.filter((rombelId) => batchRombelIds.includes(rombelId)));
+  }
+
   function toggleBatchRombel(rombelId) {
     setBatchRombelIds((current) => {
       if (current.includes(rombelId)) {
@@ -250,6 +258,23 @@ export function PengaturanPage() {
               duration: Number(value),
             }
           : slot
+      )
+    );
+  }
+
+  function updateSlotName(slotId, value) {
+    const customLabel = String(value || '').trim();
+
+    setSlots((current) =>
+      renumberScheduleSlots(
+        current.map((slot) =>
+          slot.id === slotId
+            ? {
+                ...slot,
+                customLabel,
+              }
+            : slot
+        )
       )
     );
   }
@@ -394,6 +419,8 @@ export function PengaturanPage() {
             scheduleRows={scheduleRows}
             validationMessage={validationMessage}
             bulkDuration={bulkDuration}
+            onSelectSingleRombel={selectSingleRombel}
+            onUseBatchMode={useBatchModeSelection}
             onToggleRombel={toggleRombel}
             onToggleBatchRombel={toggleBatchRombel}
             onToggleBatchEditMode={toggleBatchEditMode}
@@ -407,6 +434,7 @@ export function PengaturanPage() {
             onRemoveSlot={removeSlot}
             onMoveSlot={moveSlot}
             onUpdateSlotDuration={updateSlotDuration}
+            onUpdateSlotName={updateSlotName}
             onBulkDurationChange={setBulkDuration}
             onApplyBulkDuration={applyBulkDuration}
             onSaveSchedule={saveRombelSchedule}

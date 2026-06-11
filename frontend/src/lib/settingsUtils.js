@@ -57,7 +57,6 @@ export const rombelSettingOptions = Object.freeze([
   { id: '12-rpl-1', label: 'XII RPL 1', jurusan: 'RPL', year: '3', yearLabel: 'Tahun ke-3' },
 ]);
 
-
 export function filterRombelOptions(options, jurusanFilter = 'all', yearFilter = 'all') {
   return options.filter((rombel) => {
     const matchesMajor = jurusanFilter === 'all' || rombel.jurusan === jurusanFilter;
@@ -163,6 +162,29 @@ export function getDefaultScheduleSlots() {
   ]);
 }
 
+function isGeneratedMapelLabel(label) {
+  return /^Mapel\s+\d+$/i.test(String(label || '').trim());
+}
+
+function getSlotCustomLabel(slot) {
+  const hasExplicitLabel =
+    slot.customLabel !== undefined ||
+    slot.custom_label !== undefined ||
+    slot.subjectName !== undefined ||
+    slot.subject_name !== undefined;
+
+  if (hasExplicitLabel) {
+    const explicitLabel = slot.customLabel ?? slot.custom_label ?? slot.subjectName ?? slot.subject_name ?? '';
+    return String(explicitLabel || '').trim();
+  }
+
+  if (slot.type === 'mapel' && slot.label && !isGeneratedMapelLabel(slot.label)) {
+    return String(slot.label).trim();
+  }
+
+  return '';
+}
+
 export function renumberScheduleSlots(slots) {
   let mapelIndex = 0;
   let breakIndex = 0;
@@ -178,10 +200,12 @@ export function renumberScheduleSlots(slots) {
     }
 
     mapelIndex += 1;
+    const customLabel = getSlotCustomLabel(slot);
 
     return {
       ...slot,
-      label: `Mapel ${mapelIndex}`,
+      customLabel,
+      label: customLabel || `Mapel ${mapelIndex}`,
     };
   });
 }
@@ -196,6 +220,7 @@ export function createScheduleSlot(type = 'mapel') {
     type,
     duration: type === 'break' ? 20 : 40,
     active: true,
+    customLabel: '',
   };
 }
 

@@ -1,4 +1,91 @@
+import { useState } from 'preact/hooks';
 import clsx from 'clsx';
+
+import { UserPagination } from '../users/UserPagination.jsx';
+import { AppIcon } from '../../ui/AppIcon.jsx';
+
+function getRombelOptionLabel(rombel) {
+  return rombel.label_rombel || rombel.nama_rombel || rombel.nama_kelas || `Rombel ${rombel.rombel_id}`;
+}
+
+function RombelSingleSelect({ theme, options, value, onChange }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const isDark = theme === 'dark';
+  const selectedOption = options.find((rombel) => String(rombel.rombel_id) === String(value));
+  const selectedLabel = selectedOption ? getRombelOptionLabel(selectedOption) : 'Semua rombel';
+
+  function handleSelect(nextValue) {
+    onChange?.(nextValue);
+    setIsOpen(false);
+  }
+
+  return (
+    <div className="relative w-full sm:w-56">
+      <button
+        type="button"
+        className={clsx(
+          'flex h-12 w-full items-center justify-between rounded-xl border px-4 text-left text-sm font-medium transition',
+          isDark
+            ? 'border-[#64717d] bg-[#56616d] text-[#F0EDE4] hover:border-[#F0EDE4] hover:bg-[#64717d]'
+            : 'border-[#d5dde8] bg-white text-[#43505a] hover:border-[#a9c9f4] hover:bg-[#eef1f5]'
+        )}
+        onClick={() => setIsOpen((current) => !current)}
+      >
+        <span className="truncate">{selectedLabel}</span>
+        <AppIcon name="angleDown" />
+      </button>
+
+      {isOpen ? (
+        <div
+          className={clsx(
+            'absolute left-0 right-0 top-full z-30 mt-1 max-h-64 overflow-y-auto rounded-xl border shadow-lg',
+            isDark ? 'border-[#64717d] bg-[#56616d]' : 'border-[#d5dde8] bg-white'
+          )}
+        >
+          <button
+            type="button"
+            className={clsx(
+              'flex w-full items-center justify-between px-4 py-2 text-left text-sm font-bold transition',
+              value === ''
+                ? 'bg-[#a9c9f4] text-[#4f6b8b] hover:bg-[#8ab7ef]'
+                : isDark
+                  ? 'text-[#F0EDE4] hover:bg-[#64717d]'
+                  : 'text-[#43505a] hover:bg-[#eef1f5]'
+            )}
+            onClick={() => handleSelect('')}
+          >
+            <span>Semua rombel</span>
+            {value === '' ? <span>✓</span> : null}
+          </button>
+
+          {options.map((rombel) => {
+            const optionValue = String(rombel.rombel_id);
+            const selected = String(value) === optionValue;
+
+            return (
+              <button
+                key={rombel.rombel_id}
+                type="button"
+                className={clsx(
+                  'flex w-full items-center justify-between px-4 py-2 text-left text-sm font-bold transition',
+                  selected
+                    ? 'bg-[#a9c9f4] text-[#4f6b8b] hover:bg-[#8ab7ef]'
+                    : isDark
+                      ? 'text-[#F0EDE4] hover:bg-[#64717d]'
+                      : 'text-[#43505a] hover:bg-[#eef1f5]'
+                )}
+                onClick={() => handleSelect(optionValue)}
+              >
+                <span className="truncate">{getRombelOptionLabel(rombel)}</span>
+                {selected ? <span>✓</span> : null}
+              </button>
+            );
+          })}
+        </div>
+      ) : null}
+    </div>
+  );
+}
 
 function StatusBadge({ value }) {
   const normalized = String(value || '-').toLowerCase();
@@ -21,15 +108,6 @@ function StatusBadge({ value }) {
   );
 }
 
-function getVisiblePages(currentPage, totalPages) {
-  const safeTotalPages = Math.max(1, Number(totalPages) || 1);
-  const safeCurrentPage = Math.min(Math.max(1, Number(currentPage) || 1), safeTotalPages);
-  const startPage = Math.max(1, safeCurrentPage - 2);
-  const endPage = Math.min(safeTotalPages, safeCurrentPage + 2);
-
-  return Array.from({ length: endPage - startPage + 1 }, (_, index) => startPage + index);
-}
-
 export function PresensiTodayTable({
   rows,
   totalRows = 0,
@@ -43,10 +121,9 @@ export function PresensiTodayTable({
 }) {
   const isDark = theme === 'dark';
   const items = rows || [];
-  const pages = getVisiblePages(currentPage, totalPages);
 
   return (
-    <section className={clsx('w-full min-w-0 max-w-full overflow-hidden rounded-xl p-4 sm:p-5', isDark ? 'bg-[#313b45]' : 'bg-white')}>
+    <section className={clsx('w-full min-w-0 max-w-full overflow-visible rounded-xl p-4 sm:p-5', isDark ? 'bg-[#313b45]' : 'bg-white')}>
       <div className="mb-5 flex flex-col items-start justify-between gap-3 lg:flex-row lg:items-center">
         <div>
           <h2
@@ -63,25 +140,21 @@ export function PresensiTodayTable({
         </div>
 
         <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center">
-          <select
-            className={clsx(
-              'h-10 rounded-md border px-3 text-sm font-bold outline-none',
-              isDark
-                ? 'border-[#1d262e] bg-[#25303a] text-[#f4f1ec]'
-                : 'border-[#d7dee7] bg-white text-[#43505a]'
-            )}
+          <RombelSingleSelect
+            theme={theme}
+            options={rombelOptions}
             value={selectedRombelId}
-            onChange={(event) => onRombelChange?.(event.currentTarget.value)}
-          >
-            <option value="">Semua rombel</option>
-            {rombelOptions.map((rombel) => (
-              <option key={rombel.rombel_id} value={rombel.rombel_id}>
-                {rombel.label_rombel}
-              </option>
-            ))}
-          </select>
+            onChange={onRombelChange}
+          />
 
-          <span className="rounded-md bg-[#a9c9f4]/30 px-3 py-2 text-xs font-extrabold text-[#4f6b8b]">
+          <span
+            className={clsx(
+              'rounded-md px-3 py-2 text-xs font-extrabold',
+              isDark
+                ? 'bg-[#a9c9f4] text-[#13202d] shadow-sm'
+                : 'bg-[#a9c9f4]/30 text-[#4f6b8b]'
+            )}
+          >
             {totalRows} Data
           </span>
         </div>
@@ -147,43 +220,12 @@ export function PresensiTodayTable({
         </table>
       </div>
 
-      {totalPages > 1 ? (
-        <div className="mt-4 flex flex-wrap items-center justify-end gap-2">
-          <button
-            type="button"
-            className="rounded-md bg-[#a9c9f4]/30 px-3 py-2 text-xs font-extrabold text-[#4f6b8b] disabled:cursor-not-allowed disabled:opacity-40"
-            disabled={currentPage <= 1}
-            onClick={() => onPageChange?.(currentPage - 1)}
-          >
-            Prev
-          </button>
-
-          {pages.map((page) => (
-            <button
-              key={page}
-              type="button"
-              className={clsx(
-                'rounded-md px-3 py-2 text-xs font-extrabold',
-                page === currentPage
-                  ? 'bg-[#456da1] text-white'
-                  : 'bg-[#a9c9f4]/30 text-[#4f6b8b]'
-              )}
-              onClick={() => onPageChange?.(page)}
-            >
-              {page}
-            </button>
-          ))}
-
-          <button
-            type="button"
-            className="rounded-md bg-[#a9c9f4]/30 px-3 py-2 text-xs font-extrabold text-[#4f6b8b] disabled:cursor-not-allowed disabled:opacity-40"
-            disabled={currentPage >= totalPages}
-            onClick={() => onPageChange?.(currentPage + 1)}
-          >
-            Next
-          </button>
-        </div>
-      ) : null}
+      <UserPagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        theme={theme}
+        onPageChange={onPageChange}
+      />
     </section>
   );
 }

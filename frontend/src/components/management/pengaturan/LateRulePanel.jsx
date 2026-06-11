@@ -9,7 +9,7 @@ function Input({ theme = 'light', className = '', ...props }) {
   return (
     <input
       className={clsx(
-        'h-12 rounded-xl border px-4 text-sm font-bold outline-none transition',
+        'h-12 w-full min-w-0 rounded-xl border px-4 text-sm font-bold outline-none transition',
         isDark
           ? 'border-[#64717d] bg-[#56616d] text-[#f4f1ec] hover:border-[#f4f1ec] focus:border-[#f4f1ec]'
           : 'border-[#d5dde8] bg-white text-[#43505a] hover:border-[#5f95df] focus:border-[#7ea4d4]',
@@ -32,8 +32,13 @@ export function LateRulePanel({ theme = 'light', rule, onChange, onSave }) {
   }
 
   return (
-    <section className={clsx('rounded-2xl p-4 sm:p-6', isDark ? 'bg-[#313b45]' : 'bg-white')}>
-      <div className="mb-6 flex flex-col justify-between gap-4 lg:flex-row lg:items-start">
+    <section
+      className={clsx(
+        'w-full max-w-full overflow-hidden rounded-2xl border p-4 sm:p-6',
+        isDark ? 'border-[#45515e] bg-[#313b45]' : 'border-[#e3eaf4] bg-white'
+      )}
+    >
+      <div className="mb-6 flex min-w-0 flex-col justify-between gap-4 lg:flex-row lg:items-start">
         <div>
           <h2
             className={clsx(
@@ -51,7 +56,7 @@ export function LateRulePanel({ theme = 'light', rule, onChange, onSave }) {
         <button
           type="button"
           className={clsx(
-            'flex h-12 w-full items-center justify-center gap-3 rounded-xl px-5 text-sm font-extrabold transition hover:-translate-y-0.5 sm:w-auto',
+            'flex h-12 w-full shrink-0 items-center justify-center gap-3 rounded-xl px-5 text-sm font-extrabold transition hover:-translate-y-0.5 sm:w-auto',
             isDark
               ? 'bg-[#4f8fe7] text-white hover:bg-[#6fa6ef]'
               : 'bg-[#31527d] text-white hover:bg-[#456da1]'
@@ -63,9 +68,9 @@ export function LateRulePanel({ theme = 'light', rule, onChange, onSave }) {
         </button>
       </div>
 
-      <div className="grid gap-5 lg:grid-cols-[1fr_0.9fr]">
-        <div className="grid gap-4 sm:grid-cols-2">
-          <label className="grid gap-2 text-sm font-bold text-[#8b9298]">
+      <div className="grid min-w-0 gap-5 2xl:grid-cols-[minmax(0,1fr)_minmax(320px,0.9fr)]">
+        <div className="grid min-w-0 gap-4 sm:grid-cols-[repeat(2,minmax(0,1fr))]">
+          <label className="grid min-w-0 gap-2 text-sm font-bold text-[#8b9298]">
             Jam Masuk Standar
             <Input
               type="time"
@@ -76,7 +81,7 @@ export function LateRulePanel({ theme = 'light', rule, onChange, onSave }) {
             />
           </label>
 
-          <label className="grid gap-2 text-sm font-bold text-[#8b9298]">
+          <label className="grid min-w-0 gap-2 text-sm font-bold text-[#8b9298]">
             Toleransi Terlambat Menit
             <Input
               type="number"
@@ -90,7 +95,7 @@ export function LateRulePanel({ theme = 'light', rule, onChange, onSave }) {
 
           <label
             className={clsx(
-              'flex cursor-pointer items-center gap-3 rounded-2xl border p-4 text-sm font-extrabold transition hover:-translate-y-0.5 sm:col-span-2',
+              'flex min-w-0 cursor-pointer items-center gap-3 rounded-2xl border p-4 text-sm font-extrabold transition hover:-translate-y-0.5 sm:col-span-2',
               rule.autoStatus
                 ? isDark
                   ? 'border-[#8db8ef] bg-[#31527d] text-white'
@@ -109,12 +114,12 @@ export function LateRulePanel({ theme = 'light', rule, onChange, onSave }) {
             Aktifkan status otomatis Terlambat
           </label>
 
-          <label className="grid gap-2 text-sm font-bold text-[#8b9298] sm:col-span-2">
+          <label className="grid min-w-0 gap-2 text-sm font-bold text-[#8b9298] sm:col-span-2">
             Catatan Aturan
             <textarea
               aria-label="Catatan Aturan"
               className={clsx(
-                'min-h-28 rounded-xl border px-4 py-3 text-sm font-bold outline-none transition',
+                'min-h-28 w-full min-w-0 rounded-xl border px-4 py-3 text-sm font-bold outline-none transition',
                 isDark
                   ? 'border-[#64717d] bg-[#56616d] text-[#f4f1ec] hover:border-[#f4f1ec] focus:border-[#f4f1ec]'
                   : 'border-[#d5dde8] bg-white text-[#43505a] hover:border-[#5f95df] focus:border-[#7ea4d4]'
@@ -127,7 +132,7 @@ export function LateRulePanel({ theme = 'light', rule, onChange, onSave }) {
 
         <aside
           className={clsx(
-            'grid content-start gap-4 rounded-2xl border p-5',
+            'grid min-w-0 content-start gap-4 rounded-2xl border p-5',
             isDark ? 'border-[#45515e] bg-[#25303a]' : 'border-[#e3eaf4] bg-[#f8fbff]'
           )}
         >

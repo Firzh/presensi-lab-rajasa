@@ -70,6 +70,7 @@ export function PresensiSetupPanel({
   onRombelChange,
   onJamDropdownToggle,
   onToggleJam,
+  onClearJam,
   onRuangChange,
   onCreateSession,
 }) {
@@ -245,7 +246,11 @@ export function PresensiSetupPanel({
               disabled={isSessionActive}
               onClick={onJamDropdownToggle}
             >
-              <span>{getSelectedJamLabel(selectedJamIds)}</span>
+              <span>
+                {selectedJamIds.length > 0
+                  ? getSelectedJamLabel(selectedJamIds)
+                  : 'Tidak pilih jam'}
+              </span>
               <AppIcon name="angleDown" />
             </button>
 
@@ -256,6 +261,21 @@ export function PresensiSetupPanel({
                   isDark ? 'border-[#64717d] bg-[#56616d]' : 'border-[#d5dde8] bg-white'
                 )}
               >
+                <button
+                  type="button"
+                  className={clsx(
+                    'flex w-full items-center justify-between px-4 py-2 text-left text-sm font-bold transition',
+                    selectedJamIds.length === 0
+                      ? 'bg-[#a9c9f4] text-[#4f6b8b] hover:bg-[#8ab7ef]'
+                      : isDark
+                        ? 'text-[#F0EDE4] hover:bg-[#64717d]'
+                        : 'text-[#43505a] hover:bg-[#eef1f5]'
+                  )}
+                  onClick={onClearJam}
+                >
+                  <span>Tidak pilih jam</span>
+                  {selectedJamIds.length === 0 ? <span>✓</span> : null}
+                </button>
                 {JAM_OPTIONS.map((jam) => {
                   const selected = selectedJamIds.includes(jam.id);
 

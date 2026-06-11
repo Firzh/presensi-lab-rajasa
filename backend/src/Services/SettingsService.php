@@ -24,7 +24,7 @@ final class SettingsService
         ];
     }
 
-    public function createBackup(): array
+    public function createBackup(?int $userId = null): array
     {
         $this->ensureDirectory($this->backupPath());
 
@@ -34,7 +34,7 @@ final class SettingsService
         file_put_contents($path, $this->buildSqlDump());
 
         $backup = $this->formatBackupFile($path);
-        $this->activityService->record(null, 'create_backup', 'pengaturan', 'Backup database dibuat.');
+        $this->activityService->record($userId, 'create_backup', 'pengaturan', 'Backup database dibuat.');
 
         return [
             'backup' => $backup,
@@ -57,7 +57,7 @@ final class SettingsService
         ];
     }
 
-    public function updateLateRule(array $payload): array
+    public function updateLateRule(array $payload, ?int $userId = null): array
     {
         $settings = $this->readSettings();
         $settings['late_rule'] = [
@@ -68,12 +68,12 @@ final class SettingsService
         ];
 
         $this->writeSettings($settings);
-        $this->activityService->record(null, 'update_late_rule', 'pengaturan', 'Aturan keterlambatan diperbarui.');
+        $this->activityService->record($userId, 'update_late_rule', 'pengaturan', 'Aturan keterlambatan diperbarui.');
 
         return ['late_rule' => $settings['late_rule']];
     }
 
-    public function updateRombelSchedule(array $payload): array
+    public function updateRombelSchedule(array $payload, ?int $userId = null): array
     {
         $settings = $this->readSettings();
         $schedule = $settings['rombel_schedule'];
@@ -90,7 +90,7 @@ final class SettingsService
         $settings['rombel_schedule'] = $schedule;
         $this->writeSettings($settings);
         $this->syncJamPembelajaran($slots);
-        $this->activityService->record(null, 'update_rombel_schedule', 'pengaturan', 'Jadwal rombel diperbarui.');
+        $this->activityService->record($userId, 'update_rombel_schedule', 'pengaturan', 'Jadwal rombel diperbarui.');
 
         return ['rombel_schedule' => $this->rombelSchedule($settings)];
     }

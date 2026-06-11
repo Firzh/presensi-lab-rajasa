@@ -5,7 +5,9 @@ import { UserPagination } from '../users/UserPagination.jsx';
 import { AppIcon } from '../../ui/AppIcon.jsx';
 
 function getRombelOptionLabel(rombel) {
-  return rombel.label_rombel || rombel.nama_rombel || rombel.nama_kelas || `Rombel ${rombel.rombel_id}`;
+  return (
+    rombel.label_rombel || rombel.nama_rombel || rombel.nama_kelas || `Rombel ${rombel.rombel_id}`
+  );
 }
 
 function RombelSingleSelect({ theme, options, value, onChange }) {
@@ -123,7 +125,12 @@ export function PresensiTodayTable({
   const items = rows || [];
 
   return (
-    <section className={clsx('w-full min-w-0 max-w-full overflow-visible rounded-xl p-4 sm:p-5', isDark ? 'bg-[#313b45]' : 'bg-white')}>
+    <section
+      className={clsx(
+        'w-full min-w-0 max-w-full overflow-visible rounded-xl p-4 sm:p-5',
+        isDark ? 'bg-[#313b45]' : 'bg-white'
+      )}
+    >
       <div className="mb-5 flex flex-col items-start justify-between gap-3 lg:flex-row lg:items-center">
         <div>
           <h2
@@ -150,9 +157,7 @@ export function PresensiTodayTable({
           <span
             className={clsx(
               'rounded-md px-3 py-2 text-xs font-extrabold',
-              isDark
-                ? 'bg-[#a9c9f4] text-[#13202d] shadow-sm'
-                : 'bg-[#a9c9f4]/30 text-[#4f6b8b]'
+              isDark ? 'bg-[#a9c9f4] text-[#13202d] shadow-sm' : 'bg-[#a9c9f4]/30 text-[#4f6b8b]'
             )}
           >
             {totalRows} Data
@@ -161,20 +166,32 @@ export function PresensiTodayTable({
       </div>
 
       <div className="overflow-x-auto">
-        <table className="w-full min-w-[980px] border-collapse text-left text-sm">
+        <table className="w-full min-w-245 border-collapse text-left text-sm">
           <thead>
-            <tr className={isDark ? 'bg-[#1d262e] text-[#cfd8e3]' : 'bg-[#eef1f5] text-[#6f7882]'}>
-              <th className="px-3 py-3">ID</th>
-              <th className="px-3 py-3">Sesi</th>
-              <th className="px-3 py-3">Scan Log</th>
-              <th className="px-3 py-3">Nama</th>
-              <th className="px-3 py-3">NISN</th>
-              <th className="px-3 py-3">Kelas</th>
-              <th className="px-3 py-3">Tanggal</th>
-              <th className="px-3 py-3">Jam</th>
-              <th className="px-3 py-3">Status</th>
-              <th className="px-3 py-3">Mode</th>
-              <th className="px-3 py-3">Scan At</th>
+            <tr className={isDark ? 'border-b border-[#1d262e]' : 'border-b border-[#c8d4e7]'}>
+              {[
+                'ID',
+                'SESI',
+                'SCAN LOG',
+                'NAMA',
+                'NISN',
+                'KELAS',
+                'TANGGAL',
+                'JAM',
+                'STATUS',
+                'MODE',
+                'SCAN AT',
+              ].map((column) => (
+                <th
+                  key={column}
+                  className={clsx(
+                    'px-3 pb-3 text-xs font-extrabold tracking-wide sm:text-sm',
+                    isDark ? 'text-[#f4f1ec]' : 'text-[#6d8bb3]'
+                  )}
+                >
+                  {column}
+                </th>
+              ))}
             </tr>
           </thead>
 

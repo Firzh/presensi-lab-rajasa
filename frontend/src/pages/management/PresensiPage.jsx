@@ -45,6 +45,10 @@ function goToPresensiScan() {
 
 const ATTENDANCE_TABLE_PER_PAGE = 10;
 
+function getFinalSelectedJamIds(jamIds) {
+  return jamIds.length > 0 ? sortJamIds(jamIds) : [1];
+}
+
 function getAttendanceRombelId(row) {
   return String(row.rombel?.rombel_id ?? row.rombel_id ?? row.rombel_id_snapshot ?? '');
 }
@@ -105,7 +109,9 @@ export function PresensiPage() {
       return attendanceRows;
     }
 
-    return attendanceRows.filter((row) => getAttendanceRombelId(row) === String(attendanceTableRombelId));
+    return attendanceRows.filter(
+      (row) => getAttendanceRombelId(row) === String(attendanceTableRombelId)
+    );
   }, [attendanceRows, attendanceTableRombelId]);
 
   const attendanceTableTotalPages = Math.max(
@@ -246,6 +252,11 @@ export function PresensiPage() {
   }
 
   function handleToggleJam(jamId) {
+    if (selectedJamIds.length === 1 && selectedJamIds.includes(jamId)) {
+      setSelectedJamIds([]);
+      return;
+    }
+
     const result = toggleConsecutiveJam(selectedJamIds, jamId);
 
     setSelectedJamIds(result.selectedIds);
@@ -256,6 +267,20 @@ export function PresensiPage() {
     }
   }
 
+  function handleClearJam() {
+    setSelectedJamIds([]);
+  }
+
+  function handleJamDropdownToggle() {
+    setIsJamDropdownOpen((current) => {
+      if (current && selectedJamIds.length === 0) {
+        setSelectedJamIds([1]);
+      }
+
+      return !current;
+    });
+  }
+
   async function handleCreateSession() {
     if (!token) {
       setStatusType('error');
@@ -263,7 +288,11 @@ export function PresensiPage() {
       return;
     }
 
-    const jamIds = sortJamIds(selectedJamIds);
+    const jamIds = getFinalSelectedJamIds(selectedJamIds);
+
+    if (selectedJamIds.length === 0) {
+      setSelectedJamIds([1]);
+    }
 
     if (modePresensi === 'rombel' && !selectedRombelId) {
       setStatusType('error');
@@ -383,8 +412,9 @@ export function PresensiPage() {
             sessionLabel=""
             onModeChange={handleModeChange}
             onRombelChange={setSelectedRombelId}
-            onJamDropdownToggle={() => setIsJamDropdownOpen((current) => !current)}
+            onJamDropdownToggle={handleJamDropdownToggle}
             onToggleJam={handleToggleJam}
+            onClearJam={handleClearJam}
             onRuangChange={setRuangPilihan}
             onCreateSession={handleCreateSession}
           />

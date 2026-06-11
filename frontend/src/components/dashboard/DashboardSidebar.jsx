@@ -2,10 +2,12 @@ import { useState } from 'preact/hooks';
 import clsx from 'clsx';
 
 import { AppIcon } from '../ui/AppIcon.jsx';
-import { getAuthSession } from '../../lib/authSession.js';
+import { getAuthSession, clearAuthSession } from '../../lib/authSession.js';
+import { logout as apiLogout } from '../../api/authApi.js';
 import { isGuruSession } from '../../lib/roleUtils.js';
 import { DashboardSidebarLink } from './DashboardSidebarLink.jsx';
 import { DashboardSidebarSection } from './DashboardSidebarSection.jsx';
+import { ROUTES } from '../../constants/routes.js';
 
 const managementItems = Object.freeze([
   { key: 'siswa', icon: 'userGraduate', label: 'Data Siswa', href: '/siswa' },
@@ -61,12 +63,38 @@ function Brand({ theme = 'light', compact = false }) {
 
 export function DashboardSidebar({ theme = 'light', activeKey = 'dashboard' }) {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const session = getAuthSession();
   const visibleAdminItems = getVisibleAdminItems(session);
   const mobileItems = getMobileItems(visibleAdminItems);
 
   function closeMobileSidebar() {
     setIsMobileOpen(false);
+  }
+
+  /**
+   * BUG-02 fix: Handler logout yang benar.
+   * 1. Panggil endpoint POST /api/auth/logout dengan token (agar log tersimpan di backend).
+   * 2. Hapus session lokal (token, user, roles, permissions) — bahkan jika API gagal.
+   * 3. Redirect ke login menggunakan replace() agar halaman private tidak masuk history.
+   *    Tombol Back setelah logout TIDAK akan membuka halaman private kembali.
+   */
+  async function handleLogout() {
+    if (isLoggingOut) return;
+
+    setIsLoggingOut(true);
+
+    try {
+      // Panggil API logout — backend akan mencatat log dan memvalidasi token
+      await apiLogout({ token: session.token });
+    } catch (_error) {
+      // Abaikan error jaringan — session tetap harus dibersihkan
+    } finally {
+      // Selalu bersihkan session lokal, apapun hasilnya
+      clearAuthSession();
+      // replace() agar halaman ini tidak ada di history — back button aman
+      window.location.replace(ROUTES.LOGIN);
+    }
   }
 
   return (
@@ -128,18 +156,21 @@ export function DashboardSidebar({ theme = 'light', activeKey = 'dashboard' }) {
           ) : null}
         </nav>
 
-        <a
-          href="/"
+        {/* BUG-02 fix: Tombol Keluar desktop — menggunakan button + handler, bukan anchor */}
+        <button
+          type="button"
+          disabled={isLoggingOut}
+          onClick={handleLogout}
           className={clsx(
-            'mt-8 flex items-center gap-3 rounded-md px-4 py-3 text-[0.95rem] font-extrabold transition',
+            'mt-8 flex w-full items-center gap-3 rounded-md px-4 py-3 text-[0.95rem] font-extrabold transition disabled:opacity-60 disabled:cursor-not-allowed',
             theme === 'dark'
               ? 'bg-[#25303a] text-[#f1f1ee] hover:bg-[#31527d] hover:text-white'
               : 'bg-[#eef0f3] text-[#47525b] hover:bg-[#bfcee3] hover:text-white'
           )}
         >
           <AppIcon name="arrowRightFromBracket" />
-          Keluar
-        </a>
+          {isLoggingOut ? 'Keluar...' : 'Keluar'}
+        </button>
       </aside>
 
       {isMobileOpen ? (
@@ -206,18 +237,21 @@ export function DashboardSidebar({ theme = 'light', activeKey = 'dashboard' }) {
           })}
         </nav>
 
-        <a
-          href="/"
+        {/* BUG-02 fix: Tombol Keluar mobile — menggunakan button + handler, bukan anchor */}
+        <button
+          type="button"
+          disabled={isLoggingOut}
+          onClick={handleLogout}
           className={clsx(
-            'mt-auto flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-extrabold transition',
+            'mt-auto flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-extrabold transition disabled:opacity-60 disabled:cursor-not-allowed',
             theme === 'dark'
               ? 'bg-[#25303a] text-[#f1f1ee] hover:bg-[#31527d] hover:text-white'
               : 'bg-[#eef0f3] text-[#47525b] hover:bg-[#bfcee3] hover:text-white'
           )}
         >
           <AppIcon name="arrowRightFromBracket" />
-          Keluar
-        </a>
+          {isLoggingOut ? 'Keluar...' : 'Keluar'}
+        </button>
       </aside>
     </>
   );

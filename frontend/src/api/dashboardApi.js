@@ -1,38 +1,10 @@
 import { fetchPresensiToday } from './presensiApi.js';
 import { listSiswa } from './siswaApi.js';
-import { getAuthToken } from '../lib/authSession.js';
+import { apiFetch } from '../lib/apiClient.js';
 import { getAppTodayDate } from '../lib/dateUtils.js';
 
-function authHeaders() {
-  return {
-    'Content-Type': 'application/json',
-    'ngrok-skip-browser-warning': 'true',
-    Accept: 'application/json',
-    Authorization: `Bearer ${getAuthToken()}`,
-  };
-}
-
-async function parseJsonResponse(response) {
-  const data = await response.json().catch(() => ({
-    success: false,
-    message: 'Response bukan JSON valid.',
-    errors: {},
-  }));
-
-  return {
-    ok: response.ok,
-    status: response.status,
-    data,
-  };
-}
-
 export async function fetchPresensiAuditLatest() {
-  const response = await fetch('/api/presensi/audit/latest', {
-    method: 'GET',
-    headers: authHeaders(),
-  });
-
-  return parseJsonResponse(response);
+  return apiFetch('/api/presensi/audit/latest', { method: 'GET' });
 }
 
 function getResponseData(result) {
@@ -46,7 +18,6 @@ function getTotalSiswa(siswaData) {
 function getAttendanceTimestamp(item) {
   const rawDate = item?.scanned_at || item?.edited_at || item?.tanggal || '';
   const timestamp = Date.parse(rawDate);
-
   return Number.isNaN(timestamp) ? 0 : timestamp;
 }
 

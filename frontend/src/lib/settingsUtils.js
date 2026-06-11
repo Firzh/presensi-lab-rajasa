@@ -42,20 +42,7 @@ export const rombelYearOptions = Object.freeze([
   { value: '3', label: 'Tahun ke-3 / XII' },
 ]);
 
-export const rombelSettingOptions = Object.freeze([
-  { id: '10-tkj-1', label: 'X TKJ 1', jurusan: 'TKJ', year: '1', yearLabel: 'Tahun ke-1' },
-  { id: '10-tkj-2', label: 'X TKJ 2', jurusan: 'TKJ', year: '1', yearLabel: 'Tahun ke-1' },
-  { id: '11-tkj-1', label: 'XI TKJ 1', jurusan: 'TKJ', year: '2', yearLabel: 'Tahun ke-2' },
-  { id: '11-tkj-2', label: 'XI TKJ 2', jurusan: 'TKJ', year: '2', yearLabel: 'Tahun ke-2' },
-  { id: '12-tkj-1', label: 'XII TKJ 1', jurusan: 'TKJ', year: '3', yearLabel: 'Tahun ke-3' },
-  { id: '10-akl-1', label: 'X AKL 1', jurusan: 'AKL', year: '1', yearLabel: 'Tahun ke-1' },
-  { id: '10-akl-2', label: 'X AKL 2', jurusan: 'AKL', year: '1', yearLabel: 'Tahun ke-1' },
-  { id: '11-akl-1', label: 'XI AKL 1', jurusan: 'AKL', year: '2', yearLabel: 'Tahun ke-2' },
-  { id: '12-akl-1', label: 'XII AKL 1', jurusan: 'AKL', year: '3', yearLabel: 'Tahun ke-3' },
-  { id: '10-rpl-1', label: 'X RPL 1', jurusan: 'RPL', year: '1', yearLabel: 'Tahun ke-1' },
-  { id: '11-rpl-1', label: 'XI RPL 1', jurusan: 'RPL', year: '2', yearLabel: 'Tahun ke-2' },
-  { id: '12-rpl-1', label: 'XII RPL 1', jurusan: 'RPL', year: '3', yearLabel: 'Tahun ke-3' },
-]);
+export const rombelSettingOptions = Object.freeze([]);
 
 export function filterRombelOptions(options, jurusanFilter = 'all', yearFilter = 'all') {
   return options.filter((rombel) => {
@@ -70,32 +57,13 @@ export function getDefaultBatchRombelIds() {
   return rombelSettingOptions.map((rombel) => rombel.id);
 }
 
-export const mockBackupHistory = Object.freeze([
-  {
-    id: 'bck-003',
-    fileName: 'presensi_backup_2026-06-09_0730.sql',
-    createdAt: '09 Jun 2026, 07:30',
-    size: '24.8 MB',
-    status: 'Berhasil',
-    by: 'Administrator Utama',
-  },
-  {
-    id: 'bck-002',
-    fileName: 'presensi_backup_2026-06-08_0730.sql',
-    createdAt: '08 Jun 2026, 07:30',
-    size: '24.1 MB',
-    status: 'Berhasil',
-    by: 'Operator Presensi',
-  },
-  {
-    id: 'bck-001',
-    fileName: 'presensi_backup_2026-06-07_0730.sql',
-    createdAt: '07 Jun 2026, 07:30',
-    size: '23.9 MB',
-    status: 'Berhasil',
-    by: 'Administrator Utama',
-  },
-]);
+/**
+ * BUG-10 fix: mockBackupHistory dikosongkan.
+ * Data palsu sebelumnya menyesatkan user karena tampil sebelum data backend dimuat,
+ * dan tetap tampil jika backend gagal. Sekarang PengaturanPage memulai dengan array
+ * kosong sehingga tidak ada data palsu yang ditampilkan.
+ */
+export const mockBackupHistory = Object.freeze([]);
 
 export const defaultLateRule = Object.freeze({
   standardTime: '07:00',
@@ -145,8 +113,6 @@ export function buildBackupDownloadText(item) {
     `Ukuran: ${item.size}`,
     `Status: ${item.status}`,
     `Operator: ${item.by}`,
-    '',
-    'Catatan: file ini merupakan dummy frontend untuk kebutuhan eksplorasi UI.',
   ].join('\n');
 }
 

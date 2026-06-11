@@ -21,13 +21,33 @@ function StatusBadge({ value }) {
   );
 }
 
-export function PresensiTodayTable({ rows, theme = 'light' }) {
+function getVisiblePages(currentPage, totalPages) {
+  const safeTotalPages = Math.max(1, Number(totalPages) || 1);
+  const safeCurrentPage = Math.min(Math.max(1, Number(currentPage) || 1), safeTotalPages);
+  const startPage = Math.max(1, safeCurrentPage - 2);
+  const endPage = Math.min(safeTotalPages, safeCurrentPage + 2);
+
+  return Array.from({ length: endPage - startPage + 1 }, (_, index) => startPage + index);
+}
+
+export function PresensiTodayTable({
+  rows,
+  totalRows = 0,
+  rombelOptions = [],
+  selectedRombelId = '',
+  currentPage = 1,
+  totalPages = 1,
+  theme = 'light',
+  onRombelChange,
+  onPageChange,
+}) {
   const isDark = theme === 'dark';
   const items = rows || [];
+  const pages = getVisiblePages(currentPage, totalPages);
 
   return (
     <section className={clsx('w-full min-w-0 max-w-full overflow-hidden rounded-xl p-4 sm:p-5', isDark ? 'bg-[#313b45]' : 'bg-white')}>
-      <div className="mb-5 flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
+      <div className="mb-5 flex flex-col items-start justify-between gap-3 lg:flex-row lg:items-center">
         <div>
           <h2
             className={clsx(
@@ -42,9 +62,29 @@ export function PresensiTodayTable({ rows, theme = 'light' }) {
           </p>
         </div>
 
-        <span className="rounded-md bg-[#a9c9f4]/30 px-3 py-1 text-xs font-extrabold text-[#4f6b8b]">
-          {items.length} Data
-        </span>
+        <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center">
+          <select
+            className={clsx(
+              'h-10 rounded-md border px-3 text-sm font-bold outline-none',
+              isDark
+                ? 'border-[#1d262e] bg-[#25303a] text-[#f4f1ec]'
+                : 'border-[#d7dee7] bg-white text-[#43505a]'
+            )}
+            value={selectedRombelId}
+            onChange={(event) => onRombelChange?.(event.currentTarget.value)}
+          >
+            <option value="">Semua rombel</option>
+            {rombelOptions.map((rombel) => (
+              <option key={rombel.rombel_id} value={rombel.rombel_id}>
+                {rombel.label_rombel}
+              </option>
+            ))}
+          </select>
+
+          <span className="rounded-md bg-[#a9c9f4]/30 px-3 py-2 text-xs font-extrabold text-[#4f6b8b]">
+            {totalRows} Data
+          </span>
+        </div>
       </div>
 
       <div className="overflow-x-auto">
@@ -106,6 +146,44 @@ export function PresensiTodayTable({ rows, theme = 'light' }) {
           </tbody>
         </table>
       </div>
+
+      {totalPages > 1 ? (
+        <div className="mt-4 flex flex-wrap items-center justify-end gap-2">
+          <button
+            type="button"
+            className="rounded-md bg-[#a9c9f4]/30 px-3 py-2 text-xs font-extrabold text-[#4f6b8b] disabled:cursor-not-allowed disabled:opacity-40"
+            disabled={currentPage <= 1}
+            onClick={() => onPageChange?.(currentPage - 1)}
+          >
+            Prev
+          </button>
+
+          {pages.map((page) => (
+            <button
+              key={page}
+              type="button"
+              className={clsx(
+                'rounded-md px-3 py-2 text-xs font-extrabold',
+                page === currentPage
+                  ? 'bg-[#456da1] text-white'
+                  : 'bg-[#a9c9f4]/30 text-[#4f6b8b]'
+              )}
+              onClick={() => onPageChange?.(page)}
+            >
+              {page}
+            </button>
+          ))}
+
+          <button
+            type="button"
+            className="rounded-md bg-[#a9c9f4]/30 px-3 py-2 text-xs font-extrabold text-[#4f6b8b] disabled:cursor-not-allowed disabled:opacity-40"
+            disabled={currentPage >= totalPages}
+            onClick={() => onPageChange?.(currentPage + 1)}
+          >
+            Next
+          </button>
+        </div>
+      ) : null}
     </section>
   );
 }

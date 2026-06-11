@@ -336,9 +336,10 @@ export const mockLogUsers = Object.freeze([
 ]);
 
 export function getVisiblePages(currentPage, totalPages) {
-  const safeTotalPages = Math.max(1, totalPages);
-  const safeCurrentPage = Math.min(Math.max(1, currentPage), safeTotalPages);
-  const startPage = Math.max(1, safeCurrentPage - 1);
+  const safeTotalPages = Math.max(1, Number(totalPages) || 1);
+  const safeCurrentPage = Math.min(Math.max(1, Number(currentPage) || 1), safeTotalPages);
+
+  const startPage = Math.max(1, safeCurrentPage - 2);
   const endPage = Math.min(safeTotalPages, safeCurrentPage + 2);
 
   return Array.from({ length: endPage - startPage + 1 }, (_, index) => startPage + index);

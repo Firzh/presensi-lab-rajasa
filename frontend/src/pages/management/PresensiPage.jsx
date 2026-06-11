@@ -43,6 +43,16 @@ function goToPresensiScan() {
   window.dispatchEvent(new PopStateEvent('popstate'));
 }
 
+const ATTENDANCE_TABLE_PER_PAGE = 10;
+
+function getAttendanceRombelId(row) {
+  return String(row.rombel?.rombel_id ?? row.rombel_id ?? row.rombel_id_snapshot ?? '');
+}
+
+function getAttendanceRombelLabel(row) {
+  return row.rombel?.label_rombel || row.siswa?.kelas_aktif || row.kelas_aktif || '-';
+}
+
 export function PresensiPage() {
   const [theme, setTheme] = useState(getInitialTheme);
   const [modePresensi, setModePresensi] = useState('rombel');
@@ -53,6 +63,8 @@ export function PresensiPage() {
   const [ruangPilihan, setRuangPilihan] = useState('kelas');
 
   const [attendanceRows, setAttendanceRows] = useState([]);
+  const [attendanceTableRombelId, setAttendanceTableRombelId] = useState('');
+  const [attendanceTablePage, setAttendanceTablePage] = useState(1);
   const [statusMessage, setStatusMessage] = useState('Siap membuat sesi presensi.');
   const [statusType, setStatusType] = useState('info');
   const [isLoading, setIsLoading] = useState(false);
@@ -67,6 +79,56 @@ export function PresensiPage() {
     );
   }, [rombelOptions, selectedRombelId]);
 
+  const attendanceTableRombelOptions = useMemo(() => {
+    const optionMap = new Map();
+
+    attendanceRows.forEach((row) => {
+      const rombelId = getAttendanceRombelId(row);
+
+      if (!rombelId || optionMap.has(rombelId)) {
+        return;
+      }
+
+      optionMap.set(rombelId, {
+        rombel_id: rombelId,
+        label_rombel: getAttendanceRombelLabel(row),
+      });
+    });
+
+    return [...optionMap.values()].sort((first, second) =>
+      String(first.label_rombel).localeCompare(String(second.label_rombel), 'id')
+    );
+  }, [attendanceRows]);
+
+  const filteredAttendanceRows = useMemo(() => {
+    if (!attendanceTableRombelId) {
+      return attendanceRows;
+    }
+
+    return attendanceRows.filter((row) => getAttendanceRombelId(row) === String(attendanceTableRombelId));
+  }, [attendanceRows, attendanceTableRombelId]);
+
+  const attendanceTableTotalPages = Math.max(
+    1,
+    Math.ceil(filteredAttendanceRows.length / ATTENDANCE_TABLE_PER_PAGE)
+  );
+
+  const paginatedAttendanceRows = useMemo(() => {
+    const startIndex = (attendanceTablePage - 1) * ATTENDANCE_TABLE_PER_PAGE;
+
+    return filteredAttendanceRows.slice(startIndex, startIndex + ATTENDANCE_TABLE_PER_PAGE);
+  }, [filteredAttendanceRows, attendanceTablePage]);
+
+  useEffect(() => {
+    setAttendanceTablePage(1);
+  }, [attendanceTableRombelId]);
+
+  useEffect(() => {
+    if (attendanceTablePage > attendanceTableTotalPages) {
+      setAttendanceTablePage(attendanceTableTotalPages);
+    }
+  }, [attendanceTablePage, attendanceTableTotalPages]);
+
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
     appStorage.setRaw(STORAGE_KEYS.THEME, theme);
@@ -77,10 +139,6 @@ export function PresensiPage() {
     loadAttendanceRows();
     showPausedSessionModalIfNeeded();
   }, []);
-
-  useEffect(() => {
-    loadAttendanceRows();
-  }, [selectedRombelId, selectedJamIds, modePresensi]);
 
   async function loadRombelOptions() {
     if (!token) {
@@ -106,24 +164,28 @@ export function PresensiPage() {
   }
 
   async function loadAttendanceRows() {
-    const params = {
+    const result = await fetchPresensiToday({
       tanggal: getAppTodayDate(),
-    };
-
-    if (modePresensi === 'rombel' && selectedRombelId) {
-      params.rombel_id = selectedRombelId;
-    }
-
-    const result = await fetchPresensiToday(params);
+    });
 
     if (!result.ok || result.data?.success === false) {
       return;
     }
 
-    const selectedSet = new Set(selectedJamIds.map(Number));
     const rows = result.data?.data?.items || [];
 
-    setAttendanceRows(rows.filter((row) => selectedSet.has(Number(row.jam?.jam_id ?? row.jam_id))));
+    const sortedRows = [...rows].sort((first, second) => {
+      const firstScanTime = first.scanned_at ? new Date(first.scanned_at).getTime() : 0;
+      const secondScanTime = second.scanned_at ? new Date(second.scanned_at).getTime() : 0;
+
+      if (firstScanTime !== secondScanTime) {
+        return secondScanTime - firstScanTime;
+      }
+
+      return Number(second.presensi_id ?? 0) - Number(first.presensi_id ?? 0);
+    });
+
+    setAttendanceRows(sortedRows);
   }
 
   function showPausedSessionModalIfNeeded() {
@@ -341,7 +403,17 @@ export function PresensiPage() {
             </p>
           ) : null}
 
-          <PresensiTodayTable rows={attendanceRows} warningRows={[]} theme={theme} />
+          <PresensiTodayTable
+            rows={paginatedAttendanceRows}
+            totalRows={filteredAttendanceRows.length}
+            rombelOptions={attendanceTableRombelOptions}
+            selectedRombelId={attendanceTableRombelId}
+            currentPage={attendanceTablePage}
+            totalPages={attendanceTableTotalPages}
+            theme={theme}
+            onRombelChange={setAttendanceTableRombelId}
+            onPageChange={setAttendanceTablePage}
+          />
         </section>
       </main>
 

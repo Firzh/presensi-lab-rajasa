@@ -5,6 +5,7 @@ import { DashboardSidebar, DashboardTopbar } from '../../components/dashboard/in
 import { UserFilterBar, UserForm, UsersTable } from '../../components/management/users/index.js';
 import { AppIcon } from '../../components/ui/AppIcon.jsx';
 import { createAdminUser, listAdminUsers, updateAdminUser } from '../../api/adminUsersApi.js';
+import { listSiswa } from '../../api/siswaApi.js';
 import { STORAGE_KEYS } from '../../constants/storageKeys.js';
 import { paginateRows } from '../../lib/adminUsersUtils.js';
 import { appStorage } from '../../lib/storage.js';
@@ -20,6 +21,10 @@ function getInitialTheme() {
   return savedTheme === 'dark' ? 'dark' : 'light';
 }
 
+function normalizeFilterValue(value) {
+  return String(value ?? '').trim().toLowerCase().replace(/\s+/g, '_');
+}
+
 function getSelectedFilterValues(filters, type) {
   const selectedFilters = Array.isArray(filters.selectedFilters)
     ? filters.selectedFilters
@@ -30,7 +35,23 @@ function getSelectedFilterValues(filters, type) {
   return selectedFilters
     .map((item) => String(item ?? '').split(':'))
     .filter(([key, value]) => key === type && value)
-    .map(([, value]) => value);
+    .map(([, value]) => normalizeFilterValue(value));
+}
+
+function shouldLoadSiswaUsers(filters) {
+  const keyword = String(filters.keyword ?? '').trim();
+  const roles = getSelectedFilterValues(filters, 'role');
+  const userTypes = getSelectedFilterValues(filters, 'user_type');
+  const hasSiswaRole = roles.includes('siswa');
+  const hasSiswaUserType = userTypes.includes('siswa');
+  const hasRoleFilterThatExcludesSiswa = roles.length > 0 && !hasSiswaRole;
+  const hasUserTypeFilterThatExcludesSiswa = userTypes.length > 0 && !hasSiswaUserType;
+
+  if (hasRoleFilterThatExcludesSiswa || hasUserTypeFilterThatExcludesSiswa) {
+    return false;
+  }
+
+  return keyword !== '' || hasSiswaRole || hasSiswaUserType;
 }
 
 function getApiFilters(filters, page) {
@@ -38,16 +59,118 @@ function getApiFilters(filters, page) {
   const roles = getSelectedFilterValues(filters, 'role');
   const statuses = getSelectedFilterValues(filters, 'status');
   const userTypes = getSelectedFilterValues(filters, 'user_type');
-  const includeSiswa = keyword !== '' || roles.includes('siswa') || userTypes.includes('siswa');
+  const includeSiswa = shouldLoadSiswaUsers(filters);
 
   return {
     q: keyword,
     page,
     per_page: 10,
     roles,
+    role: roles.length === 1 ? roles[0] : '',
     statuses,
+    status: statuses.length === 1 ? statuses[0] : '',
     user_types: userTypes,
+    user_type: userTypes.length === 1 ? userTypes[0] : '',
+    include_siswa: includeSiswa ? '1' : '',
+    include_user_type: includeSiswa ? 'siswa' : '',
     exclude_user_type: includeSiswa ? '' : 'siswa',
+  };
+}
+
+function getSiswaApiFilters(filters, page) {
+  const statuses = getSelectedFilterValues(filters, 'status');
+
+  return {
+    q: String(filters.keyword ?? '').trim(),
+    status: statuses.length === 1 ? statuses[0] : '',
+    page,
+    per_page: 10,
+  };
+}
+
+function titleCase(value, fallback = '-') {
+  const text = String(value ?? '').trim();
+
+  if (!text) {
+    return fallback;
+  }
+
+  return text
+    .replace(/_/g, ' ')
+    .toLowerCase()
+    .replace(/\b\w/g, (character) => character.toUpperCase());
+}
+
+function mapSiswaToUserRow(student) {
+  const siswaId = student.siswa_id ?? student.id ?? student.nisn ?? student.nis ?? student.username;
+  const username = student.username ?? student.nisn ?? student.nis ?? '-';
+
+  return {
+    id: `siswa-${siswaId}`,
+    user_id: student.user_id ?? null,
+    siswa_id: siswaId,
+    username,
+    nama_lengkap: student.nama_lengkap ?? student.nama ?? '-',
+    role: 'Siswa',
+    role_slug: 'siswa',
+    tipe_user: 'Siswa',
+    user_type: 'siswa',
+    jurusan: student.jurusan ?? student.kode_jurusan ?? '-',
+    kelas: student.kelas ?? student.rombel ?? student.nama_rombel ?? '-',
+    status: titleCase(student.status, 'Aktif'),
+    valid_hingga: student.valid_hingga ?? '-',
+    login_terakhir: student.login_terakhir ?? '-',
+    catatan: student.catatan ?? 'Ditampilkan dari data siswa.',
+    source: 'siswa',
+  };
+}
+
+function getUserIdentity(user) {
+  const userType = normalizeFilterValue(user.user_type ?? user.tipe_user);
+  const username = normalizeFilterValue(user.username);
+
+  if (userType === 'siswa') {
+    return `siswa:${user.siswa_id ?? username}`;
+  }
+
+  return `user:${user.user_id ?? user.id ?? username}`;
+}
+
+function mergeUserRows(adminRows, siswaRows) {
+  const rowMap = new Map();
+
+  [...adminRows, ...siswaRows].forEach((row) => {
+    const key = getUserIdentity(row);
+
+    if (!rowMap.has(key)) {
+      rowMap.set(key, row);
+    }
+  });
+
+  return [...rowMap.values()];
+}
+
+function mergePagination(adminPagination, siswaPagination, shouldIncludeSiswa) {
+  if (!shouldIncludeSiswa) {
+    return adminPagination ?? { page: 1, total_pages: 1 };
+  }
+
+  const adminTotal = Number(adminPagination?.total ?? 0);
+  const siswaTotal = Number(siswaPagination?.total ?? 0);
+  const perPage = Number(adminPagination?.per_page ?? siswaPagination?.per_page ?? 10);
+  const total = adminTotal + siswaTotal;
+  const totalPages = Math.max(
+    1,
+    Number(adminPagination?.total_pages ?? 1),
+    Number(siswaPagination?.total_pages ?? 1),
+    Math.ceil(total / Math.max(1, perPage))
+  );
+
+  return {
+    page: adminPagination?.page ?? siswaPagination?.page ?? 1,
+    per_page: perPage,
+    total,
+    total_pages: totalPages,
   };
 }
 
@@ -82,18 +205,40 @@ export function ManageUsersPage() {
       setIsLoading(true);
 
       try {
-        const result = await listAdminUsers(getApiFilters(filters, currentPage));
+        const shouldIncludeSiswa = shouldLoadSiswaUsers(filters);
+        const [adminResult, siswaResult] = await Promise.all([
+          listAdminUsers(getApiFilters(filters, currentPage)),
+          shouldIncludeSiswa
+            ? listSiswa(getSiswaApiFilters(filters, currentPage))
+            : Promise.resolve(null),
+        ]);
 
         if (!isMounted) return;
 
-        if (!result.ok) {
-          setMessage(result.data?.message ?? 'Gagal memuat data users.');
+        if (!adminResult.ok) {
+          setMessage(adminResult.data?.message ?? 'Gagal memuat data users.');
           return;
         }
 
-        const data = result.data?.data ?? {};
-        setAllUsers(Array.isArray(data.items) ? data.items : []);
-        setPagination(data.pagination ?? { page: 1, total_pages: 1 });
+        const adminData = adminResult.data?.data ?? {};
+        const siswaData = siswaResult?.ok ? siswaResult.data?.data ?? {} : {};
+        const adminRows = Array.isArray(adminData.items) ? adminData.items : [];
+        const siswaRows = shouldIncludeSiswa && Array.isArray(siswaData.items)
+          ? siswaData.items.map(mapSiswaToUserRow)
+          : [];
+
+        if (shouldIncludeSiswa && siswaResult && !siswaResult.ok) {
+          setMessage(siswaResult.data?.message ?? 'Data siswa belum bisa dimuat.');
+        }
+
+        setAllUsers(mergeUserRows(adminRows, siswaRows).slice(0, 10));
+        setPagination(
+          mergePagination(
+            adminData.pagination ?? { page: currentPage, per_page: 10, total: adminRows.length, total_pages: 1 },
+            siswaData.pagination ?? { page: currentPage, per_page: 10, total: siswaRows.length, total_pages: 1 },
+            shouldIncludeSiswa
+          )
+        );
       } catch (_error) {
         if (isMounted) {
           setMessage('Backend users belum bisa diakses.');

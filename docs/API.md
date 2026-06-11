@@ -71,6 +71,11 @@ Authorization: Bearer TOKEN
 | `GET`   | `/presensi/jam-siswa`           | Daftar presensi siswa                              | `attendance.manual.read`       |
 | `PATCH` | `/presensi/jam-siswa/{id}`      | Edit presensi manual                               | `attendance.manual.update`     |
 | `GET`   | `/presensi/edit-reasons`        | Daftar alasan edit                                 | `attendance.edit_reasons.read` |
+| `GET`   | `/siswa`                        | Menampilkan daftar siswa                           | `student.read`                 |
+| `GET`   | `/dashboard`                    | Data ringkasan dashboard                           | `dashboard.read`               |
+| `GET`   | `/users`                        | Manajemen daftar user                              | `users.read`                   |
+| `GET`   | `/log-users`                    | Log aktivitas users                                | `users.log.read`               |
+
 
 ## Auth
 

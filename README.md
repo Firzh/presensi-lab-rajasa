@@ -43,6 +43,9 @@ Status saat ini:
 - Logic import, rombel, audit, jam siswa, dan warning sesi sudah dipindahkan ke service layer.
 - Request backend sudah memakai request snapshot boundary untuk jalur implementasi dan test.
 - Validasi backend terbaru: `./scripts/test-backend.sh` OK, 86 tests, 306 assertions.
+- Implementasi fungsional frontend lengkap (Login, Dashboard, Manajemen Siswa, Laporan, Pengaturan, Kelola User, Log User).
+- Peningkatan keamanan rute frontend dengan `PrivateRoute` dan *interceptor* API tersentralisasi (`apiClient.js`).
+- Peningkatan proteksi endpoint backend dan logging komprehensif (`session_expired`, `access_denied`, `user_activity`).
 
 
 * Refactor frontend sudah merapikan work tree ke struktur `api`, `components`, `hooks`, `lib`, `pages`, `routes`, dan `tests`.
@@ -75,6 +78,10 @@ GET  /api/presensi/edit-reasons
 POST /api/presensi/sesi/check-warning
 POST /api/presensi/sesi/{id}/heartbeat
 GET  /api/presensi/audit/latest
+GET  /api/siswa
+GET  /api/dashboard
+GET  /api/users
+GET  /api/log-users
 ```
 
 ## Halaman Demo Tambahan

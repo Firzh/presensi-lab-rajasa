@@ -37,7 +37,11 @@ Removed
 - Menambahkan script `scripts/import-scan-readiness.sh`.
 - Menambahkan script `scripts/db-reset-import-demo.sh`.
 - Menambahkan test import scan readiness.
-
+- Menambahkan integrasi Auth API, session storage, dan komponen AppIcon.
+- Menambahkan halaman modular untuk Login, Dashboard, Siswa, Laporan Presensi, Pengaturan, Kelola User, dan Log User.
+- Menambahkan endpoint API untuk melayani fitur Siswa, Dashboard, Users, dan Log Users.
+- Menambahkan sistem Route Guard (`PrivateRoute`) pada frontend.
+- Menambahkan logging komprehensif pada backend (`session_expired`, `access_denied`, aktivitas).
 ### Fixed
 
 - Menyesuaikan `import_jobs` dengan schema nyata:
@@ -59,11 +63,19 @@ Removed
 - Menjaga NISN tetap sebagai string agar nol depan tidak hilang.
 - Memastikan `siswa_qr` dipakai sebagai referensi pencocokan payload QR hasil scan, bukan untuk membuat gambar QR.
 
+### Changed
+
+- Membersihkan lint warnings dan menyempurnakan struktur modular frontend.
+- Memusatkan pemanggilan API management melalui `apiClient.js` dengan interceptor 401/403.
+- Mengubah mekanisme logout agar menghapus session dan history navigasi.
+
 ### Fixed
 
 - Memperbaiki insert sesi presensi dengan mengisi `session_uuid`.
 - Memperbaiki `presensi_sesi_jam.urutan` agar mengikuti urutan jam yang dipilih.
 - Memperbaiki test isolation agar sesi aktif dari test tidak mengganggu test berikutnya.
+- Memperbaiki celah keamanan agar user anonim tidak bisa mengakses rute *private* frontend.
+- Memastikan token expired ditangani dengan auto-logout.
 
 ### Removed
 

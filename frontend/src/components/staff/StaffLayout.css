@@ -83,9 +83,11 @@
 }
 .staff-header-brand-icon {
   width: 34px; height: 34px; border-radius: 8px;
-  background: linear-gradient(135deg, var(--staff-accent), #059669);
+  background: #ffffff;
   display: flex; align-items: center; justify-content: center;
   color: #fff; flex-shrink: 0;
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
 }
 .staff-header-brand-icon svg { width: 18px; height: 18px; fill: currentColor; }
 .staff-header-brand-text { font-size: 0.9rem; font-weight: 600; color: var(--staff-text-base); white-space: nowrap; }
@@ -146,9 +148,11 @@
 }
 .staff-sidebar-brand-icon {
   width: 40px; height: 40px; border-radius: 10px;
-  background: linear-gradient(135deg, var(--staff-accent), #059669);
+  background: #ffffff;
   display: flex; align-items: center; justify-content: center;
   color: #fff; flex-shrink: 0;
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
 }
 .staff-sidebar-brand-icon svg { width: 22px; height: 22px; fill: currentColor; }
 .staff-sidebar-brand-text strong { display: block; font-size: 0.9rem; font-weight: 600; color: var(--staff-text-base); }

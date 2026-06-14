@@ -98,7 +98,18 @@ export default function RekapGlobal() {
       const res = await fetch(`/api/presensi/jam-siswa?${params}`, { headers: getAuthHeaders() })
       const data = await res.json()
       if (!res.ok || !data.success) throw new Error(data.message || 'Gagal memuat rekap.')
-      setRows(data.data?.attendance ?? data.data ?? [])
+      const raw = data.data
+      // Handle berbagai response shape dari backend
+      const parsed = Array.isArray(raw)
+        ? raw
+        : Array.isArray(raw?.attendance)
+          ? raw.attendance
+          : Array.isArray(raw?.data)
+            ? raw.data
+            : Array.isArray(raw?.rows)
+              ? raw.rows
+              : []
+      setRows(parsed)
       setHasFetched(true)
     } catch (err) { setError(err.message) }
     finally { setLoading(false) }

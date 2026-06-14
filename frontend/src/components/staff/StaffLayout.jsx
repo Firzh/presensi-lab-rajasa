@@ -24,7 +24,15 @@ const THEME_KEY = STORAGE_KEYS.THEME ?? 'presensi_lab_rajasa:theme'
 
 // ─── Icons ──────────────────────────────────────────────────────────────────
 function IconMenu()      { return <svg viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg> }
-function IconSchool()    { return <svg viewBox="0 0 24 24"><path d="M5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82zM12 3L1 9l11 6 9-4.91V17h2V9L12 3z"/></svg> }
+function IconSchool() {
+  return (
+    <img
+      src="/images/RajasaLogo.png"
+      alt="Logo SMK Rajasa"
+      style={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: 6 }}
+    />
+  )
+}
 function IconDashboard() { return <svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg> }
 function IconSesi()      { return <svg viewBox="0 0 24 24"><path d="M19 3h-4.18A3 3 0 0 0 9.18 3H5a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2zm-7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm7 18H5V5h2v3h10V5h2v16z"/></svg> }
 function IconEye()       { return <svg viewBox="0 0 24 24"><path d="M12 5c5.3 0 8.9 3.6 10.3 7-1.4 3.4-5 7-10.3 7s-8.9-3.6-10.3-7C3.1 8.6 6.7 5 12 5zm0 11.2a4.2 4.2 0 1 0 0-8.4 4.2 4.2 0 0 0 0 8.4zm0-2.3a1.9 1.9 0 1 1 0-3.8 1.9 1.9 0 0 1 0 3.8z"/></svg> }

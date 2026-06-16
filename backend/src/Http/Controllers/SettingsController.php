@@ -20,6 +20,35 @@ final class SettingsController
     ) {
     }
 
+        public function previewBackupImport(): void
+    {
+        $this->permission->require('konfigurasi.manage');
+
+        Response::success(
+            'Preview import backup.',
+            $this->settingsService->previewBackupImport(
+                $this->request->file('file'),
+                (string) $this->request->input('file_path', '')
+            )
+        );
+    }
+
+    public function importBackup(): void
+    {
+        $this->permission->require('konfigurasi.manage');
+
+        $userId = (int) $this->auth->user()->user_id;
+
+        Response::success(
+            'Import backup selesai.',
+            $this->settingsService->importBackupDataOnly(
+                $this->request->file('file'),
+                (string) $this->request->input('file_path', ''),
+                $userId
+            )
+        );
+    }
+
     public function index(): void
     {
         $this->permission->require('konfigurasi.read');

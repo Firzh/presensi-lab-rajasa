@@ -13,6 +13,40 @@ export async function downloadDatabaseBackup(fileName) {
   return apiFetch(`/api/settings/backup/download?${query}`, { method: 'GET' });
 }
 
+function buildImportFormData(file) {
+  const formData = new FormData();
+  formData.append('file', file);
+  return formData;
+}
+
+export async function previewDataImport(file) {
+  return apiFetch('/api/import/preview', {
+    method: 'POST',
+    body: buildImportFormData(file),
+  });
+}
+
+export async function importDataFile(file) {
+  return apiFetch('/api/import', {
+    method: 'POST',
+    body: buildImportFormData(file),
+  });
+}
+
+export async function previewBackupImport(file) {
+  return apiFetch('/api/settings/backup/preview-import', {
+    method: 'POST',
+    body: buildImportFormData(file),
+  });
+}
+
+export async function importBackupFile(file) {
+  return apiFetch('/api/settings/backup/import', {
+    method: 'POST',
+    body: buildImportFormData(file),
+  });
+}
+
 export async function updateRombelSchedule(payload) {
   return apiFetch('/api/settings/rombel-schedule', {
     method: 'PATCH',

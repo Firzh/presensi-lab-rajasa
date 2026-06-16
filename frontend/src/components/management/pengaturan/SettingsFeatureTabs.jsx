@@ -6,7 +6,7 @@ export function SettingsFeatureTabs({ tabs, activeTab, theme = 'light', onChange
   const isDark = theme === 'dark';
 
   return (
-    <section className="mb-5 grid gap-3 md:grid-cols-3">
+    <section className="mb-5 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
       {tabs.map((tab) => {
         const active = tab.key === activeTab;
 
@@ -47,11 +47,7 @@ export function SettingsFeatureTabs({ tabs, activeTab, theme = 'light', onChange
                 <span
                   className={clsx(
                     'mt-1 block text-sm font-semibold leading-relaxed',
-                    active
-                      ? isDark
-                        ? 'text-[#e8eef6]'
-                        : 'text-[#4c6f9c]'
-                      : 'text-[#8b9298]'
+                    active ? (isDark ? 'text-[#e8eef6]' : 'text-[#4c6f9c]') : 'text-[#8b9298]'
                   )}
                 >
                   {tab.description}

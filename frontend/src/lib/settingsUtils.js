@@ -6,6 +6,12 @@ export const settingTabs = Object.freeze([
     description: 'Amankan data dan unduh riwayat backup.',
   },
   {
+    key: 'import',
+    icon: 'fileExport',
+    title: 'Import Data',
+    description: 'Import data siswa atau restore backup tanpa rebuild struktur.',
+  },
+  {
     key: 'jadwal',
     icon: 'calendar',
     title: 'Jam Pelajaran Rombel',
@@ -140,7 +146,8 @@ function getSlotCustomLabel(slot) {
     slot.subject_name !== undefined;
 
   if (hasExplicitLabel) {
-    const explicitLabel = slot.customLabel ?? slot.custom_label ?? slot.subjectName ?? slot.subject_name ?? '';
+    const explicitLabel =
+      slot.customLabel ?? slot.custom_label ?? slot.subjectName ?? slot.subject_name ?? '';
     return String(explicitLabel || '').trim();
   }
 

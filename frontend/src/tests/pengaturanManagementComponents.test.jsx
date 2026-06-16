@@ -39,6 +39,16 @@ describe('pengaturan management page', () => {
     expect(screen.getByRole('heading', { name: 'Aturan Keterlambatan' })).toBeTruthy();
     expect(screen.getByText('07:10')).toBeTruthy();
   });
+
+  it('renders import data panel from pengaturan tabs', () => {
+    render(<PengaturanPage />);
+
+    fireEvent.click(screen.getByRole('button', { name: /import data/i }));
+
+    expect(screen.getByRole('heading', { name: 'Import Data' })).toBeTruthy();
+    expect(screen.getByText('Import Data Asli')).toBeTruthy();
+    expect(screen.getByText('Import Backup')).toBeTruthy();
+  });
 });
 
 describe('settings utils', () => {

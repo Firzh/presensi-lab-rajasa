@@ -67,9 +67,15 @@ async function parseResponse(response) {
  */
 export async function apiFetch(url, options = {}, withAuth = true) {
   const token = withAuth ? getAuthToken() : null;
+  const isFormData = typeof FormData !== 'undefined' && options.body instanceof FormData;
+  const baseHeaders = { ...BASE_HEADERS };
+
+  if (isFormData) {
+    delete baseHeaders['Content-Type'];
+  }
 
   const headers = {
-    ...BASE_HEADERS,
+    ...baseHeaders,
     ...(options.headers ?? {}),
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
   };
@@ -79,7 +85,6 @@ export async function apiFetch(url, options = {}, withAuth = true) {
     headers,
   });
 
-  // Intercept 401: session expired atau token tidak valid → bersihkan dan redirect
   if (response.status === 401) {
     handle401();
   }

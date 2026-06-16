@@ -4,6 +4,7 @@ import clsx from 'clsx';
 import { DashboardSidebar, DashboardTopbar } from '../../components/dashboard/index.js';
 import {
   BackupDatabasePanel,
+  ImportBackupDataPanel,
   LateRulePanel,
   RombelSchedulePanel,
   SettingsFeatureTabs,
@@ -13,6 +14,10 @@ import {
   createDatabaseBackup,
   downloadDatabaseBackup,
   getPengaturanData,
+  importBackupFile,
+  importDataFile,
+  previewBackupImport,
+  previewDataImport,
   updateLateRule,
   updateRombelSchedule,
 } from '../../api/settingsApi.js';
@@ -60,17 +65,27 @@ export function PengaturanPage() {
   const [backendRombelOptions, setBackendRombelOptions] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
 
+  const [dataImportFile, setDataImportFile] = useState(null);
+  const [backupImportFile, setBackupImportFile] = useState(null);
+  const [dataImportPreview, setDataImportPreview] = useState(null);
+  const [backupImportPreview, setBackupImportPreview] = useState(null);
+  const [dataImportResult, setDataImportResult] = useState(null);
+  const [backupImportResult, setBackupImportResult] = useState(null);
+
   const isDark = theme === 'dark';
   const scheduleRows = useMemo(() => calculateScheduleRows(slots, startTime), [slots, startTime]);
   const validationMessage = useMemo(() => validateScheduleRows(scheduleRows), [scheduleRows]);
   const batchEditableRombelOptions = useMemo(
-    () => filterRombelOptions(backendRombelOptions ?? rombelSettingOptions, jurusanFilter, yearFilter),
+    () =>
+      filterRombelOptions(backendRombelOptions ?? rombelSettingOptions, jurusanFilter, yearFilter),
     [backendRombelOptions, jurusanFilter, yearFilter]
   );
   const rombelOptions = useMemo(
     () =>
       filterRombelOptions(
-        (backendRombelOptions ?? rombelSettingOptions).filter((rombel) => batchRombelIds.includes(String(rombel.id))),
+        (backendRombelOptions ?? rombelSettingOptions).filter((rombel) =>
+          batchRombelIds.includes(String(rombel.id))
+        ),
         jurusanFilter,
         yearFilter
       ),
@@ -81,7 +96,6 @@ export function PengaturanPage() {
     document.documentElement.dataset.theme = theme;
     appStorage.setRaw(STORAGE_KEYS.THEME, theme);
   }, [theme]);
-
 
   useEffect(() => {
     let isMounted = true;
@@ -133,6 +147,110 @@ export function PengaturanPage() {
 
     loadSettings();
 
+    function handleDataImportFileChange(file) {
+      setDataImportFile(file);
+      setDataImportPreview(null);
+      setDataImportResult(null);
+    }
+
+    function handleBackupImportFileChange(file) {
+      setBackupImportFile(file);
+      setBackupImportPreview(null);
+      setBackupImportResult(null);
+    }
+
+    async function previewSelectedDataImport() {
+      if (!dataImportFile) {
+        setToastMessage('Pilih file data dulu.');
+        return;
+      }
+
+      setIsSaving(true);
+
+      try {
+        const result = await previewDataImport(dataImportFile);
+        setDataImportPreview(result.data?.data ?? null);
+        setToastMessage(
+          result.ok
+            ? 'Preview import data berhasil dibuat.'
+            : (result.data?.message ?? 'Preview import data gagal.')
+        );
+      } catch (_error) {
+        setToastMessage('Preview import data gagal diproses backend.');
+      } finally {
+        setIsSaving(false);
+      }
+    }
+
+    async function submitSelectedDataImport() {
+      if (!dataImportFile) {
+        setToastMessage('Pilih file data dulu.');
+        return;
+      }
+
+      setIsSaving(true);
+
+      try {
+        const result = await importDataFile(dataImportFile);
+        setDataImportResult(result.data ?? null);
+        setToastMessage(
+          result.ok
+            ? 'Import data berhasil diproses.'
+            : (result.data?.message ?? 'Import data gagal.')
+        );
+      } catch (_error) {
+        setToastMessage('Import data gagal diproses backend.');
+      } finally {
+        setIsSaving(false);
+      }
+    }
+
+    async function previewSelectedBackupImport() {
+      if (!backupImportFile) {
+        setToastMessage('Pilih file backup dulu.');
+        return;
+      }
+
+      setIsSaving(true);
+
+      try {
+        const result = await previewBackupImport(backupImportFile);
+        setBackupImportPreview(result.data?.data ?? null);
+        setToastMessage(
+          result.ok
+            ? 'Preview import backup berhasil dibuat.'
+            : (result.data?.message ?? 'Preview import backup gagal.')
+        );
+      } catch (_error) {
+        setToastMessage('Preview import backup gagal diproses backend.');
+      } finally {
+        setIsSaving(false);
+      }
+    }
+
+    async function submitSelectedBackupImport() {
+      if (!backupImportFile) {
+        setToastMessage('Pilih file backup dulu.');
+        return;
+      }
+
+      setIsSaving(true);
+
+      try {
+        const result = await importBackupFile(backupImportFile);
+        setBackupImportResult(result.data ?? null);
+        setToastMessage(
+          result.ok
+            ? 'Import backup berhasil diproses.'
+            : (result.data?.message ?? 'Import backup gagal.')
+        );
+      } catch (_error) {
+        setToastMessage('Import backup gagal diproses backend.');
+      } finally {
+        setIsSaving(false);
+      }
+    }
+
     return () => {
       isMounted = false;
     };
@@ -165,7 +283,9 @@ export function PengaturanPage() {
   }
 
   function useBatchModeSelection() {
-    setSelectedRombelIds((current) => current.filter((rombelId) => batchRombelIds.includes(rombelId)));
+    setSelectedRombelIds((current) =>
+      current.filter((rombelId) => batchRombelIds.includes(rombelId))
+    );
   }
 
   function toggleBatchRombel(rombelId) {
@@ -315,7 +435,11 @@ export function PengaturanPage() {
         slots: scheduleRows,
       });
 
-      setToastMessage(result.ok ? 'Jadwal rombel berhasil disimpan.' : result.data?.message ?? 'Jadwal gagal disimpan.');
+      setToastMessage(
+        result.ok
+          ? 'Jadwal rombel berhasil disimpan.'
+          : (result.data?.message ?? 'Jadwal gagal disimpan.')
+      );
     } catch (_error) {
       setToastMessage('Jadwal gagal disimpan ke backend.');
     } finally {
@@ -330,10 +454,120 @@ export function PengaturanPage() {
       const result = await updateLateRule(lateRule);
 
       setToastMessage(
-        result.ok ? 'Aturan keterlambatan berhasil disimpan.' : result.data?.message ?? 'Aturan gagal disimpan.'
+        result.ok
+          ? 'Aturan keterlambatan berhasil disimpan.'
+          : (result.data?.message ?? 'Aturan gagal disimpan.')
       );
     } catch (_error) {
       setToastMessage('Aturan keterlambatan gagal disimpan ke backend.');
+    } finally {
+      setIsSaving(false);
+    }
+  }
+
+  function handleDataImportFileChange(file) {
+    setDataImportFile(file);
+    setDataImportPreview(null);
+    setDataImportResult(null);
+  }
+
+  function handleBackupImportFileChange(file) {
+    setBackupImportFile(file);
+    setBackupImportPreview(null);
+    setBackupImportResult(null);
+  }
+
+  async function previewSelectedDataImport() {
+    if (!dataImportFile) {
+      setToastMessage('Pilih file data dulu.');
+      return;
+    }
+
+    setIsSaving(true);
+
+    try {
+      const result = await previewDataImport(dataImportFile);
+
+      setDataImportPreview(result.data?.data ?? null);
+      setToastMessage(
+        result.ok
+          ? 'Preview import data berhasil dibuat.'
+          : (result.data?.message ?? 'Preview import data gagal.')
+      );
+    } catch (_error) {
+      setToastMessage('Preview import data gagal diproses backend.');
+    } finally {
+      setIsSaving(false);
+    }
+  }
+
+  async function submitSelectedDataImport() {
+    if (!dataImportFile) {
+      setToastMessage('Pilih file data dulu.');
+      return;
+    }
+
+    setIsSaving(true);
+
+    try {
+      const result = await importDataFile(dataImportFile);
+
+      setDataImportResult(result.data ?? null);
+      setToastMessage(
+        result.ok
+          ? 'Import data berhasil diproses.'
+          : (result.data?.message ?? 'Import data gagal.')
+      );
+    } catch (_error) {
+      setToastMessage('Import data gagal diproses backend.');
+    } finally {
+      setIsSaving(false);
+    }
+  }
+
+  async function previewSelectedBackupImport() {
+    if (!backupImportFile) {
+      setToastMessage('Pilih file backup dulu.');
+      return;
+    }
+
+    setIsSaving(true);
+
+    try {
+      const result = await previewBackupImport(backupImportFile);
+
+      setBackupImportPreview(result.data?.data ?? null);
+      setToastMessage(
+        result.ok
+          ? 'Preview import backup berhasil dibuat.'
+          : (result.data?.message ?? 'Preview import backup gagal.')
+      );
+    } catch (_error) {
+      setToastMessage('Preview import backup gagal diproses backend.');
+    } finally {
+      setIsSaving(false);
+    }
+  }
+
+  async function submitSelectedBackupImport() {
+    if (!backupImportFile) {
+      setToastMessage('Pilih file backup dulu.');
+      return;
+    }
+
+    setIsSaving(true);
+
+    try {
+      const result = await importBackupFile(backupImportFile);
+
+      setBackupImportResult(result.data ?? null);
+      setToastMessage(
+        result.ok
+          ? 'Import backup berhasil diproses.'
+          : (result.data?.message ?? 'Import backup gagal.')
+      );
+    } catch (_error) {
+      setToastMessage('Import backup gagal diproses backend.');
     } finally {
       setIsSaving(false);
     }
@@ -396,6 +630,25 @@ export function PengaturanPage() {
             backups={backupHistory}
             onBackupNow={isSaving ? undefined : backupNow}
             onDownload={downloadBackup}
+          />
+        ) : null}
+
+        {activeTab === 'import' ? (
+          <ImportBackupDataPanel
+            theme={theme}
+            isBusy={isSaving}
+            dataFile={dataImportFile}
+            backupFile={backupImportFile}
+            dataPreview={dataImportPreview}
+            backupPreview={backupImportPreview}
+            dataResult={dataImportResult}
+            backupResult={backupImportResult}
+            onDataFileChange={handleDataImportFileChange}
+            onBackupFileChange={handleBackupImportFileChange}
+            onPreviewData={previewSelectedDataImport}
+            onImportData={submitSelectedDataImport}
+            onPreviewBackup={previewSelectedBackupImport}
+            onImportBackup={submitSelectedBackupImport}
           />
         ) : null}
 

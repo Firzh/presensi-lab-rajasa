@@ -1,6 +1,7 @@
 import { useCallback } from 'preact/hooks';
 import { submitQrScan } from '../api/presensiScanApi.js';
 import { getQrFingerprint } from '../lib/devScanUtils.js';
+import { playScanSuccessSound } from '../lib/scanSound.js';
 
 export function useDevScanSubmit({
   token,
@@ -104,6 +105,7 @@ export function useDevScanSubmit({
       }
 
       if (scan.status_scan === 'berhasil') {
+        playScanSuccessSound();
         setStatusType('success');
         setStatusMessage(
           `${siswa?.nama_lengkap || 'Siswa'} berhasil presensi: ${scan.attendance_status}.` +

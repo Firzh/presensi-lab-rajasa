@@ -41,6 +41,11 @@ vi.mock('../lib/authSession.js', () => ({
     roles: ['Admin'],
     permissions: [],
   })),
+  getAuthUser: vi.fn(() => ({
+    username: 'admin.test',
+    user_type: 'admin',
+  })),
+  getAuthRoles: vi.fn(() => ['Admin']),
 }));
 
 vi.mock('../hooks/useQrScanner.js', () => ({

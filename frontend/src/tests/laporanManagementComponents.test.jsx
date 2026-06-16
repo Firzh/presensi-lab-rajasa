@@ -1,11 +1,12 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen } from '@testing-library/preact';
 
-import { listLaporanPresensi } from '../api/laporanApi.js';
+import { downloadExportLaporan, listLaporanPresensi } from '../api/laporanApi.js';
 import { LaporanPage } from '../pages/management/LaporanPage.jsx';
 
 vi.mock('../api/laporanApi.js', () => ({
   listLaporanPresensi: vi.fn(),
+  downloadExportLaporan: vi.fn(),
 }));
 
 beforeEach(() => {
@@ -54,6 +55,7 @@ beforeEach(() => {
   });
 
   window.print = vi.fn();
+  downloadExportLaporan.mockResolvedValue(undefined);
 });
 
 afterEach(() => {
@@ -85,28 +87,6 @@ describe('laporan management page', () => {
     expect(screen.getByText('AISYAH LISTYA NARISTA')).toBeTruthy();
   });
 
-  it('opens edit validasi modal and updates selected row validation', async () => {
-    render(<LaporanPage />);
-
-    await screen.findByText('Rachmat Hidayat');
-
-    fireEvent.click(screen.getByRole('button', { name: /edit validasi/i }));
-
-    expect(screen.getByRole('heading', { name: 'Edit Validasi' })).toBeTruthy();
-
-    fireEvent.input(screen.getByLabelText('Data Presensi'), {
-      target: { value: '1' },
-    });
-
-    fireEvent.input(screen.getByLabelText('Validasi'), {
-      target: { value: 'tidak valid' },
-    });
-
-    fireEvent.click(screen.getByRole('button', { name: /simpan validasi/i }));
-
-    expect(screen.getAllByText('tidak valid').length).toBeGreaterThan(0);
-  });
-
   it('opens export modal', async () => {
     render(<LaporanPage />);
 
@@ -117,7 +97,39 @@ describe('laporan management page', () => {
     expect(screen.getByRole('heading', { name: 'Export Laporan' })).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Export as CSV' })).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Export as Excel' })).toBeTruthy();
-    expect(screen.getByRole('button', { name: 'Export as PDF' })).toBeTruthy();
-    expect(screen.getByRole('button', { name: 'Export as Docx' })).toBeTruthy();
+  });
+
+  it('exports excel using xlsx format and closes modal', async () => {
+    render(<LaporanPage />);
+
+    await screen.findByText('Rachmat Hidayat');
+
+    fireEvent.click(screen.getByRole('button', { name: /eksport laporan/i }));
+    
+    const excelButton = await screen.findByRole('button', { name: /export as excel/i });
+    fireEvent.click(excelButton);
+
+    expect(downloadExportLaporan).toHaveBeenCalledWith(
+      expect.objectContaining({
+        date_from: expect.any(String),
+        date_to: expect.any(String),
+      }),
+      'xlsx'
+    );
+
+    expect(screen.queryByRole('heading', { name: 'Export Laporan' })).toBeFalsy();
+  });
+
+  it('closes export modal using Tutup button', async () => {
+    render(<LaporanPage />);
+
+    await screen.findByText('Rachmat Hidayat');
+
+    fireEvent.click(screen.getByRole('button', { name: /eksport laporan/i }));
+    
+    const tutupButton = await screen.findByRole('button', { name: 'Tutup' });
+    fireEvent.click(tutupButton);
+
+    expect(screen.queryByRole('heading', { name: 'Export Laporan' })).toBeFalsy();
   });
 });

@@ -20,6 +20,7 @@ import {
 } from '../../lib/presensiSessionStore.js';
 import { useQrScanner } from '../../hooks/useQrScanner.js';
 import { AppIcon } from '../../components/ui/AppIcon.jsx';
+import { playScanSuccessSound } from '../../lib/scanSound.js';
 
 function getInitialTheme() {
   const savedTheme = appStorage.getRaw(STORAGE_KEYS.THEME, 'light');
@@ -177,6 +178,7 @@ export function PresensiScanPage() {
     }
 
     if (scan.status_scan === 'berhasil') {
+      playScanSuccessSound();
       setStatusType('success');
       setStatusMessage(`${scan.siswa?.nama_lengkap || 'Siswa'} berhasil presensi.`);
       return;

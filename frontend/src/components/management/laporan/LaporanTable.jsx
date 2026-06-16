@@ -38,16 +38,13 @@ export function LaporanTable({ rows, theme = 'light', currentPage, totalPages, o
               <th className="px-4 pb-4 text-xs font-extrabold tracking-wider text-[#6f89b9]">
                 STATUS
               </th>
-              <th className="px-4 pb-4 text-xs font-extrabold tracking-wider text-[#6f89b9]">
-                VALIDASI
-              </th>
             </tr>
           </thead>
 
           <tbody>
             {rows.length === 0 ? (
               <tr>
-                <td colSpan={7}>
+                <td colSpan={6}>
                   <div className="grid min-h-75 place-items-center text-center text-[#b9c4d4]">
                     <div>
                       <AppIcon name="inbox" className="text-[3rem]" />
@@ -75,7 +72,6 @@ export function LaporanTable({ rows, theme = 'light', currentPage, totalPages, o
                   >
                     {row.status}
                   </td>
-                  <td className="px-4 py-3 font-extrabold">{row.validasi}</td>
                 </tr>
               ))
             )}

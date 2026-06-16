@@ -32,7 +32,7 @@ export function LaporanStatCard({ item, value, theme = 'light' }) {
   return (
     <article
       className={clsx(
-        'flex h-20 items-center gap-4 rounded-xl px-4 transition sm:gap-5 sm:px-6',
+        'flex h-20 flex-1 min-w-[160px] items-center gap-4 rounded-xl px-4 transition sm:gap-5 sm:px-6',
         isDark ? 'bg-[#313b45]' : 'bg-white'
       )}
     >

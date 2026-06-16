@@ -29,6 +29,14 @@ vi.mock('../api/laporanApi.js', () => ({
   listLaporanPresensi: vi.fn(),
 }));
 
+vi.mock('../lib/authSession.js', () => ({
+  isAuthenticated: vi.fn(() => true),
+  getAuthToken: vi.fn(() => 'abc'),
+  getAuthUser: vi.fn(() => ({ username: 'admin.test', user_type: 'admin' })),
+  getAuthRoles: vi.fn(() => ['Admin']),
+  getAuthSession: vi.fn(() => ({ token: 'abc' })),
+}));
+
 afterEach(() => {
   cleanup();
   window.history.pushState({}, '', '/');

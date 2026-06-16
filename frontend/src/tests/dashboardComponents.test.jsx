@@ -5,10 +5,12 @@ import { DashboardPage } from '../pages/dashboard/DashboardPage.jsx';
 import { DashboardStatCard } from '../components/dashboard/DashboardStatCard.jsx';
 import { DashboardQuickAction } from '../components/dashboard/DashboardQuickAction.jsx';
 import { getDashboardData } from '../api/dashboardApi.js';
-import { getAuthSession } from '../lib/authSession.js';
+import { getAuthSession, getAuthUser, getAuthRoles } from '../lib/authSession.js';
 
 vi.mock('../lib/authSession.js', () => ({
   getAuthSession: vi.fn(),
+  getAuthUser: vi.fn(),
+  getAuthRoles: vi.fn(),
 }));
 
 vi.mock('../api/dashboardApi.js', () => ({
@@ -16,7 +18,7 @@ vi.mock('../api/dashboardApi.js', () => ({
 }));
 
 beforeEach(() => {
-  getAuthSession.mockReturnValue({
+  const mockSession = {
     token: 'token-admin',
     user: {
       username: 'admin.test',
@@ -24,7 +26,11 @@ beforeEach(() => {
     },
     roles: ['Admin'],
     permissions: [],
-  });
+  };
+
+  getAuthSession.mockReturnValue(mockSession);
+  getAuthUser.mockReturnValue(mockSession.user);
+  getAuthRoles.mockReturnValue(mockSession.roles);
 
   getDashboardData.mockResolvedValue({
     ok: true,
@@ -78,7 +84,7 @@ describe('dashboard components', () => {
   });
 
   it('hides log users menu and action for guru session', async () => {
-    getAuthSession.mockReturnValue({
+    const mockSessionGuru = {
       token: 'token-guru',
       user: {
         username: 'guru.demo',
@@ -86,7 +92,11 @@ describe('dashboard components', () => {
       },
       roles: ['Guru'],
       permissions: [],
-    });
+    };
+
+    getAuthSession.mockReturnValue(mockSessionGuru);
+    getAuthUser.mockReturnValue(mockSessionGuru.user);
+    getAuthRoles.mockReturnValue(mockSessionGuru.roles);
 
     render(<DashboardPage />);
 

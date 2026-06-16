@@ -1,6 +1,6 @@
 import clsx from 'clsx';
 
-export function LaporanExportModal({ theme = 'light', onClose, onExport }) {
+export function LaporanExportModal({ theme = 'light', isExporting = false, onClose, onExport }) {
   const isDark = theme === 'dark';
 
   return (
@@ -28,7 +28,7 @@ export function LaporanExportModal({ theme = 'light', onClose, onExport }) {
 
           <button
             type="button"
-            className="h-10 w-full rounded-xl bg-[#e9e9e9] px-4 font-bold text-[#43505a] transition hover:bg-[#d8dee5] sm:w-auto"
+            className="h-10 w-full rounded-xl bg-[#e9e9e9] px-4 font-bold text-[#43505a] transition hover:bg-red-500 hover:text-white sm:w-auto"
             onClick={onClose}
           >
             Tutup
@@ -38,7 +38,8 @@ export function LaporanExportModal({ theme = 'light', onClose, onExport }) {
         <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-4 md:gap-5">
           <button
             type="button"
-            className="h-14 rounded-xl bg-[#e9e9e9] px-5 font-bold text-[#6f7882] transition hover:bg-[#4f8fe7] hover:text-white"
+            disabled={isExporting}
+            className="h-14 rounded-xl bg-[#e9e9e9] px-5 font-bold text-[#6f7882] transition hover:bg-[#4f8fe7] hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
             onClick={() => onExport('csv')}
           >
             Export as CSV
@@ -46,15 +47,17 @@ export function LaporanExportModal({ theme = 'light', onClose, onExport }) {
 
           <button
             type="button"
-            className="h-14 rounded-xl bg-[#e9e9e9] px-5 font-bold text-[#6f7882] transition hover:bg-[#4f8fe7] hover:text-white"
-            onClick={() => onExport('excel')}
+            disabled={isExporting}
+            className="h-14 rounded-xl bg-[#e9e9e9] px-5 font-bold text-[#6f7882] transition hover:bg-[#4f8fe7] hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
+            onClick={() => onExport('xlsx')}
           >
             Export as Excel
           </button>
 
           <button
             type="button"
-            className="h-14 rounded-xl bg-[#e9e9e9] px-5 font-bold text-[#6f7882] transition hover:bg-[#4f8fe7] hover:text-white"
+            disabled={isExporting}
+            className="h-14 rounded-xl bg-[#e9e9e9] px-5 font-bold text-[#6f7882] transition hover:bg-[#4f8fe7] hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
             onClick={() => onExport('pdf')}
           >
             Export as PDF
@@ -62,7 +65,8 @@ export function LaporanExportModal({ theme = 'light', onClose, onExport }) {
 
           <button
             type="button"
-            className="h-14 rounded-xl bg-[#e9e9e9] px-5 font-bold text-[#6f7882] transition hover:bg-[#4f8fe7] hover:text-white"
+            disabled={isExporting}
+            className="h-14 rounded-xl bg-[#e9e9e9] px-5 font-bold text-[#6f7882] transition hover:bg-[#4f8fe7] hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
             onClick={() => onExport('docx')}
           >
             Export as Docx

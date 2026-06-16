@@ -68,12 +68,14 @@ abstract class TestCase extends BaseTestCase
         }
 
         $content = ob_get_clean();
+        $rawContent = (string) $content;
         $statusCode = http_response_code();
 
         http_response_code(200);
 
-        $json = json_decode((string) $content, true) ?: [];
+        $json = json_decode($rawContent, true) ?: [];
         $json['__status_code'] = $statusCode ?: 200;
+        $json['__raw_content'] = $rawContent;
 
         return $json;
     }

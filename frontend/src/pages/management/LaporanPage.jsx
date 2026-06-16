@@ -1,19 +1,17 @@
 import { useEffect, useMemo, useState } from 'preact/hooks';
 import clsx from 'clsx';
 
-import { listLaporanPresensi } from '../../api/laporanApi.js';
+import { listLaporanPresensi, downloadExportLaporan } from '../../api/laporanApi.js';
 import { DashboardSidebar, DashboardTopbar } from '../../components/dashboard/index.js';
 import {
   LaporanExportModal,
   LaporanFilterBar,
   LaporanStatCard,
   LaporanTable,
-  LaporanValidasiModal,
 } from '../../components/management/laporan/index.js';
 import { AppIcon } from '../../components/ui/AppIcon.jsx';
 import { STORAGE_KEYS } from '../../constants/storageKeys.js';
 import {
-  exportLaporan,
   filterLaporanRows,
   getLaporanSummary,
   getTotalPages,
@@ -23,11 +21,17 @@ import {
 } from '../../lib/laporanUtils.js';
 import { appStorage } from '../../lib/storage.js';
 
+import { getAppTodayDate } from '../../lib/dateUtils.js';
+
 const PAGE_SIZE = 5;
 
+const today = getAppTodayDate();
 const initialFilters = Object.freeze({
   keyword: '',
   status: '',
+  date_from: today,
+  date_to: today,
+  rombel_id: '',
 });
 
 function getInitialTheme() {
@@ -43,17 +47,21 @@ export function LaporanPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [isExportOpen, setIsExportOpen] = useState(false);
-  const [isValidasiOpen, setIsValidasiOpen] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
 
   const isDark = theme === 'dark';
+
+  const [serverSummary, setServerSummary] = useState(null);
 
   const normalizedRows = useMemo(() => normalizeLaporanRows(rawRows), [rawRows]);
 
   const filteredRows = useMemo(() => {
-    return filterLaporanRows(normalizedRows, filters);
-  }, [normalizedRows, filters]);
+    return filterLaporanRows(normalizedRows, { keyword: filters.keyword, status: filters.status });
+  }, [normalizedRows, filters.keyword, filters.status]);
 
-  const summary = useMemo(() => getLaporanSummary(filteredRows), [filteredRows]);
+  const summary = useMemo(() => {
+    return serverSummary || getLaporanSummary(filteredRows);
+  }, [serverSummary, filteredRows]);
 
   const totalPages = getTotalPages(filteredRows.length, PAGE_SIZE);
   const visibleRows = paginateRows(filteredRows, currentPage, PAGE_SIZE);
@@ -78,6 +86,10 @@ export function LaporanPage() {
     try {
       const result = await listLaporanPresensi({
         per_page: 500,
+        date_from: filters.date_from,
+        date_to: filters.date_to,
+        rombel_id: filters.rombel_id,
+        status: filters.status,
       });
 
       if (!result.ok || result.data?.success === false) {
@@ -86,6 +98,7 @@ export function LaporanPage() {
 
       const payload = result.data?.data ?? {};
       setRawRows(payload.items ?? payload.rows ?? []);
+      setServerSummary(payload.summary ?? null);
     } catch (error) {
       setRawRows([]);
       setMessage(error.message || 'Gagal memuat laporan presensi.');
@@ -102,31 +115,28 @@ export function LaporanPage() {
     setCurrentPage(1);
   }
 
-  function handleExport(format) {
-    exportLaporan(filteredRows, format);
+  async function handleExport(format) {
+    if (isExporting) return;
+
+    setIsExporting(true);
+    setMessage('');
     setIsExportOpen(false);
-  }
 
-  function handleSaveValidasi({ rowId, validasi }) {
-    setRawRows((current) =>
-      current.map((row) => {
-        const normalizedId =
-          row.presensi_id ||
-          row.id ||
-          `${row.siswa?.nisn || row.nisn}-${row.jam_id || row.jam?.jam_id || ''}`;
-
-        if (String(normalizedId) !== String(rowId)) {
-          return row;
-        }
-
-        return {
-          ...row,
-          validasi,
-        };
-      })
-    );
-
-    setIsValidasiOpen(false);
+    try {
+      await downloadExportLaporan(
+        {
+          date_from: filters.date_from,
+          date_to: filters.date_to,
+          rombel_id: filters.rombel_id,
+          status: filters.status,
+        },
+        format
+      );
+    } catch (err) {
+      setMessage(err.message || 'Gagal mengekspor laporan.');
+    } finally {
+      setIsExporting(false);
+    }
   }
 
   return (
@@ -165,20 +175,6 @@ export function LaporanPage() {
                   ? 'bg-[#313b45] text-[#f4f1ec] hover:bg-[#31527d]'
                   : 'bg-white text-[#456da1] hover:bg-[#bfcee3]'
               )}
-              onClick={() => setIsValidasiOpen(true)}
-            >
-              <AppIcon name="circleCheck" />
-              Edit Validasi
-            </button>
-
-            <button
-              type="button"
-              className={clsx(
-                'flex h-12 w-full items-center justify-center gap-3 rounded-md px-6 text-base font-bold transition sm:w-auto',
-                isDark
-                  ? 'bg-[#313b45] text-[#f4f1ec] hover:bg-[#31527d]'
-                  : 'bg-white text-[#456da1] hover:bg-[#bfcee3]'
-              )}
               onClick={() => setIsExportOpen(true)}
             >
               <AppIcon name="fileExport" />
@@ -188,13 +184,18 @@ export function LaporanPage() {
         </header>
 
         <section className="flex flex-col gap-6">
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
+          <div className="flex flex-wrap gap-4">
             {LAPORAN_SUMMARY_ITEMS.map((item) => (
               <LaporanStatCard key={item.key} item={item} value={summary[item.key]} theme={theme} />
             ))}
           </div>
 
-          <LaporanFilterBar filters={filters} theme={theme} onFilterChange={updateFilter} />
+          <LaporanFilterBar
+            filters={filters}
+            theme={theme}
+            onFilterChange={updateFilter}
+            onApply={fetchRows}
+          />
 
           {message ? (
             <p className="rounded-xl bg-red-500/10 px-4 py-3 text-sm font-bold text-red-400">
@@ -218,18 +219,10 @@ export function LaporanPage() {
         </section>
       </main>
 
-      {isValidasiOpen ? (
-        <LaporanValidasiModal
-          rows={filteredRows}
-          theme={theme}
-          onClose={() => setIsValidasiOpen(false)}
-          onSave={handleSaveValidasi}
-        />
-      ) : null}
-
       {isExportOpen ? (
         <LaporanExportModal
           theme={theme}
+          isExporting={isExporting}
           onClose={() => setIsExportOpen(false)}
           onExport={handleExport}
         />

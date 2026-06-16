@@ -23,6 +23,8 @@ use Rajasa\PresensiSiswa\Http\Controllers\RombelController;
 use Rajasa\PresensiSiswa\Http\Controllers\JurusanController;
 
 use Rajasa\PresensiSiswa\Http\Controllers\SiswaController;
+use Rajasa\PresensiSiswa\Http\Controllers\ReportController;
+use Rajasa\PresensiSiswa\Http\Controllers\ReportExportController;
 
 return function (RouteCollector $route): void {
     $route->get('/api/health', HealthController::class);
@@ -66,6 +68,8 @@ return function (RouteCollector $route): void {
     $route->post('/api/presensi/scan', [ScanController::class, 'scan']);
     $route->get('/api/presensi/audit/latest', PresensiAuditController::class);
     $route->get('/api/presensi/jam-siswa', PresensiJamSiswaController::class);
+    $route->get('/api/reports/presensi', ReportController::class);
+    $route->get('/api/reports/presensi/export', ReportExportController::class);
     $route->patch('/api/presensi/jam-siswa/{id:\d+}', PresensiManualEditController::class);
     $route->get('/api/presensi/edit-reasons', PresensiEditReasonController::class);
 };

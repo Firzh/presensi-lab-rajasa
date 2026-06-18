@@ -151,72 +151,74 @@ export function LaporanPage() {
       <DashboardTopbar theme={theme} onToggleTheme={toggleTheme} />
 
       <main className="min-h-screen px-4 pb-8 pt-36 sm:px-6 lg:ml-65 lg:px-10 lg:pb-8 lg:pt-29.5">
-        <header className="mb-7 flex flex-col items-stretch justify-between gap-4 sm:mb-9 sm:flex-row sm:items-start">
-          <div>
-            <h1
-              className={clsx(
-                'm-0 text-[1.75rem] font-extrabold leading-none tracking-wide sm:text-[2rem]',
-                isDark ? 'text-[#f4f1ec]' : 'text-[#43505a]'
-              )}
-            >
-              Laporan Presensi
-            </h1>
-            <p className="m-0 mt-4 text-base font-bold text-[#8b9298]">
-              Kelola dan pantau laporan presensi siswa
-            </p>
-          </div>
+        <div className="w-full max-w-6xl mx-auto space-y-6">
+          <header className="mb-7 flex flex-col items-stretch justify-between gap-4 sm:mb-9 sm:flex-row sm:items-start">
+            <div>
+              <h1
+                className={clsx(
+                  'm-0 text-[1.75rem] font-extrabold leading-none tracking-wide sm:text-[2rem]',
+                  isDark ? 'text-[#f4f1ec]' : 'text-[#43505a]'
+                )}
+              >
+                Laporan Presensi
+              </h1>
+              <p className="m-0 mt-4 text-base font-bold text-[#8b9298]">
+                Kelola dan pantau laporan presensi siswa
+              </p>
+            </div>
 
-          <div className="grid grid-cols-1 gap-3 sm:flex">
-            <button
-              type="button"
-              className={clsx(
-                'flex h-12 w-full items-center justify-center gap-3 rounded-md px-6 text-base font-bold transition sm:w-auto',
-                isDark
-                  ? 'bg-[#313b45] text-[#f4f1ec] hover:bg-[#31527d]'
-                  : 'bg-white text-[#456da1] hover:bg-[#bfcee3]'
-              )}
-              onClick={() => setIsExportOpen(true)}
-            >
-              <AppIcon name="fileExport" />
-              Eksport Laporan
-            </button>
-          </div>
-        </header>
+            <div className="grid grid-cols-1 gap-3 sm:flex">
+              <button
+                type="button"
+                className={clsx(
+                  'flex h-12 w-full items-center justify-center gap-3 rounded-md px-6 text-base font-bold transition sm:w-auto',
+                  isDark
+                    ? 'bg-[#313b45] text-[#f4f1ec] hover:bg-[#31527d]'
+                    : 'bg-white text-[#456da1] hover:bg-[#bfcee3]'
+                )}
+                onClick={() => setIsExportOpen(true)}
+              >
+                <AppIcon name="fileExport" />
+                Eksport Laporan
+              </button>
+            </div>
+          </header>
 
-        <section className="flex flex-col gap-6">
-          <div className="flex flex-wrap gap-4">
-            {LAPORAN_SUMMARY_ITEMS.map((item) => (
-              <LaporanStatCard key={item.key} item={item} value={summary[item.key]} theme={theme} />
-            ))}
-          </div>
+          <section className="flex flex-col gap-6">
+            <div className="flex flex-wrap gap-4">
+              {LAPORAN_SUMMARY_ITEMS.map((item) => (
+                <LaporanStatCard key={item.key} item={item} value={summary[item.key]} theme={theme} />
+              ))}
+            </div>
 
-          <LaporanFilterBar
-            filters={filters}
-            theme={theme}
-            onFilterChange={updateFilter}
-            onApply={fetchRows}
-          />
+            <LaporanFilterBar
+              filters={filters}
+              theme={theme}
+              onFilterChange={updateFilter}
+              onApply={fetchRows}
+            />
 
-          {message ? (
-            <p className="rounded-xl bg-red-500/10 px-4 py-3 text-sm font-bold text-red-400">
-              {message}
-            </p>
-          ) : null}
+            {message ? (
+              <p className="rounded-xl bg-red-500/10 px-4 py-3 text-sm font-bold text-red-400">
+                {message}
+              </p>
+            ) : null}
 
-          {isLoading ? (
-            <p className="rounded-xl bg-blue-500/10 px-4 py-3 text-sm font-bold text-blue-400">
-              Memuat laporan presensi...
-            </p>
-          ) : null}
+            {isLoading ? (
+              <p className="rounded-xl bg-blue-500/10 px-4 py-3 text-sm font-bold text-blue-400">
+                Memuat laporan presensi...
+              </p>
+            ) : null}
 
-          <LaporanTable
-            rows={visibleRows}
-            theme={theme}
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={setCurrentPage}
-          />
-        </section>
+            <LaporanTable
+              rows={visibleRows}
+              theme={theme}
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+            />
+          </section>
+        </div>
       </main>
 
       {isExportOpen ? (

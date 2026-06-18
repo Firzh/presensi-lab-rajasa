@@ -29,7 +29,7 @@ export function SettingsFeatureTabs({ tabs, activeTab, theme = 'light', onChange
             <div className="flex items-start gap-4">
               <span
                 className={clsx(
-                  'grid h-11 w-11 place-items-center rounded-xl transition',
+                  'grid h-11 w-11 shrink-0 place-items-center rounded-xl transition',
                   active
                     ? isDark
                       ? 'bg-white/15 text-white'

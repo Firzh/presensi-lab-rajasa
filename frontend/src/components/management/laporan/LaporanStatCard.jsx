@@ -36,7 +36,7 @@ export function LaporanStatCard({ item, value, theme = 'light' }) {
         isDark ? 'bg-[#313b45]' : 'bg-white'
       )}
     >
-      <div className={clsx('grid h-11 w-11 shrink-0 place-items-center', current.iconWrap)}>
+      <div className={clsx('flex flex-wrap gap-4', current.iconWrap)}>
         <AppIcon name={item.icon} className={current.icon} />
       </div>
 

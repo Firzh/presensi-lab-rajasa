@@ -274,7 +274,7 @@ export function ImportBackupDataPanel({
         </h2>
         <p className="m-0 mt-2 max-w-3xl text-sm font-semibold leading-relaxed text-[#8b9298]">
           Import data siswa memakai mekanisme yang sama dengan halaman dev import. Import backup
-          memakai mode data-only: struktur tabel tidak dihapus atau dibuat ulang.
+          memakai mode data-only.
         </p>
       </div>
 
@@ -352,7 +352,7 @@ export function ImportBackupDataPanel({
               Import Backup
             </h3>
             <p className="m-0 mt-1 text-sm font-semibold text-[#8b9298]">
-              Mode B: restore data saja dari file SQL backup. DROP TABLE dan CREATE TABLE diabaikan.
+              Restore data saja dari file SQL backup.
             </p>
           </div>
           <FilePicker

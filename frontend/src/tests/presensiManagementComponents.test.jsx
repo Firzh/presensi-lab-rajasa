@@ -243,4 +243,38 @@ describe('presensi management page', () => {
     // expect(screen.getByText('10 TKJ 1 | Jam 1')).toBeTruthy();
     expect(screen.queryByPlaceholderText('Payload QR manual...')).toBeFalsy();
   });
+
+
+  it('submits fallback nomor presensi from active scan page', async () => {
+    saveActivePresensiSession({
+      tanggal: getAppTodayDate(),
+      presensi_sesi_id: '99',
+      mode_presensi: 'rombel',
+      rombel_id: '5',
+      rombel_label: '10 TKJ 1',
+      jam_ids: [1],
+      jam_label: 'Jam 1',
+      ruang_pilihan: 'kelas',
+      ruang_label: 'Kelas 10 TKJ 1',
+      paused: false,
+    });
+
+    render(<PresensiScanPage />);
+
+    fireEvent.input(screen.getByLabelText('Presensi Berdasarkan No Absen'), {
+      target: { value: '1' },
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Kirim Presensi' }));
+
+    await waitFor(() => {
+      expect(submitPresensiQrScan).toHaveBeenCalledWith(
+        expect.objectContaining({
+          presensiSesiId: '99',
+          payloadRaw: '',
+          fallbackNoPresensi: '1',
+        })
+      );
+    });
+  });
 });

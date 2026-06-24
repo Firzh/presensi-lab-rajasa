@@ -20,14 +20,15 @@ final class PresensiScanService
     {
         $sessionId = (int) ($input['presensi_sesi_id'] ?? 0);
         $payloadRaw = trim((string) ($input['payload_raw'] ?? ''));
+        $fallbackNoPresensi = trim((string) ($input['fallback_no_presensi'] ?? ''));
         $clientRequestUuid = trim((string) ($input['client_request_uuid'] ?? ''));
 
         if ($sessionId <= 0) {
             throw new HttpException('Sesi presensi wajib dipilih.', 422);
         }
 
-        if ($payloadRaw === '') {
-            throw new HttpException('Payload QR wajib diisi.', 422);
+        if ($payloadRaw === '' && $fallbackNoPresensi === '') {
+            throw new HttpException('Payload QR atau nomor presensi fallback wajib diisi.', 422);
         }
 
         if ($clientRequestUuid === '') {
@@ -57,34 +58,27 @@ final class PresensiScanService
             throw new HttpException('Jam sesi presensi belum tersedia.', 422);
         }
 
-        $parsed = $this->qrPayloadService->parse($payloadRaw);
-        $qr = $this->findQrReference($parsed);
+        $scanMode = $fallbackNoPresensi !== '' ? 'fallback' : 'qr';
+        $parsed = $scanMode === 'fallback'
+            ? $this->fallbackParsedPayload($fallbackNoPresensi)
+            : $this->qrPayloadService->parse($payloadRaw);
 
-        if (!$qr) {
-            $scanLogId = $this->createScanLog($session, $userId, $clientRequestUuid, $parsed, null, 'invalid', 'none');
-
-            return [
-                'scan_log_id' => $scanLogId,
-                'status_scan' => 'invalid',
-                'warning_reason' => 'none',
-                'message' => 'QR tidak dikenali.',
-                'siswa' => null,
-                'affected_rows' => 0,
-            ];
-        }
-
-        $siswa = DB::table('siswa')
-            ->where('siswa_id', (int) $qr->siswa_id)
-            ->first();
+        $siswa = $scanMode === 'fallback'
+            ? $this->findSiswaByFallbackNoPresensi($session, $fallbackNoPresensi)
+            : $this->findSiswaByQrPayload($parsed);
 
         if (!$siswa) {
             $scanLogId = $this->createScanLog($session, $userId, $clientRequestUuid, $parsed, null, 'invalid', 'none');
+            $message = $scanMode === 'fallback'
+                ? 'Nomor presensi fallback tidak ditemukan pada rombel sesi.'
+                : 'QR tidak dikenali.';
 
             return [
                 'scan_log_id' => $scanLogId,
                 'status_scan' => 'invalid',
                 'warning_reason' => 'none',
-                'message' => 'Data siswa pemilik QR tidak ditemukan.',
+                'message' => $message,
+                'scan_mode' => $scanMode,
                 'siswa' => null,
                 'affected_rows' => 0,
             ];
@@ -111,6 +105,7 @@ final class PresensiScanService
                 'status_scan' => 'warning',
                 'warning_reason' => 'siswa_tidak_sesuai_rombel',
                 'message' => 'Siswa tidak sesuai rombel sesi.',
+                'scan_mode' => $scanMode,
                 'siswa' => $this->formatSiswa($siswa),
                 'affected_rows' => 0,
             ];
@@ -124,12 +119,13 @@ final class PresensiScanService
                 'status_scan' => 'ditolak',
                 'warning_reason' => 'none',
                 'message' => 'Siswa sudah presensi pada jam yang dipilih.',
+                'scan_mode' => $scanMode,
                 'siswa' => $this->formatSiswa($siswa),
                 'affected_rows' => 0,
             ];
         }
 
-        return DB::connection()->transaction(function () use ($session, $userId, $clientRequestUuid, $parsed, $siswa, $jamIds): array {
+        return DB::connection()->transaction(function () use ($session, $userId, $clientRequestUuid, $parsed, $siswa, $jamIds, $scanMode): array {
             $scanLogId = $this->createScanLog($session, $userId, $clientRequestUuid, $parsed, $siswa, 'berhasil', 'none');
             $status = $session->mode_presensi === 'piket' ? 'terlambat' : 'hadir';
             $affectedRows = $this->applyAttendance($session, $siswa, $jamIds, $scanLogId, $userId, $status);
@@ -138,12 +134,64 @@ final class PresensiScanService
                 'scan_log_id' => $scanLogId,
                 'status_scan' => 'berhasil',
                 'warning_reason' => 'none',
-                'message' => 'Scan QR berhasil.',
+                'message' => $scanMode === 'fallback' ? 'Fallback nomor presensi berhasil.' : 'Scan QR berhasil.',
                 'attendance_status' => $status,
+                'scan_mode' => $scanMode,
                 'siswa' => $this->formatSiswa($siswa),
                 'affected_rows' => $affectedRows,
             ];
         });
+    }
+
+    private function findSiswaByQrPayload(array $parsed): ?object
+    {
+        $qr = $this->findQrReference($parsed);
+
+        if (!$qr) {
+            return null;
+        }
+
+        return DB::table('siswa')
+            ->where('siswa_id', (int) $qr->siswa_id)
+            ->first();
+    }
+
+    private function findSiswaByFallbackNoPresensi(object $session, string $fallbackNoPresensi): ?object
+    {
+        if ($session->mode_presensi !== 'rombel' || !$session->rombel_id) {
+            throw new HttpException('Fallback nomor presensi hanya tersedia untuk sesi rombel.', 422);
+        }
+
+        if (preg_match('/^\d+$/', $fallbackNoPresensi) !== 1) {
+            throw new HttpException('Nomor presensi fallback harus berupa angka.', 422);
+        }
+
+        $number = (int) $fallbackNoPresensi;
+
+        if ($number < 1) {
+            throw new HttpException('Nomor presensi fallback minimal 1.', 422);
+        }
+
+        return DB::table('siswa')
+            ->where('rombel_id_aktif', (int) $session->rombel_id)
+            ->where('status', 'aktif')
+            ->orderBy('nama_lengkap')
+            ->orderBy('siswa_id')
+            ->offset($number - 1)
+            ->limit(1)
+            ->first();
+    }
+
+    private function fallbackParsedPayload(string $fallbackNoPresensi): array
+    {
+        $payloadRaw = 'FALLBACK_NO_PRESENSI:' . $fallbackNoPresensi;
+
+        return [
+            'payload_raw' => $payloadRaw,
+            'payload_normalized' => $this->qrPayloadService->normalizePayload($payloadRaw),
+            'payload_nama' => 'FALLBACK NO PRESENSI ' . $fallbackNoPresensi,
+            'payload_nisn' => '',
+        ];
     }
 
     private function findQrReference(array $parsed): ?object

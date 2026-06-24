@@ -15,7 +15,7 @@ Removed
 
 ### Added
 
-- Menambahkan fallback presensi berdasarkan no absen pada halaman scan aktif.
+- Menambahkan fallback presensi berdasarkan NISN pada halaman scan aktif.
 - Menambahkan dokumentasi implementasi laporan presensi/export, backup/restore, jurusan, admin user, log aktivitas, dan layout responsif terbaru.
 - Menambahkan catatan testing untuk laporan, export, jurusan, pengaturan, scan sound, dan script `test-export.sh`.
 - Menambahkan Tahap 7: Scan Readiness Import.
@@ -69,7 +69,7 @@ Removed
 
 ### Changed
 
-- Menyinkronkan dokumentasi API, arsitektur, database, testing, README, dan changelog untuk fallback no absen.
+- Menyinkronkan dokumentasi API, arsitektur, database, testing, README, dan changelog untuk fallback NISN.
 - Menyinkronkan `README.md`, `docs/ARCHITECTURE.md`, `docs/DATABASE.md`, dan `docs/TESTING.md` dengan commit `0c5eab9`, `1f9ba70`, dan `42f5cbf`.
 - Membersihkan lint warnings dan menyempurnakan struktur modular frontend.
 - Memusatkan pemanggilan API management melalui `apiClient.js` dengan interceptor 401/403.

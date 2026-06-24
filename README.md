@@ -16,7 +16,7 @@ Status saat ini:
 - Endpoint presensi sesi sudah implemented.
 - Endpoint scan readiness import sudah implemented.
 - Endpoint advanced import one-gate CSV/XLSX sudah implemented.
-- Endpoint presensi scan QR dan fallback no absen sudah implemented.
+- Endpoint presensi scan QR dan fallback NISN sudah implemented.
 - Endpoint dynamic rombel options sudah implemented.
 - Halaman demo scanner `/dev/scan` sudah tersedia untuk demo HP.
 - Cloudflare Quick Tunnel dapat dipakai untuk demo kamera HP via HTTPS.
@@ -112,7 +112,7 @@ Flow utama:
 - Backend validasi sesi aktif.
 - Backend mencatat hasil scan ke presensi_scan_log.
 - Jika valid, backend update presensi_jam_siswa.
-- Fallback no absen mencatat status `hadir`; foto QR tetap diproses sebagai scan QR biasa.
+- Fallback NISN mencatat status `hadir`; foto QR tetap diproses sebagai scan QR biasa.
 
 Status Scan:
 

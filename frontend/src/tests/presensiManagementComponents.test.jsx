@@ -261,8 +261,8 @@ describe('presensi management page', () => {
 
     render(<PresensiScanPage />);
 
-    fireEvent.input(screen.getByLabelText('Presensi Berdasarkan No Absen'), {
-      target: { value: '1' },
+    fireEvent.input(screen.getByLabelText('Presensi Berdasarkan NISN'), {
+      target: { value: '0096672112' },
     });
 
     fireEvent.click(screen.getByRole('button', { name: 'Kirim Presensi' }));
@@ -272,7 +272,7 @@ describe('presensi management page', () => {
         expect.objectContaining({
           presensiSesiId: '99',
           payloadRaw: '',
-          fallbackNoPresensi: '1',
+          fallback_nisn: '0096672112',
         })
       );
     });

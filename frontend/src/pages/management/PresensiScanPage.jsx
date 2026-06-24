@@ -55,7 +55,7 @@ export function PresensiScanPage() {
   const [activeSession, setActiveSession] = useState(getInitialActivePresensiSession);
   const [statusMessage, setStatusMessage] = useState('Siap membuka kamera.');
   const [statusType, setStatusType] = useState('info');
-  const [fallbackNoPresensi, setFallbackNoPresensi] = useState('');
+  const [fallbackNisn, setFallbackNisn] = useState('');
   const [modal, setModal] = useState(null);
 
   const isDark = theme === 'dark';
@@ -116,9 +116,9 @@ export function PresensiScanPage() {
     if (isSubmittingRef.current) return;
 
     const cleanPayload = String(scannedPayload || '').trim();
-    const cleanFallbackNoPresensi = String(options.fallbackNoPresensi || '').trim();
-    const isFallback = cleanFallbackNoPresensi !== '';
-    const scanKey = isFallback ? `fallback:${cleanFallbackNoPresensi}` : cleanPayload;
+    const cleanFallbackNisn = String(options.fallbackNisn || '').trim();
+    const isFallback = cleanFallbackNisn !== '';
+  const scanKey = isFallback ? `fallback:${cleanFallbackNisn}` : cleanPayload;
 
     if (!activeSession?.presensi_sesi_id) {
       setStatusType('error');
@@ -147,7 +147,7 @@ export function PresensiScanPage() {
     const result = await submitPresensiQrScan({
       presensiSesiId: activeSession.presensi_sesi_id,
       payloadRaw: cleanPayload,
-      fallbackNoPresensi: cleanFallbackNoPresensi,
+      fallbackNisn: cleanFallbackNisn,
     });
 
     isSubmittingRef.current = false;
@@ -215,15 +215,17 @@ export function PresensiScanPage() {
   function handleSubmitFallback(event) {
     event.preventDefault();
 
-    const cleanFallbackNoPresensi = fallbackNoPresensi.trim();
+    const cleanFallbackNisn = fallbackNisn.trim();
 
-    if (!/^\d+$/.test(cleanFallbackNoPresensi)) {
+    if (!/^\d+$/.test(cleanFallbackNisn)) {
       setStatusType('error');
-      setStatusMessage('Nomor presensi fallback harus berupa angka.');
+      setStatusMessage('NISN fallback harus berupa angka.');
       return;
     }
 
-    handleSubmitScan('', { fallbackNoPresensi: cleanFallbackNoPresensi });
+    handleSubmitScan('', {
+      fallbackNisn: cleanFallbackNisn,
+    });
   }
 
   return (
@@ -372,7 +374,7 @@ export function PresensiScanPage() {
 
             <form className="mt-4 grid gap-3 sm:grid-cols-[1fr_auto]" onSubmit={handleSubmitFallback}>
               <label className="grid gap-2 text-sm font-bold text-[#8b9298]">
-                Presensi Berdasarkan No Absen
+                Presensi Berdasarkan NISN
                 <input
                   type="number"
                   min="1"
@@ -383,9 +385,9 @@ export function PresensiScanPage() {
                       ? 'border-[#64717d] bg-[#56616d] text-[#F0EDE4]'
                       : 'border-[#d5dde8] bg-white text-[#43505a]'
                   )}
-                  value={fallbackNoPresensi}
+                  value={fallbackNisn}
                   placeholder="Contoh: 1"
-                  onInput={(event) => setFallbackNoPresensi(event.currentTarget.value)}
+                  onChange={(event) => setFallbackNisn(event.target.value)}
                 />
               </label>
 

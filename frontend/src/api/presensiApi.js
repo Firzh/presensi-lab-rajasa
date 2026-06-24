@@ -49,18 +49,18 @@ export async function heartbeatPresensiSession(presensiSesiId) {
 export async function submitPresensiQrScan({
   presensiSesiId,
   payloadRaw = '',
-  fallbackNoPresensi = '',
+  fallbackNisn = '',
 }) {
   const body = {
-    presensi_sesi_id: Number(presensiSesiId),
+    fallback_nisn: fallbackNisn,
   };
 
   if (payloadRaw) {
     body.payload_raw = payloadRaw;
   }
 
-  if (fallbackNoPresensi) {
-    body.fallback_no_presensi = fallbackNoPresensi;
+  if (fallbackNisn) {
+    body.fallback_nisn = fallbackNisn;
   }
 
   return apiFetch('/api/presensi/scan', {

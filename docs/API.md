@@ -83,7 +83,7 @@ Authorization: Bearer TOKEN
 | `POST`   | `/import`                                 | Import one-gate CSV/XLSX dengan auto-detect header | `import.submit`                |
 | `GET`    | `/import/jobs`                            | Riwayat import                                     | `import.read`                  |
 | `GET`    | `/import/jobs/{id}/rows`                  | Log baris import                                   | `import.read`                  |
-| `POST`   | `/presensi/scan`                          | Menerima hasil scan QR atau fallback no absen      | `attendance.scan`              |
+| `POST`   | `/presensi/scan`                          | Menerima hasil scan QR atau fallback NISN      | `attendance.scan`              |
 | `GET`    | `/presensi/audit/latest`                  | Audit scan dan presensi terkini                    | `attendance.log.read`          |
 | `GET`    | `/presensi/jam-siswa`                     | Daftar presensi siswa                              | `attendance.manual.read`       |
 | `PATCH`  | `/presensi/jam-siswa/{id}`                | Edit presensi manual                               | `attendance.manual.update`     |
@@ -314,12 +314,12 @@ Request QR:
 }
 ```
 
-Request fallback no absen:
+Request fallback NISN:
 
 ```json
 {
-  "presensi_sesi_id": 9,
-  "fallback_no_presensi": "1"
+  "presensi_sesi_id": 1,
+  "fallback_nisn": "0096672112"
 }
 ```
 
@@ -339,7 +339,7 @@ Hasil scan:
 | Kondisi                | `status_scan` | Efek DB                           |
 | ---------------------- | ------------- | --------------------------------- |
 | QR valid sesuai rombel | `berhasil`    | `presensi_jam_siswa = hadir`      |
-| Fallback no absen valid | `berhasil`    | `presensi_jam_siswa = hadir`      |
+| Fallback NISN valid | `berhasil`    | `presensi_jam_siswa = hadir`      |
 | QR valid mode piket    | `berhasil`    | `presensi_jam_siswa = terlambat`  |
 | QR valid beda rombel   | `warning`     | Hanya masuk `presensi_scan_log`   |
 | QR tidak dikenal       | `invalid`     | Hanya masuk `presensi_scan_log`   |

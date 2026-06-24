@@ -219,7 +219,7 @@ Status scan:
 
 Catatan:
 
-- Tidak ada kolom no absen baru. Nomor absen fallback dihitung dari siswa aktif per rombel dengan urutan `nama_lengkap ASC`, `siswa_id ASC`.
+- Tidak ada kolom no absen baru. NISN fallback dihitung dari siswa aktif per rombel dengan urutan `nama_lengkap ASC`, `siswa_id ASC`.
 
 - Warning beda rombel tidak di-resolve.
 - Warning tetap menjadi bukti kejadian.

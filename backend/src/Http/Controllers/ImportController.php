@@ -11,6 +11,7 @@ use Rajasa\PresensiSiswa\Http\Middleware\PermissionMiddleware;
 use Rajasa\PresensiSiswa\Services\ImportSubmitService;
 use Rajasa\PresensiSiswa\Services\ScanReadinessImportService;
 
+
 final class ImportController
 {
     public function __construct(
@@ -55,5 +56,18 @@ final class ImportController
         Response::success('Log baris import.', [
             'rows' => $this->siswaImporter->rowLogs((int) $id),
         ]);
+    }
+
+    public function preview(): void
+    {
+        $this->permission->require('import.submit');
+
+        Response::success(
+            'Preview import siswa.',
+            $this->importSubmitService->preview(
+                $this->request->file('file'),
+                (string) $this->request->input('file_path', '')
+            )
+        );
     }
 }

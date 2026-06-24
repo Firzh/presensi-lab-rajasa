@@ -1,6 +1,6 @@
 # Architecture
 
-Branch acuan: `alfy/backend-import-advanced`
+Branch acuan: `alfy/combine`
 
 Dokumen ini merangkum arsitektur MVP Presensi Siswa Rajasa secara singkat.
 
@@ -93,6 +93,19 @@ scripts/
 | Scan QR      | `PresensiScanService`, `QrPayloadService`                                                                            | Parse dan proses QR                                                         |
 | Manual edit  | `PresensiManualEditService`                                                                                          | Edit presensi dan audit                                                     |
 | Audit demo   | `PresensiAuditController`                                                                                            | Baca hasil scan terkini                                                     |
+| Laporan     | `ReportController`, `ReportService`                                                                                  | Filter dan ringkasan laporan presensi                                       |
+| Export       | `ReportExportController`, `Services/Exporters/*`                                                                     | Export laporan CSV, XLSX, PDF, dan DOCX                                     |
+| Settings     | `SettingsController`, `SettingsService`                                                                              | Pengaturan, backup, restore data-only, jadwal rombel, dan aturan terlambat  |
+| Jurusan      | `JurusanController`, `JurusanService`                                                                                | CRUD jurusan aktif/nonaktif                                                 |
+| Admin user   | `AdminUserController`, `AdminUserService`, `UserActivityController`, `UserActivityService`                            | Kelola user dan baca log aktivitas                                          |
+
+## Modul Frontend Management
+
+| Modul | Komponen API | Fungsi |
+| --- | --- | --- |
+| Laporan | `laporanApi.js` | Filter laporan dan export file |
+| Pengaturan | `settingsApi.js` | Backup, preview restore, restore, jadwal rombel, dan aturan terlambat |
+| Jurusan dan user | `jurusanApi.js`, `adminUsersApi.js` | Kelola master jurusan, user, dan log aktivitas |
 
 ## Modul Frontend Dev
 
@@ -247,6 +260,10 @@ Perubahan arsitektur terbaru:
 | Frontend routes    | Pindahkan routing halaman dev ke `AppRoutes`                                                                             |
 | Frontend scan      | Modularisasi `DevScanPage` menjadi page orchestrator, hook, util, dan komponen UI                                        |
 | Frontend dev       | Pisahkan komponen halaman scan, import, dan audit agar lebih mudah dites                                                 |
+| Backend laporan    | Tambah service laporan dan exporter untuk CSV, XLSX, PDF, dan DOCX                                                     |
+| Backend settings   | Tambah flow backup, preview restore, restore data-only, update jadwal rombel, dan aturan terlambat                     |
+| Frontend settings  | Tambah panel import data, backup, restore, dan feedback validasi                                                       |
+| Frontend layout    | Rapikan layout responsif pada halaman management terbaru                                                               |
 
 ## Auth dan Permission
 
@@ -265,6 +282,18 @@ attendance.edit_reasons.read
 attendance.log.read
 import.submit
 import.read
+reports.attendance.read
+reports.attendance.export
+konfigurasi.read
+konfigurasi.manage
+jurusan.read
+jurusan.create
+jurusan.update
+jurusan.delete
+users.read
+users.create
+users.update
+user_activities.read
 ```
 
 ## Testing

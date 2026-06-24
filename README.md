@@ -43,6 +43,13 @@ Status saat ini:
 - Logic import, rombel, audit, jam siswa, dan warning sesi sudah dipindahkan ke service layer.
 - Request backend sudah memakai request snapshot boundary untuk jalur implementasi dan test.
 - Validasi backend terbaru: `./scripts/test-backend.sh` OK, 86 tests, 306 assertions.
+- Implementasi fungsional frontend lengkap (Login, Dashboard, Manajemen Siswa, Laporan, Pengaturan, Kelola User, Log User).
+- Peningkatan keamanan rute frontend dengan `PrivateRoute` dan *interceptor* API tersentralisasi (`apiClient.js`).
+- Peningkatan proteksi endpoint backend dan logging komprehensif (`session_expired`, `access_denied`, `user_activity`).
+- Laporan presensi dan export CSV/XLSX/PDF/DOCX sudah tersambung ke backend.
+- Panel pengaturan mendukung backup, preview restore, restore data-only, jadwal rombel, dan aturan terlambat.
+- Manajemen jurusan, admin user, dan log aktivitas sudah tersambung ke backend.
+- Layout halaman management terbaru sudah dirapikan untuk tampilan responsif.
 
 
 * Refactor frontend sudah merapikan work tree ke struktur `api`, `components`, `hooks`, `lib`, `pages`, `routes`, dan `tests`.
@@ -70,12 +77,24 @@ POST /api/auth/login
 POST /api/auth/logout
 GET  /api/me
 GET  /api/presensi/jam-siswa
-PATCH/api/presensi/jam-siswa/{id}
+PATCH /api/presensi/jam-siswa/{id}
 GET  /api/presensi/edit-reasons
 POST /api/presensi/sesi/check-warning
 POST /api/presensi/sesi/{id}/heartbeat
 GET  /api/presensi/audit/latest
+GET  /api/siswa
+GET  /api/dashboard
+GET  /api/users
+GET  /api/log-users
+GET  /api/jurusan
+GET  /api/admin/users
+GET  /api/admin/user-activities
+GET  /api/settings
+GET  /api/reports/presensi
+GET  /api/reports/presensi/export
 ```
+
+Daftar endpoint lengkap dan permission ada di `docs/API.md`.
 
 ## Halaman Demo Tambahan
 
@@ -238,6 +257,7 @@ Test Frontend
 ```bash
 docker compose exec frontend npm test
 docker compose exec frontend npm run build
+./scripts/test-export.sh
 ```
 
 ## Struktur Project

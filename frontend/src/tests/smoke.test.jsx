@@ -1,4 +1,4 @@
-import { h } from 'preact';
+// import { h } from 'preact';
 import { describe, expect, it } from 'vitest';
 import { render, screen } from '@testing-library/preact';
 

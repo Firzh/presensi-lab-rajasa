@@ -90,7 +90,7 @@ scripts/
 | Sesi         | `PresensiSessionService`                                                                                             | Buat, pause, resume, finish sesi                                            |
 | Timeout sesi | `PresensiSessionTimeoutService`                                                                                      | Expire sesi idle 5 menit                                                    |
 | Warning sesi | `PresensiSesiWarningCheckController`                                                                                 | Cek jam pernah dipakai hari ini                                             |
-| Scan QR      | `PresensiScanService`, `QrPayloadService`                                                                            | Parse dan proses QR                                                         |
+| Scan QR      | `PresensiScanService`, `QrPayloadService`                                                                            | Parse QR dan proses fallback no absen                                       |
 | Manual edit  | `PresensiManualEditService`                                                                                          | Edit presensi dan audit                                                     |
 | Audit demo   | `PresensiAuditController`                                                                                            | Baca hasil scan terkini                                                     |
 | Laporan     | `ReportController`, `ReportService`                                                                                  | Filter dan ringkasan laporan presensi                                       |
@@ -181,6 +181,16 @@ Kamera membaca QR
   -> validasi rombel jika mode rombel
   -> tulis presensi_scan_log
   -> update presensi_jam_siswa jika valid
+```
+
+## Alur Fallback No Absen
+
+```text
+Admin input no absen
+  -> PresensiScanService hitung siswa aktif per rombel sesi
+  -> urut nama_lengkap ASC, siswa_id ASC
+  -> tulis presensi_scan_log
+  -> update presensi_jam_siswa menjadi hadir
 ```
 
 Status scan:

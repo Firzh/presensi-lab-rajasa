@@ -1,6 +1,6 @@
 # Testing
 
-Branch acuan: `alfy/backend-import-advanced`
+Branch acuan: `alfy/combine`
 
 Dokumen ini merangkum test otomatis, test manual, dan audit database MVP Presensi QR Rajasa secara singkat.
 
@@ -28,6 +28,8 @@ backend/tests/Support/
 ./scripts/test-backend-feature.sh
 docker compose exec frontend npm test
 docker compose exec frontend npm run build
+./scripts/test-single.sh FILTER_NAME
+./scripts/test-export.sh
 ```
 
 Reset dan import:
@@ -96,12 +98,16 @@ Validasi refactor 2 Juni: `./scripts/test-backend.sh` OK, 86 tests, 306 assertio
 | Frontend hook dev scan auth dan submit                             | Unit         |
 | Frontend `/dev/scan`                                               | Build/manual |
 | Frontend `/dev/attendance-audit`                                   | Build/manual |
+| Laporan presensi dan export CSV/XLSX/PDF/DOCX                      | Feature      |
+| Jurusan management                                                  | Feature      |
+| Settings backup/restore, jadwal rombel, dan late rule               | Feature/manual |
+| Frontend laporan, pengaturan, jurusan, siswa, dan scan sound        | Unit         |
 
 ## Test Khusus Terbaru
 
 ### Core, Support, Middleware, dan Model
 
-````bash
+```bash
 docker compose exec backend ./vendor/bin/phpunit --filter RequestTest
 docker compose exec backend ./vendor/bin/phpunit --filter ResponseTest
 docker compose exec backend ./vendor/bin/phpunit --filter RequestValidatorTest
@@ -109,13 +115,14 @@ docker compose exec backend ./vendor/bin/phpunit --filter EnvTest
 docker compose exec backend ./vendor/bin/phpunit --filter ConfigTest
 docker compose exec backend ./vendor/bin/phpunit --filter CorsMiddlewareTest
 docker compose exec backend ./vendor/bin/phpunit --filter UserModelTest
+```
 
 ### Frontend Refactor
 
 ```bash
 docker compose exec frontend npm test
 docker compose exec frontend npm run build
-````
+```
 
 Validasi:
 
@@ -175,6 +182,27 @@ Buka /dev/scan via HTTPS tunnel
 Kamera terbuka
 QR terbaca pada jarak aman
 Payload otomatis terisi
+```
+
+### Laporan, Settings, dan Management Terbaru
+
+```bash
+docker compose exec backend ./vendor/bin/phpunit --filter AttendanceReportTest
+docker compose exec backend ./vendor/bin/phpunit --filter AttendanceReportExportTest
+docker compose exec backend ./vendor/bin/phpunit --filter JurusanManagementTest
+./scripts/test-export.sh
+docker compose exec frontend npm test -- laporanApi
+docker compose exec frontend npm test -- scanSound
+```
+
+Validasi:
+
+```text
+Filter laporan berjalan
+Export CSV/XLSX/PDF/DOCX menghasilkan attachment
+Backup/restore memakai mode data-only
+Panel pengaturan, jurusan, laporan, dan siswa ter-render
+Scan sound memberi feedback sukses/error tanpa memblokir scan
 ```
 
 ### Advanced Import

@@ -1,6 +1,6 @@
 # Database
 
-Branch acuan: `alfy/backend-presensi-scan`
+Branch acuan: `alfy/combine`
 
 Dokumen ini merangkum database MVP Presensi Siswa Rajasa secara singkat dan langsung ke kebutuhan implementasi.
 
@@ -43,6 +43,7 @@ Import siswa real:
 | Siswa | `siswa`, `penempatan_siswa_rombel`, `siswa_qr` | Siswa, rombel aktif, QR |
 | Import | `import_jobs`, `import_row_logs` | Audit import |
 | Presensi | `presensi_sesi`, `presensi_sesi_jam`, `presensi_jam_siswa`, `presensi_scan_log`, `presensi_edit_log` | Sesi, scan, status, audit |
+| Konfigurasi dan audit | `konfigurasi`, `user_activities`, `system_error_logs` | Pengaturan, aktivitas user, dan error log |
 
 ## Seed Demo
 
@@ -110,6 +111,17 @@ Kolom penting:
 
 ```text
 siswa_id, payload_raw, payload_normalized, payload_nama, payload_nisn
+```
+
+### `konfigurasi` dan `user_activities`
+
+Dipakai oleh pengaturan, backup/restore, jadwal rombel, aturan terlambat, dan log aktivitas user.
+
+Kolom penting:
+
+```text
+konfigurasi.kunci, konfigurasi.nilai, konfigurasi.tipe_nilai,
+user_activities.activity_type, module_name, target_table, metadata_json
 ```
 
 ### `import_jobs` dan `import_row_logs`
@@ -236,6 +248,11 @@ Yang terjadi:
 | Audit presensi terkini | `presensi_scan_log`, `presensi_jam_siswa`, `siswa` | Read only |
 | Tombol akhiri sesi | `presensi_sesi` | Update status via finish endpoint |
 | Scanner clarity | Tidak menyentuh DB | Frontend only |
+| Laporan presensi | `presensi_jam_siswa`, `presensi_sesi`, `siswa`, `rombel`, `jam_pembelajaran` | Read only dan export file |
+| Backup database | Semua base table | Dump SQL untuk backup |
+| Restore backup | Semua base table yang tersedia | Import data-only dengan upsert berdasarkan primary key |
+| Settings jadwal dan late rule | `jam_pembelajaran`, `konfigurasi`, `user_activities` | Update pengaturan dan catat aktivitas |
+| Jurusan management | `jurusan`, `user_activities` | Create, update, nonaktifkan jurusan, dan catat aktivitas |
 
 ## Validasi DB
 
@@ -292,4 +309,4 @@ LIMIT 10;
 - Queue worker.
 - Multi sekolah.
 - Integrasi orang tua.
-- Laporan produksi final.
+- Laporan lanjutan lintas sekolah atau arsip produksi final.

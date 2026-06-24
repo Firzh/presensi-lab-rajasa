@@ -15,6 +15,8 @@ Removed
 
 ### Added
 
+- Menambahkan dokumentasi implementasi laporan presensi/export, backup/restore, jurusan, admin user, log aktivitas, dan layout responsif terbaru.
+- Menambahkan catatan testing untuk laporan, export, jurusan, pengaturan, scan sound, dan script `test-export.sh`.
 - Menambahkan Tahap 7: Scan Readiness Import.
 - Menambahkan endpoint `POST /api/import/scan-readiness`.
 - Menambahkan endpoint `GET /api/import/jobs`.
@@ -44,6 +46,7 @@ Removed
 - Menambahkan logging komprehensif pada backend (`session_expired`, `access_denied`, aktivitas).
 ### Fixed
 
+- Memperbaiki typo endpoint `PATCH /api/presensi/jam-siswa/{id}` pada README.
 - Menyesuaikan `import_jobs` dengan schema nyata:
   - `import_code`
   - `import_type`
@@ -65,6 +68,7 @@ Removed
 
 ### Changed
 
+- Menyinkronkan `README.md`, `docs/ARCHITECTURE.md`, `docs/DATABASE.md`, dan `docs/TESTING.md` dengan commit `0c5eab9`, `1f9ba70`, dan `42f5cbf`.
 - Membersihkan lint warnings dan menyempurnakan struktur modular frontend.
 - Memusatkan pemanggilan API management melalui `apiClient.js` dengan interceptor 401/403.
 - Mengubah mekanisme logout agar menghapus session dan history navigasi.

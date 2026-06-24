@@ -1,6 +1,6 @@
 # API
 
-Branch acuan: `alfy/backend-import-advanced`
+Branch acuan: `alfy/combine`
 
 Base URL development:
 
@@ -48,33 +48,48 @@ Authorization: Bearer TOKEN
 
 ## Endpoint Ringkas
 
-| Method  | Endpoint                        | Fungsi                                             | Permission                     |
-| ------- | ------------------------------- | -------------------------------------------------- | ------------------------------ |
-| `GET`   | `/health`                       | Cek backend aktif                                  | Public                         |
-| `POST`  | `/auth/login`                   | Login dan ambil token                              | Public                         |
-| `POST`  | `/auth/logout`                  | Logout client-side                                 | Login                          |
-| `GET`   | `/me`                           | Data user aktif                                    | Login                          |
-| `GET`   | `/rombel/options`               | Daftar rombel aktif                                | `attendance.session.read`      |
-| `POST`  | `/presensi/sesi/check-warning`  | Cek jam sudah pernah dipakai hari ini              | `attendance.session.create`    |
-| `POST`  | `/presensi/sesi`                | Membuat sesi presensi                              | `attendance.session.create`    |
-| `GET`   | `/presensi/sesi/aktif`          | Melihat sesi aktif/suspended                       | `attendance.session.read`      |
-| `POST`  | `/presensi/sesi/{id}/pause`     | Menjeda sesi                                       | `attendance.session.update`    |
-| `POST`  | `/presensi/sesi/{id}/resume`    | Melanjutkan sesi                                   | `attendance.session.update`    |
-| `POST`  | `/presensi/sesi/{id}/finish`    | Menutup sesi                                       | `attendance.session.update`    |
-| `POST`  | `/presensi/sesi/{id}/heartbeat` | Menjaga sesi tetap aktif                           | `attendance.session.update`    |
-| `POST`  | `/import/scan-readiness`        | Import siswa CSV untuk QR                          | `import.submit`                |
-| `POST`  | `/import`                       | Import one-gate CSV/XLSX dengan auto-detect header | `import.submit`                |
-| `GET`   | `/import/jobs`                  | Riwayat import                                     | `import.read`                  |
-| `GET`   | `/import/jobs/{id}/rows`        | Log baris import                                   | `import.read`                  |
-| `POST`  | `/presensi/scan`                | Menerima hasil scan QR                             | `attendance.scan`              |
-| `GET`   | `/presensi/audit/latest`        | Audit scan dan presensi terkini                    | `attendance.log.read`          |
-| `GET`   | `/presensi/jam-siswa`           | Daftar presensi siswa                              | `attendance.manual.read`       |
-| `PATCH` | `/presensi/jam-siswa/{id}`      | Edit presensi manual                               | `attendance.manual.update`     |
-| `GET`   | `/presensi/edit-reasons`        | Daftar alasan edit                                 | `attendance.edit_reasons.read` |
-| `GET`   | `/siswa`                        | Menampilkan daftar siswa                           | `student.read`                 |
-| `GET`   | `/dashboard`                    | Data ringkasan dashboard                           | `dashboard.read`               |
-| `GET`   | `/users`                        | Manajemen daftar user                              | `users.read`                   |
-| `GET`   | `/log-users`                    | Log aktivitas users                                | `users.log.read`               |
+| Method   | Endpoint                                  | Fungsi                                             | Permission                     |
+| -------- | ----------------------------------------- | -------------------------------------------------- | ------------------------------ |
+| `GET`    | `/health`                                 | Cek backend aktif                                  | Public                         |
+| `POST`   | `/auth/login`                             | Login dan ambil token                              | Public                         |
+| `POST`   | `/auth/logout`                            | Logout client-side                                 | Login                          |
+| `GET`    | `/me`                                     | Data user aktif                                    | Login                          |
+| `GET`    | `/rombel/options`                         | Daftar rombel aktif                                | `attendance.session.read`      |
+| `GET`    | `/siswa`                                  | Menampilkan daftar siswa                           | `student.read`                 |
+| `GET`    | `/jurusan`                                | Daftar jurusan                                     | `jurusan.read`                 |
+| `POST`   | `/jurusan`                                | Menambah jurusan                                   | `jurusan.create`               |
+| `PATCH`  | `/jurusan/{id}`                           | Memperbarui jurusan                                | `jurusan.update`               |
+| `DELETE` | `/jurusan/{id}`                           | Menonaktifkan jurusan                              | `jurusan.delete`               |
+| `GET`    | `/admin/users`                            | Daftar user                                        | `users.read`                   |
+| `POST`   | `/admin/users`                            | Menambah user                                      | `users.create`                 |
+| `PATCH`  | `/admin/users/{id}`                       | Memperbarui user                                   | `users.update`                 |
+| `GET`    | `/admin/user-activities`                  | Log aktivitas user                                 | `user_activities.read`         |
+| `GET`    | `/settings`                               | Data pengaturan                                    | `konfigurasi.read`             |
+| `POST`   | `/settings/backup`                        | Membuat backup database                            | `konfigurasi.manage`           |
+| `GET`    | `/settings/backup/download`               | Mengambil file backup                              | `konfigurasi.read`             |
+| `POST`   | `/settings/backup/preview-import`         | Preview file backup                                | `konfigurasi.manage`           |
+| `POST`   | `/settings/backup/import`                 | Restore data dari backup                           | `konfigurasi.manage`           |
+| `PATCH`  | `/settings/rombel-schedule`               | Memperbarui jadwal rombel                          | `konfigurasi.manage`           |
+| `PATCH`  | `/settings/late-rule`                     | Memperbarui aturan terlambat                       | `konfigurasi.manage`           |
+| `POST`   | `/presensi/sesi/check-warning`            | Cek jam sudah pernah dipakai hari ini              | `attendance.session.create`    |
+| `POST`   | `/presensi/sesi`                          | Membuat sesi presensi                              | `attendance.session.create`    |
+| `GET`    | `/presensi/sesi/aktif`                    | Melihat sesi aktif/suspended                       | `attendance.session.read`      |
+| `POST`   | `/presensi/sesi/{id}/pause`               | Menjeda sesi                                       | `attendance.session.update`    |
+| `POST`   | `/presensi/sesi/{id}/resume`              | Melanjutkan sesi                                   | `attendance.session.update`    |
+| `POST`   | `/presensi/sesi/{id}/finish`              | Menutup sesi                                       | `attendance.session.update`    |
+| `POST`   | `/presensi/sesi/{id}/heartbeat`           | Menjaga sesi tetap aktif                           | `attendance.session.update`    |
+| `POST`   | `/import/scan-readiness`                  | Import siswa CSV untuk QR                          | `import.submit`                |
+| `POST`   | `/import/preview`                         | Preview CSV/XLSX tanpa menulis database            | `import.submit`                |
+| `POST`   | `/import`                                 | Import one-gate CSV/XLSX dengan auto-detect header | `import.submit`                |
+| `GET`    | `/import/jobs`                            | Riwayat import                                     | `import.read`                  |
+| `GET`    | `/import/jobs/{id}/rows`                  | Log baris import                                   | `import.read`                  |
+| `POST`   | `/presensi/scan`                          | Menerima hasil scan QR                             | `attendance.scan`              |
+| `GET`    | `/presensi/audit/latest`                  | Audit scan dan presensi terkini                    | `attendance.log.read`          |
+| `GET`    | `/presensi/jam-siswa`                     | Daftar presensi siswa                              | `attendance.manual.read`       |
+| `PATCH`  | `/presensi/jam-siswa/{id}`                | Edit presensi manual                               | `attendance.manual.update`     |
+| `GET`    | `/presensi/edit-reasons`                  | Daftar alasan edit                                 | `attendance.edit_reasons.read` |
+| `GET`    | `/reports/presensi`                       | Daftar dan ringkasan laporan presensi              | `reports.attendance.read`      |
+| `GET`    | `/reports/presensi/export`                | Export laporan CSV/XLSX/PDF/DOCX                   | `reports.attendance.export`    |
 
 
 ## Auth
@@ -230,6 +245,10 @@ Format didukung:
 .csv
 .xlsx
 ```
+
+### POST `/import/preview`
+
+Memvalidasi dan menampilkan preview CSV/XLSX tanpa menulis database. Input sama dengan `/import`: multipart `file` atau `file_path`.
 
 ## Import Scan Readiness
 
@@ -426,6 +445,15 @@ koreksi_input
 lainnya
 ```
 
+
+## Implementasi API Terbaru
+
+- Endpoint ringkas sudah dicek ulang terhadap `backend/routes/api.php` pada branch `alfy/combine`.
+- `GET /reports/presensi` menerima `date_from`, `date_to`, `rombel_id`, `siswa_id`, `jam_ke`, `status`, `mode`, `page`, dan `per_page`.
+- `GET /reports/presensi/export` memakai filter yang sama ditambah `format=csv|xlsx|pdf|docx`; respons berupa file attachment dan format tidak valid menghasilkan `400`.
+- Backup dibuat melalui `POST /settings/backup`, diambil dengan `GET /settings/backup/download?file=...`, lalu dipreview/restore memakai multipart `file` atau `file_path`; restore berjalan dalam mode data-only.
+- Endpoint jurusan dan admin user memakai JSON body, sedangkan endpoint daftar mendukung filter/paginasi sesuai controller.
+
 ## Implementasi Dev Saat Ini
 
 Route frontend demo:
@@ -446,17 +474,16 @@ scanner HP memakai crop, qrbox besar, dan camera track enhancement
 Catatan implementasi backend:
 
 ```text
-Endpoint API tidak berubah pada refactor 2 Juni.
-Beberapa route kini memakai controller gabungan berbasis method handler.
-Orchestration import, rombel, audit, jam siswa, dan warning sesi dipindahkan ke service.
+Endpoint bertambah untuk preview import, laporan/export, pengaturan/backup, jurusan, dan admin user.
+Validasi permission tetap dilakukan di controller melalui PermissionMiddleware.
+Orchestration utama tetap dipisahkan ke service.
 ```
 
 Tambahan implementasi frontend:
 
 ```text
-Kontrak endpoint API tidak berubah pada refactor frontend.
-Pemanggilan API frontend dipisah ke `src/api/importApi.js` dan `src/api/presensiScanApi.js`.
-Routing halaman dev berada di frontend route, bukan endpoint API backend.
+Pemanggilan API dipisah per modul, termasuk import, laporan, pengaturan, dan presensi scan.
+Routing halaman tetap berada di frontend route, bukan endpoint API backend.
 ```
 
 ## Error Code
@@ -465,6 +492,7 @@ Routing halaman dev berada di frontend route, bukan endpoint API backend.
 | ----- | ---------------------------------- |
 | `200` | Berhasil                           |
 | `201` | Data dibuat                        |
+| `400` | Request atau format tidak valid     |
 | `401` | Token tidak ada/tidak valid        |
 | `403` | Tidak punya akses                  |
 | `404` | Endpoint atau data tidak ditemukan |

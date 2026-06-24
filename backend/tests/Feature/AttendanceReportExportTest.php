@@ -61,6 +61,11 @@ final class AttendanceReportExportTest extends TestCase
             ['Authorization' => 'Bearer ' . $this->adminToken]
         );
 
+        // if ($response['__status_code'] !== 200) {
+        //     fwrite(STDERR, "\nPDF STATUS: " . $response['__status_code'] . "\n");
+        //     fwrite(STDERR, "PDF BODY:\n" . ($response['__raw_content'] ?? '') . "\n");
+        // }
+
         $this->assertSame(200, $response['__status_code']);
     }
 
@@ -72,6 +77,11 @@ final class AttendanceReportExportTest extends TestCase
             [], 
             ['Authorization' => 'Bearer ' . $this->adminToken]
         );
+
+        // if ($response['__status_code'] !== 200) {
+        //     fwrite(STDERR, "\nDOCX STATUS: " . $response['__status_code'] . "\n");
+        //     fwrite(STDERR, "DOCX BODY:\n" . ($response['__raw_content'] ?? '') . "\n");
+        // }
 
         $this->assertSame(200, $response['__status_code']);
     }

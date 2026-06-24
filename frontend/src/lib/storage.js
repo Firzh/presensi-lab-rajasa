@@ -1,9 +1,29 @@
+const memoryStorage = new Map();
+
+const fallbackStorage = {
+  getItem(key) {
+    return memoryStorage.has(key) ? memoryStorage.get(key) : null;
+  },
+
+  setItem(key, value) {
+    memoryStorage.set(key, String(value));
+  },
+
+  removeItem(key) {
+    memoryStorage.delete(key);
+  },
+};
+
 function getDefaultStorage() {
   if (typeof window === 'undefined') {
-    return null;
+    return fallbackStorage;
   }
 
-  return window.localStorage ?? null;
+  try {
+    return window.localStorage ?? fallbackStorage;
+  } catch (_error) {
+    return fallbackStorage;
+  }
 }
 
 function isStorageLike(storage) {

@@ -256,7 +256,7 @@ export function ImportBackupDataPanel({
   const [backupPage, setBackupPage] = useState(1);
   const dataOverwriteCount = getDetails(dataPreview).length;
   const backupOverwriteCount = getDetails(backupPreview).length;
-  const dataSummary = useMemo(() => getSummary(dataPreview), [dataPreview]);
+  const _dataSummary = useMemo(() => getSummary(dataPreview), [dataPreview]);
   const backupSummary = useMemo(() => getSummary(backupPreview), [backupPreview]);
 
   return (

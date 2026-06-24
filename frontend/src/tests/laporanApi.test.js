@@ -7,7 +7,7 @@ vi.mock('../lib/authSession.js', () => ({
 
 describe('laporanApi export', () => {
   beforeEach(() => {
-    global.fetch = vi.fn().mockResolvedValue({
+    globalThis.fetch = vi.fn().mockResolvedValue({
       ok: true,
       headers: new Headers({
         'Content-Disposition': 'attachment; filename="laporan-presensi.xlsx"',

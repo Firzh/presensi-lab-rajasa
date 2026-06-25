@@ -261,18 +261,23 @@ describe('presensi management page', () => {
 
     render(<PresensiScanPage />);
 
-    fireEvent.input(screen.getByLabelText('Presensi Berdasarkan NISN'), {
+    // fireEvent.input(screen.getByLabelText('Presensi Berdasarkan NISN'), {
+    //   target: { value: '0096672112' },
+    // });
+
+
+    fireEvent.change(screen.getByLabelText('Presensi Berdasarkan NISN'), {
       target: { value: '0096672112' },
     });
 
     fireEvent.click(screen.getByRole('button', { name: 'Kirim Presensi' }));
-
+    
     await waitFor(() => {
       expect(submitPresensiQrScan).toHaveBeenCalledWith(
         expect.objectContaining({
           presensiSesiId: '99',
           payloadRaw: '',
-          fallback_nisn: '0096672112',
+          fallbackNisn: '0096672112',
         })
       );
     });

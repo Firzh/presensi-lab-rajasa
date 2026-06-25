@@ -188,7 +188,7 @@ export function PresensiScanPage() {
       playScanSuccessSound();
       setStatusType('success');
       setStatusMessage(`${scan.siswa?.nama_lengkap || 'Siswa'} berhasil presensi.`);
-      if (isFallback) setFallbackNoPresensi('');
+      if (isFallback) setFallbackNisn('');
       return;
     }
 

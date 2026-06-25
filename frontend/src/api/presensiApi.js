@@ -52,6 +52,7 @@ export async function submitPresensiQrScan({
   fallbackNisn = '',
 }) {
   const body = {
+    presensi_sesi_id: presensiSesiId,
     fallback_nisn: fallbackNisn,
   };
 

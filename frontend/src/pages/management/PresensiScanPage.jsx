@@ -55,6 +55,7 @@ export function PresensiScanPage() {
   const [activeSession, setActiveSession] = useState(getInitialActivePresensiSession);
   const [statusMessage, setStatusMessage] = useState('Siap membuka kamera.');
   const [statusType, setStatusType] = useState('info');
+  const [fallbackNisn, setFallbackNisn] = useState('');
   const [modal, setModal] = useState(null);
 
   const isDark = theme === 'dark';
@@ -111,10 +112,13 @@ export function PresensiScanPage() {
     goToPresensi();
   }
 
-  async function handleSubmitScan(scannedPayload = '') {
+  async function handleSubmitScan(scannedPayload = '', options = {}) {
     if (isSubmittingRef.current) return;
 
     const cleanPayload = String(scannedPayload || '').trim();
+    const cleanFallbackNisn = String(options.fallbackNisn || '').trim();
+    const isFallback = cleanFallbackNisn !== '';
+  const scanKey = isFallback ? `fallback:${cleanFallbackNisn}` : cleanPayload;
 
     if (!activeSession?.presensi_sesi_id) {
       setStatusType('error');
@@ -122,25 +126,28 @@ export function PresensiScanPage() {
       return;
     }
 
-    if (!cleanPayload) {
+    if (!cleanPayload && !isFallback) {
       setStatusType('error');
       setStatusMessage('Payload QR kosong.');
       return;
     }
 
-    if (processedPayloadsRef.current.has(cleanPayload)) {
+    if (processedPayloadsRef.current.has(scanKey)) {
       setStatusType('warning');
-      setStatusMessage('QR ini sudah diproses di sesi ini.');
+      setStatusMessage(
+        isFallback ? 'Nomor presensi ini sudah diproses di sesi ini.' : 'QR ini sudah diproses di sesi ini.'
+      );
       return;
     }
 
     isSubmittingRef.current = true;
     setStatusType('info');
-    setStatusMessage('Mengirim hasil scan...');
+    setStatusMessage(isFallback ? 'Mengirim fallback nomor presensi...' : 'Mengirim hasil scan...');
 
     const result = await submitPresensiQrScan({
       presensiSesiId: activeSession.presensi_sesi_id,
       payloadRaw: cleanPayload,
+      fallbackNisn: cleanFallbackNisn,
     });
 
     isSubmittingRef.current = false;
@@ -152,7 +159,7 @@ export function PresensiScanPage() {
     }
 
     const scan = result.data?.data || {};
-    processedPayloadsRef.current.add(cleanPayload);
+    processedPayloadsRef.current.add(scanKey);
 
     if (scan.status_scan === 'warning') {
       await stopScanner();
@@ -181,6 +188,7 @@ export function PresensiScanPage() {
       playScanSuccessSound();
       setStatusType('success');
       setStatusMessage(`${scan.siswa?.nama_lengkap || 'Siswa'} berhasil presensi.`);
+      if (isFallback) setFallbackNisn('');
       return;
     }
 
@@ -192,12 +200,32 @@ export function PresensiScanPage() {
 
     if (scan.status_scan === 'invalid') {
       setStatusType('error');
-      setStatusMessage('QR tidak dikenal. Data tidak masuk presensi.');
+      setStatusMessage(
+        isFallback
+          ? 'Nomor presensi tidak ditemukan. Data tidak masuk presensi.'
+          : 'QR tidak dikenal. Data tidak masuk presensi.'
+      );
       return;
     }
 
     setStatusType('info');
     setStatusMessage(`Scan selesai dengan status: ${scan.status_scan}.`);
+  }
+
+  function handleSubmitFallback(event) {
+    event.preventDefault();
+
+    const cleanFallbackNisn = fallbackNisn.trim();
+
+    if (!/^\d+$/.test(cleanFallbackNisn)) {
+      setStatusType('error');
+      setStatusMessage('NISN fallback harus berupa angka.');
+      return;
+    }
+
+    handleSubmitScan('', {
+      fallbackNisn: cleanFallbackNisn,
+    });
   }
 
   return (
@@ -343,6 +371,34 @@ export function PresensiScanPage() {
                 Akhiri Presensi
               </button>
             </div>
+
+            <form className="mt-4 grid gap-3 sm:grid-cols-[1fr_auto]" onSubmit={handleSubmitFallback}>
+              <label className="grid gap-2 text-sm font-bold text-[#8b9298]">
+                Presensi Berdasarkan NISN
+                <input
+                  type="number"
+                  min="1"
+                  inputMode="numeric"
+                  className={clsx(
+                    'h-12 rounded-xl border px-4 text-sm font-bold outline-none',
+                    isDark
+                      ? 'border-[#64717d] bg-[#56616d] text-[#F0EDE4]'
+                      : 'border-[#d5dde8] bg-white text-[#43505a]'
+                  )}
+                  value={fallbackNisn}
+                  placeholder="Contoh: 1"
+                  onChange={(event) => setFallbackNisn(event.target.value)}
+                />
+              </label>
+
+              <button
+                type="submit"
+                className="h-12 self-end rounded-xl bg-[#56616d] px-5 font-extrabold text-[#F0EDE4] transition hover:bg-[#64717d] disabled:opacity-50"
+                disabled={isSubmittingRef.current || !activeSession?.presensi_sesi_id}
+              >
+                Kirim Presensi
+              </button>
+            </form>
           </section>
         )}
       </main>

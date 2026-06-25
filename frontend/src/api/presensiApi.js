@@ -46,12 +46,26 @@ export async function heartbeatPresensiSession(presensiSesiId) {
   return apiFetch(`/api/presensi/sesi/${presensiSesiId}/heartbeat`, { method: 'POST' });
 }
 
-export async function submitPresensiQrScan({ presensiSesiId, payloadRaw }) {
+export async function submitPresensiQrScan({
+  presensiSesiId,
+  payloadRaw = '',
+  fallbackNisn = '',
+}) {
+  const body = {
+    presensi_sesi_id: presensiSesiId,
+    fallback_nisn: fallbackNisn,
+  };
+
+  if (payloadRaw) {
+    body.payload_raw = payloadRaw;
+  }
+
+  if (fallbackNisn) {
+    body.fallback_nisn = fallbackNisn;
+  }
+
   return apiFetch('/api/presensi/scan', {
     method: 'POST',
-    body: JSON.stringify({
-      presensi_sesi_id: Number(presensiSesiId),
-      payload_raw: payloadRaw,
-    }),
+    body: JSON.stringify(body),
   });
 }

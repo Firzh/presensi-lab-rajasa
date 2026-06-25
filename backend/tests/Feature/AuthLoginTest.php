@@ -19,6 +19,10 @@ final class AuthLoginTest extends TestCase
         $this->assertTrue($response['success']);
         $this->assertSame('Login berhasil.', $response['message']);
         $this->assertNotEmpty($response['data']['token']);
+        $this->assertSame('Bearer', $response['data']['token_type']);
+        $this->assertGreaterThan(0, $response['data']['expires_in']);
+        $this->assertLessThanOrEqual(600, $response['data']['expires_in']);
+        $this->assertNotEmpty($response['data']['expires_at']);
         $this->assertSame('admin.demo', $response['data']['user']['username']);
         $this->assertSame('admin', $response['data']['user']['user_type']);
         $this->assertNotEmpty($response['data']['roles']);

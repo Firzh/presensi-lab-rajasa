@@ -16,6 +16,7 @@ Removed
 ### Added
 
 - Menambahkan export compact PDF/DOCX untuk laporan presensi dengan kolom `Kehadiran`, `Jam Pelajaran Tidak Hadir`, dan status tampilan `Hadir/Tidak Lengkap`.
+- Menambahkan fallback presensi berdasarkan NISN pada halaman scan aktif.
 - Menambahkan dokumentasi implementasi laporan presensi/export, backup/restore, jurusan, admin user, log aktivitas, dan layout responsif terbaru.
 - Menambahkan catatan testing untuk laporan, export, jurusan, pengaturan, scan sound, dan script `test-export.sh`.
 - Menambahkan Tahap 7: Scan Readiness Import.
@@ -45,6 +46,7 @@ Removed
 - Menambahkan endpoint API untuk melayani fitur Siswa, Dashboard, Users, dan Log Users.
 - Menambahkan sistem Route Guard (`PrivateRoute`) pada frontend.
 - Menambahkan logging komprehensif pada backend (`session_expired`, `access_denied`, aktivitas).
+
 ### Fixed
 
 - Menyesuaikan test export DOCX dan test modal export frontend dengan alur konfirmasi export terbaru.
@@ -70,17 +72,19 @@ Removed
 
 ### Changed
 
+- Menyinkronkan dokumentasi API, arsitektur, database, testing, README, dan changelog untuk fallback NISN.
 - Menyinkronkan `README.md`, `docs/ARCHITECTURE.md`, `docs/DATABASE.md`, dan `docs/TESTING.md` dengan commit `0c5eab9`, `1f9ba70`, dan `42f5cbf`.
 - Membersihkan lint warnings dan menyempurnakan struktur modular frontend.
 - Memusatkan pemanggilan API management melalui `apiClient.js` dengan interceptor 401/403.
 - Mengubah mekanisme logout agar menghapus session dan history navigasi.
+- Mengubah default TTL access token menjadi 10 menit dan menambahkan metadata expiry pada response login.
 
 ### Fixed
 
 - Memperbaiki insert sesi presensi dengan mengisi `session_uuid`.
 - Memperbaiki `presensi_sesi_jam.urutan` agar mengikuti urutan jam yang dipilih.
 - Memperbaiki test isolation agar sesi aktif dari test tidak mengganggu test berikutnya.
-- Memperbaiki celah keamanan agar user anonim tidak bisa mengakses rute *private* frontend.
+- Memperbaiki celah keamanan agar user anonim tidak bisa mengakses rute _private_ frontend.
 - Memastikan token expired ditangani dengan auto-logout.
 
 ### Removed

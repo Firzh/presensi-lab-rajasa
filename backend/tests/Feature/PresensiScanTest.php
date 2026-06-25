@@ -44,6 +44,51 @@ final class PresensiScanTest extends TestCase
         $this->finishSession($token, $sessionId);
     }
 
+    public function test_fallback_nisn_marks_attendance_as_hadir(): void
+    {
+        $token = $this->loginAndGetToken();
+        $this->cleanupActiveSessions();
+        $this->importMiniStudents($token);
+        $this->cleanupAttendanceForTestStudents();
+
+        $siswa = DB::table('siswa')->where('nisn', '0096672112')->first();
+        $jamIds = $this->firstJamIds(1);
+
+        $sessionId = $this->createSession($token, (int) $siswa->rombel_id_aktif, $jamIds, 'kelas');
+
+        $response = $this->runApp('POST', '/api/presensi/scan', [
+            'presensi_sesi_id' => $sessionId,
+            'fallback_nisn' => $siswa->nisn,
+        ], [
+            'Authorization' => 'Bearer ' . $token,
+        ]);
+
+        $this->assertSame(201, $response['__status_code'], json_encode($response, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+        $this->assertSame('berhasil', $response['data']['status_scan']);
+        $this->assertSame('fallback', $response['data']['scan_mode']);
+        $this->assertSame('hadir', $response['data']['attendance_status']);
+        $this->assertSame(1, $response['data']['affected_rows']);
+        $this->assertSame((int) $siswa->siswa_id, $response['data']['siswa']['siswa_id']);
+
+        $this->assertTrue(
+            DB::table('presensi_jam_siswa')
+                ->where('siswa_id', (int) $siswa->siswa_id)
+                ->where('jam_id', $jamIds[0])
+                ->where('status', 'hadir')
+                ->exists()
+        );
+
+        $this->assertTrue(
+            DB::table('presensi_scan_log')
+                ->where('siswa_id', (int) $siswa->siswa_id)
+                ->where('payload_raw', 'FALLBACK_NISN:' . $siswa->nisn)
+                ->where('status_scan', 'berhasil')
+                ->exists()
+        );
+
+        $this->finishSession($token, $sessionId);
+    }
+
     public function test_scan_wrong_rombel_returns_warning(): void
     {
         $token = $this->loginAndGetToken();

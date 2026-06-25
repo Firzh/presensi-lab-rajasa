@@ -90,7 +90,7 @@ scripts/
 | Sesi         | `PresensiSessionService`                                                                                             | Buat, pause, resume, finish sesi                                            |
 | Timeout sesi | `PresensiSessionTimeoutService`                                                                                      | Expire sesi idle 5 menit                                                    |
 | Warning sesi | `PresensiSesiWarningCheckController`                                                                                 | Cek jam pernah dipakai hari ini                                             |
-| Scan QR      | `PresensiScanService`, `QrPayloadService`                                                                            | Parse dan proses QR                                                         |
+| Scan QR      | `PresensiScanService`, `QrPayloadService`                                                                            | Parse QR dan proses fallback NISN                                      |
 | Manual edit  | `PresensiManualEditService`                                                                                          | Edit presensi dan audit                                                     |
 | Audit demo   | `PresensiAuditController`                                                                                            | Baca hasil scan terkini                                                     |
 | Laporan     | `ReportController`, `ReportService`                                                                                  | Filter dan ringkasan laporan presensi                                       |
@@ -183,6 +183,16 @@ Kamera membaca QR
   -> update presensi_jam_siswa jika valid
 ```
 
+## Alur Fallback NISN
+
+```text
+Admin input NISN
+  -> PresensiScanService hitung siswa aktif per rombel sesi
+  -> urut nama_lengkap ASC, siswa_id ASC
+  -> tulis presensi_scan_log
+  -> update presensi_jam_siswa menjadi hadir
+```
+
 Status scan:
 
 | Status     | Arti                                |
@@ -268,6 +278,8 @@ Perubahan arsitektur terbaru:
 ## Auth dan Permission
 
 Auth memakai bearer token stateless.
+
+Access token berlaku 10 menit via `ACCESS_TOKEN_TTL_MINUTES`; `SESSION_SECRET` tetap stabil untuk validasi signature.
 
 Permission penting:
 

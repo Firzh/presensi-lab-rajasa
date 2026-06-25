@@ -72,6 +72,7 @@ Validasi refactor 2 Juni: `./scripts/test-backend.sh` OK, 86 tests, 306 assertio
 | User model metadata                                                | Unit         |
 | Auth login dan `/api/me`                                           | Feature      |
 | Token stateless                                                    | Unit         |
+| TTL access token 10 menit dan expired 401                          | Unit/Feature |
 | Permission read                                                    | Feature      |
 | Presensi sesi rombel/piket                                         | Feature      |
 | Pause, resume, finish sesi                                         | Feature      |
@@ -84,6 +85,7 @@ Validasi refactor 2 Juni: `./scripts/test-backend.sh` OK, 86 tests, 306 assertio
 | Import column mapper siswa                                         | Unit         |
 | QR parser Google Form/plain                                        | Unit         |
 | Presensi scan valid                                                | Feature      |
+| Presensi fallback NISN                                         | Feature      |
 | Warning beda rombel                                                | Feature      |
 | Invalid QR                                                         | Feature      |
 | Duplicate scan                                                     | Feature      |
@@ -102,7 +104,7 @@ Validasi refactor 2 Juni: `./scripts/test-backend.sh` OK, 86 tests, 306 assertio
 | Laporan presensi dan export CSV/XLSX/PDF/DOCX                      | Feature      |
 | Jurusan management                                                  | Feature      |
 | Settings backup/restore, jadwal rombel, dan late rule               | Feature/manual |
-| Frontend laporan, pengaturan, jurusan, siswa, dan scan sound        | Unit         |
+| Frontend laporan, pengaturan, jurusan, siswa, scan sound, dan fallback NISN | Unit         |
 
 ## Test Khusus Terbaru
 
@@ -155,6 +157,7 @@ Validasi otomatis:
 ```bash
 docker compose exec backend ./vendor/bin/phpunit --filter PresensiSessionTest
 docker compose exec backend ./vendor/bin/phpunit --filter PresensiScanTest
+# mencakup scan QR, warning, invalid, duplicate, dan fallback NISN
 ```
 
 ### Audit Presensi Terkini

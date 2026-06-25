@@ -13,6 +13,8 @@ final class DocxExporter
 {
     public function export(array $data, array $summary = [], array $filters = []): string
     {
+        $data = AttendanceExportRows::compact($data);
+
         $phpWord = new PhpWord();
         $phpWord->setDefaultFontName('Arial');
         $phpWord->setDefaultFontSize(10);
@@ -85,8 +87,12 @@ final class DocxExporter
         $dataTable->addCell(3000, $headerBg)->addText('Siswa', $headerStyle);
         $dataTable->addCell(1500, $headerBg)->addText('NISN', $headerStyle, ['alignment' => Jc::CENTER]);
         $dataTable->addCell(1500, $headerBg)->addText('Rombel', $headerStyle, ['alignment' => Jc::CENTER]);
-        $dataTable->addCell(2000, $headerBg)->addText('Ruangan', $headerStyle);
-        $dataTable->addCell(1000, $headerBg)->addText('Jam', $headerStyle, ['alignment' => Jc::CENTER]);
+        $dataTable->addCell(1500, $headerBg)->addText('Kehadiran', $headerStyle, ['alignment' => Jc::CENTER]);
+        $tidakHadirHeader = $dataTable->addCell(1900, $headerBg);
+        $tidakHadirHeaderRun = $tidakHadirHeader->addTextRun(['alignment' => Jc::CENTER]);
+        $tidakHadirHeaderRun->addText('Jam Pelajaran', $headerStyle);
+        $tidakHadirHeaderRun->addTextBreak();
+        $tidakHadirHeaderRun->addText('Tidak Hadir', $headerStyle);
         $dataTable->addCell(1500, $headerBg)->addText('Status', $headerStyle, ['alignment' => Jc::CENTER]);
         
         if (empty($data)) {
@@ -101,9 +107,9 @@ final class DocxExporter
                 $dataTable->addCell(3000)->addText($row['nama_siswa'] ?? '-');
                 $dataTable->addCell(1500)->addText($row['nisn'] ?? '-');
                 $dataTable->addCell(1500)->addText($row['rombel'] ?? '-');
-                $dataTable->addCell(2000)->addText($row['ruangan'] ?? '-');
-                $dataTable->addCell(1000)->addText((string)($row['jam_ke'] ?? '-'), [], ['alignment' => Jc::CENTER]);
-                $dataTable->addCell(1500)->addText(ucfirst($row['status'] ?? '-'), [], ['alignment' => Jc::CENTER]);
+                $dataTable->addCell(1500)->addText((string)($row['kehadiran'] ?? '-'), [], ['alignment' => Jc::CENTER]);
+                $dataTable->addCell(1900)->addText((string)($row['jam_pelajaran_tidak_hadir'] ?? '-'), [], ['alignment' => Jc::CENTER]);
+                $dataTable->addCell(1500)->addText((string)($row['status'] ?? '-'), [], ['alignment' => Jc::CENTER]);
             }
         }
         

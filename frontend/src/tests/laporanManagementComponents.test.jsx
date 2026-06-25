@@ -99,15 +99,21 @@ describe('laporan management page', () => {
     expect(screen.getByRole('button', { name: 'Export as Excel' })).toBeTruthy();
   });
 
-  it('exports excel using xlsx format and closes modal', async () => {
+  it('exports excel using xlsx format after confirmation and closes modal', async () => {
     render(<LaporanPage />);
 
     await screen.findByText('Rachmat Hidayat');
 
     fireEvent.click(screen.getByRole('button', { name: /eksport laporan/i }));
-    
+
     const excelButton = await screen.findByRole('button', { name: /export as excel/i });
     fireEvent.click(excelButton);
+
+    expect(screen.queryByRole('heading', { name: 'Export Laporan' })).toBeFalsy();
+    expect(await screen.findByRole('heading', { name: 'Konfirmasi Export' })).toBeTruthy();
+    expect(downloadExportLaporan).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Lanjut Export' }));
 
     expect(downloadExportLaporan).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -116,18 +122,16 @@ describe('laporan management page', () => {
       }),
       'xlsx'
     );
-
-    expect(screen.queryByRole('heading', { name: 'Export Laporan' })).toBeFalsy();
   });
 
-  it('closes export modal using Tutup button', async () => {
+  it('closes export modal using close icon button', async () => {
     render(<LaporanPage />);
 
     await screen.findByText('Rachmat Hidayat');
 
     fireEvent.click(screen.getByRole('button', { name: /eksport laporan/i }));
-    
-    const tutupButton = await screen.findByRole('button', { name: 'Tutup' });
+
+    const tutupButton = await screen.findByRole('button', { name: /tutup popup export/i });
     fireEvent.click(tutupButton);
 
     expect(screen.queryByRole('heading', { name: 'Export Laporan' })).toBeFalsy();

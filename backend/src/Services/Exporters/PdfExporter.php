@@ -31,6 +31,8 @@ final class PdfExporter
     
     private function generateHtml(array $data, array $summary, array $filters): string
     {
+        $data = AttendanceExportRows::compact($data);
+
         $dateFrom = $filters['date_from'] ?? date('Y-m-d');
         $dateTo = $filters['date_to'] ?? date('Y-m-d');
         $period = $dateFrom === $dateTo ? $dateFrom : "$dateFrom s/d $dateTo";
@@ -100,12 +102,12 @@ final class PdfExporter
             <tr>
                 <th width="3%">No</th>
                 <th width="10%">Tanggal</th>
-                <th width="25%">Siswa</th>
+                <th width="24%">Siswa</th>
                 <th width="10%">NISN</th>
                 <th width="12%">Rombel</th>
-                <th width="15%">Ruangan</th>
-                <th width="10%">Jam Masuk</th>
-                <th width="15%">Status</th>
+                <th width="12%">Kehadiran</th>
+                <th width="15%">Jam Pelajaran<br>Tidak Hadir</th>
+                <th width="12%">Status</th>
             </tr>
         </thead>
         <tbody>';
@@ -121,9 +123,9 @@ final class PdfExporter
                     <td>' . htmlspecialchars((string) ($row['nama_siswa'] ?? '-')) . '</td>
                     <td>' . htmlspecialchars((string) ($row['nisn'] ?? '-')) . '</td>
                     <td>' . htmlspecialchars((string) ($row['rombel'] ?? '-')) . '</td>
-                    <td>' . htmlspecialchars((string) ($row['ruangan'] ?? '-')) . '</td>
-                    <td style="text-align: center;">' . htmlspecialchars((string) ($row['jam_ke'] ?? '-')) . '</td>
-                    <td style="text-align: center; text-transform: capitalize;">' . htmlspecialchars((string) ($row['status'] ?? '-')) . '</td>
+                    <td style="text-align: center;">' . htmlspecialchars((string) ($row['kehadiran'] ?? '-')) . '</td>
+                    <td style="text-align: center;">' . htmlspecialchars((string) ($row['jam_pelajaran_tidak_hadir'] ?? '-')) . '</td>
+                    <td style="text-align: center;">' . htmlspecialchars((string) ($row['status'] ?? '-')) . '</td>
                 </tr>';
             }
         }

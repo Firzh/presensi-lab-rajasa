@@ -15,6 +15,7 @@ Removed
 
 ### Added
 
+- Menambahkan export compact PDF/DOCX untuk laporan presensi dengan kolom `Kehadiran`, `Jam Pelajaran Tidak Hadir`, dan status tampilan `Hadir/Tidak Lengkap`.
 - Menambahkan dokumentasi implementasi laporan presensi/export, backup/restore, jurusan, admin user, log aktivitas, dan layout responsif terbaru.
 - Menambahkan catatan testing untuk laporan, export, jurusan, pengaturan, scan sound, dan script `test-export.sh`.
 - Menambahkan Tahap 7: Scan Readiness Import.
@@ -46,6 +47,7 @@ Removed
 - Menambahkan logging komprehensif pada backend (`session_expired`, `access_denied`, aktivitas).
 ### Fixed
 
+- Menyesuaikan test export DOCX dan test modal export frontend dengan alur konfirmasi export terbaru.
 - Memperbaiki typo endpoint `PATCH /api/presensi/jam-siswa/{id}` pada README.
 - Menyesuaikan `import_jobs` dengan schema nyata:
   - `import_code`

@@ -451,6 +451,7 @@ lainnya
 - Endpoint ringkas sudah dicek ulang terhadap `backend/routes/api.php` pada branch `alfy/combine`.
 - `GET /reports/presensi` menerima `date_from`, `date_to`, `rombel_id`, `siswa_id`, `jam_ke`, `status`, `mode`, `page`, dan `per_page`.
 - `GET /reports/presensi/export` memakai filter yang sama ditambah `format=csv|xlsx|pdf|docx`; respons berupa file attachment dan format tidak valid menghasilkan `400`.
+- Export `csv/xlsx` tetap detail per jam, sedangkan `pdf/docx` memakai format compact per siswa: `Kehadiran`, `Jam Pelajaran Tidak Hadir`, dan status tampilan `Hadir/Tidak Lengkap`.
 - Backup dibuat melalui `POST /settings/backup`, diambil dengan `GET /settings/backup/download?file=...`, lalu dipreview/restore memakai multipart `file` atau `file_path`; restore berjalan dalam mode data-only.
 - Endpoint jurusan dan admin user memakai JSON body, sedangkan endpoint daftar mendukung filter/paginasi sesuai controller.
 

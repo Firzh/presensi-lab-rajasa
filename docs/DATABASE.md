@@ -198,7 +198,7 @@ Aturan:
 
 ### `presensi_scan_log`
 
-Mencatat semua percobaan scan.
+Mencatat semua percobaan scan, termasuk fallback no absen.
 
 Kolom penting:
 
@@ -218,6 +218,8 @@ Status scan:
 | `ditolak` | Log saja, tidak mengubah presensi |
 
 Catatan:
+
+- Tidak ada kolom no absen baru. NISN fallback dihitung dari siswa aktif per rombel dengan urutan `nama_lengkap ASC`, `siswa_id ASC`.
 
 - Warning beda rombel tidak di-resolve.
 - Warning tetap menjadi bukti kejadian.
@@ -246,6 +248,7 @@ Yang terjadi:
 | Heartbeat sesi | `presensi_sesi` | Update `last_seen_at`, `expires_at` |
 | Check warning jam harian | `presensi_sesi`, `presensi_sesi_jam`, `rombel` | Read only |
 | Audit presensi terkini | `presensi_scan_log`, `presensi_jam_siswa`, `siswa` | Read only |
+| Fallback no absen | `siswa`, `presensi_scan_log`, `presensi_jam_siswa` | Hitung siswa per rombel dan catat hadir |
 | Tombol akhiri sesi | `presensi_sesi` | Update status via finish endpoint |
 | Scanner clarity | Tidak menyentuh DB | Frontend only |
 | Laporan presensi | `presensi_jam_siswa`, `presensi_sesi`, `siswa`, `rombel`, `jam_pembelajaran` | Read only dan export file |

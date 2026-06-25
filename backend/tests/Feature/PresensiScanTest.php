@@ -44,7 +44,7 @@ final class PresensiScanTest extends TestCase
         $this->finishSession($token, $sessionId);
     }
 
-    public function test_fallback_no_presensi_marks_attendance_as_hadir(): void
+    public function test_fallback_nisn_marks_attendance_as_hadir(): void
     {
         $token = $this->loginAndGetToken();
         $this->cleanupActiveSessions();
@@ -58,7 +58,7 @@ final class PresensiScanTest extends TestCase
 
         $response = $this->runApp('POST', '/api/presensi/scan', [
             'presensi_sesi_id' => $sessionId,
-            'fallback_no_presensi' => '1',
+            'fallback_nisn' => $siswa->nisn,
         ], [
             'Authorization' => 'Bearer ' . $token,
         ]);
@@ -81,7 +81,7 @@ final class PresensiScanTest extends TestCase
         $this->assertTrue(
             DB::table('presensi_scan_log')
                 ->where('siswa_id', (int) $siswa->siswa_id)
-                ->where('payload_raw', 'FALLBACK_NO_PRESENSI:1')
+                ->where('payload_raw', 'FALLBACK_NISN:' . $siswa->nisn)
                 ->where('status_scan', 'berhasil')
                 ->exists()
         );

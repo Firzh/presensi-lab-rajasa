@@ -20,15 +20,15 @@ final class PresensiScanService
     {
         $sessionId = (int) ($input['presensi_sesi_id'] ?? 0);
         $payloadRaw = trim((string) ($input['payload_raw'] ?? ''));
-        $fallbackNoPresensi = trim((string) ($input['fallback_no_presensi'] ?? ''));
+        $fallbackNisn = trim((string) ($input['fallback_nisn'] ?? ''));
         $clientRequestUuid = trim((string) ($input['client_request_uuid'] ?? ''));
 
         if ($sessionId <= 0) {
             throw new HttpException('Sesi presensi wajib dipilih.', 422);
         }
 
-        if ($payloadRaw === '' && $fallbackNoPresensi === '') {
-            throw new HttpException('Payload QR atau nomor presensi fallback wajib diisi.', 422);
+        if ($payloadRaw === '' && $fallbackNisn === '') {
+            throw new HttpException('Payload QR atau NISN fallback wajib diisi.', 422);
         }
 
         if ($clientRequestUuid === '') {
@@ -58,19 +58,19 @@ final class PresensiScanService
             throw new HttpException('Jam sesi presensi belum tersedia.', 422);
         }
 
-        $scanMode = $fallbackNoPresensi !== '' ? 'fallback' : 'qr';
+        $scanMode = $fallbackNisn !== '' ? 'fallback' : 'qr';
         $parsed = $scanMode === 'fallback'
-            ? $this->fallbackParsedPayload($fallbackNoPresensi)
+            ? $this->fallbackParsedPayload($fallbackNisn)
             : $this->qrPayloadService->parse($payloadRaw);
 
         $siswa = $scanMode === 'fallback'
-            ? $this->findSiswaByFallbackNoPresensi($session, $fallbackNoPresensi)
+            ? $this->findSiswaByFallbackNisn($fallbackNisn)
             : $this->findSiswaByQrPayload($parsed);
 
         if (!$siswa) {
             $scanLogId = $this->createScanLog($session, $userId, $clientRequestUuid, $parsed, null, 'invalid', 'none');
             $message = $scanMode === 'fallback'
-                ? 'Nomor presensi fallback tidak ditemukan pada rombel sesi.'
+                ? 'NISN fallback tidak ditemukan.'
                 : 'QR tidak dikenali.';
 
             return [
@@ -134,7 +134,7 @@ final class PresensiScanService
                 'scan_log_id' => $scanLogId,
                 'status_scan' => 'berhasil',
                 'warning_reason' => 'none',
-                'message' => $scanMode === 'fallback' ? 'Fallback nomor presensi berhasil.' : 'Scan QR berhasil.',
+                'message' => $scanMode === 'fallback' ? 'Fallback NISN berhasil.' : 'Scan QR berhasil.',
                 'attendance_status' => $status,
                 'scan_mode' => $scanMode,
                 'siswa' => $this->formatSiswa($siswa),
@@ -156,41 +156,27 @@ final class PresensiScanService
             ->first();
     }
 
-    private function findSiswaByFallbackNoPresensi(object $session, string $fallbackNoPresensi): ?object
+    private function findSiswaByFallbackNisn(string $fallbackNisn): ?object
     {
-        if ($session->mode_presensi !== 'rombel' || !$session->rombel_id) {
-            throw new HttpException('Fallback nomor presensi hanya tersedia untuk sesi rombel.', 422);
-        }
-
-        if (preg_match('/^\d+$/', $fallbackNoPresensi) !== 1) {
-            throw new HttpException('Nomor presensi fallback harus berupa angka.', 422);
-        }
-
-        $number = (int) $fallbackNoPresensi;
-
-        if ($number < 1) {
-            throw new HttpException('Nomor presensi fallback minimal 1.', 422);
+        if (preg_match('/^\d+$/', $fallbackNisn) !== 1) {
+            throw new HttpException('NISN fallback harus berupa angka.', 422);
         }
 
         return DB::table('siswa')
-            ->where('rombel_id_aktif', (int) $session->rombel_id)
+            ->where('nisn', $fallbackNisn)
             ->where('status', 'aktif')
-            ->orderBy('nama_lengkap')
-            ->orderBy('siswa_id')
-            ->offset($number - 1)
-            ->limit(1)
             ->first();
     }
 
-    private function fallbackParsedPayload(string $fallbackNoPresensi): array
+    private function fallbackParsedPayload(string $fallbackNisn): array
     {
-        $payloadRaw = 'FALLBACK_NO_PRESENSI:' . $fallbackNoPresensi;
+        $payloadRaw = 'FALLBACK_NISN:' . $fallbackNisn;
 
         return [
             'payload_raw' => $payloadRaw,
             'payload_normalized' => $this->qrPayloadService->normalizePayload($payloadRaw),
-            'payload_nama' => 'FALLBACK NO PRESENSI ' . $fallbackNoPresensi,
-            'payload_nisn' => '',
+            'payload_nama' => 'FALLBACK NISN ' . $fallbackNisn,
+            'payload_nisn' => $fallbackNisn,
         ];
     }
 

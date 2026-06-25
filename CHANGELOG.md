@@ -74,6 +74,7 @@ Removed
 - Membersihkan lint warnings dan menyempurnakan struktur modular frontend.
 - Memusatkan pemanggilan API management melalui `apiClient.js` dengan interceptor 401/403.
 - Mengubah mekanisme logout agar menghapus session dan history navigasi.
+- Mengubah default TTL access token menjadi 10 menit dan menambahkan metadata expiry pada response login.
 
 ### Fixed
 

@@ -181,6 +181,8 @@ Salin environment:
 cp .env.example .env
 ```
 
+Pastikan `ACCESS_TOKEN_TTL_MINUTES=10` dan `SESSION_SECRET` bukan nilai default sebelum backend dijalankan.
+
 Jalankan container:
 
 ```bash

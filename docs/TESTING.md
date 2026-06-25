@@ -71,6 +71,7 @@ Validasi refactor 2 Juni: `./scripts/test-backend.sh` OK, 86 tests, 306 assertio
 | User model metadata                                                | Unit         |
 | Auth login dan `/api/me`                                           | Feature      |
 | Token stateless                                                    | Unit         |
+| TTL access token 10 menit dan expired 401                          | Unit/Feature |
 | Permission read                                                    | Feature      |
 | Presensi sesi rombel/piket                                         | Feature      |
 | Pause, resume, finish sesi                                         | Feature      |

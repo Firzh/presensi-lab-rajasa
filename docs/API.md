@@ -107,6 +107,8 @@ Request:
 
 Response mengembalikan token, user, role, dan permission.
 
+Token login berlaku 10 menit; response juga memuat `token_type`, `expires_in`, dan `expires_at`.
+
 ### GET `/me`
 
 Mengembalikan user aktif berdasarkan bearer token.

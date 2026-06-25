@@ -279,6 +279,8 @@ Perubahan arsitektur terbaru:
 
 Auth memakai bearer token stateless.
 
+Access token berlaku 10 menit via `ACCESS_TOKEN_TTL_MINUTES`; `SESSION_SECRET` tetap stabil untuk validasi signature.
+
 Permission penting:
 
 ```text

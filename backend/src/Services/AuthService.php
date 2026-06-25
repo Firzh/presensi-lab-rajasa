@@ -41,9 +41,14 @@ final class AuthService
 
         $this->activityService->record((int) $user->user_id, 'login', 'auth', 'User berhasil login.');
         $token = $this->tokenService->create((int) $user->user_id);
+        $payload = $this->tokenService->parse($token);
+        $expiresAt = (int) $payload['exp'];
 
         return [
             'token' => $token,
+            'token_type' => 'Bearer',
+            'expires_in' => max(0, $expiresAt - time()),
+            'expires_at' => date(DATE_ATOM, $expiresAt),
             'user' => $this->formatUser($user),
             'roles' => $this->permissionService->rolesForUser((int) $user->user_id),
             'permissions' => $this->permissionService->permissionsForUser((int) $user->user_id),

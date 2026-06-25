@@ -9,10 +9,12 @@ use Rajasa\PresensiSiswa\Support\Config;
 
 final class TokenService
 {
+    private const DEFAULT_TTL_MINUTES = 10;
+
     public function create(int $userId): string
     {
         $now = time();
-        $ttl = (int) Config::get('auth.token_ttl_minutes', 720);
+        $ttl = max(1, (int) Config::get('auth.token_ttl_minutes', self::DEFAULT_TTL_MINUTES));
 
         $header = [
             'alg' => 'HS256',
@@ -55,7 +57,7 @@ final class TokenService
             throw new HttpException('Token tidak valid.', 401);
         }
 
-        if (($payload['exp'] ?? 0) < time()) {
+        if ((int) ($payload['exp'] ?? 0) <= time()) {
             throw new HttpException('Token sudah kedaluwarsa.', 401);
         }
 

@@ -26,7 +26,7 @@ return [
 
     'auth' => [
         'secret' => Env::string('SESSION_SECRET', 'change_me_for_local_dev'),
-        'token_ttl_minutes' => Env::int('ACCESS_TOKEN_TTL_MINUTES', 720),
+        'token_ttl_minutes' => Env::int('ACCESS_TOKEN_TTL_MINUTES', 10),
     ],
 
     'cors' => [

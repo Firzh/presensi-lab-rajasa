@@ -503,6 +503,22 @@ Setelah reset, jalankan test atau import sesuai kebutuhan.
 ./scripts/import-scan-readiness.sh backend/database/data/data-siswa.csv
 ```
 
+## 21b. Seed Full Day Presensi
+
+```bash
+chmod +x scripts/seed-full-day-presensi-rombel.sh
+
+ROMBEL_LABEL="10 TKJ 2" \
+./scripts/seed-full-day-presensi-rombel.sh
+```
+
+## 21cTest Export Full Day Rombel
+
+```bash
+TEST_DATE=2026-06-21 ROMBEL_ID=7 \
+./scripts/test-export-full-day-rombel.sh
+```
+
 ## 22. Audit Import
 
 ```bash

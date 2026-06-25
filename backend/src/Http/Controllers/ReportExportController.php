@@ -56,11 +56,11 @@ final class ReportExportController
                 $contentType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
                 break;
             case 'pdf':
-                $content = $this->pdfExporter->export($data, $summary);
+                $content = $this->pdfExporter->export($data, $summary, $report['filters'] ?? []);
                 $contentType = 'application/pdf';
                 break;
             case 'docx':
-                $content = $this->docxExporter->export($data, $summary);
+                $content = $this->docxExporter->export($data, $summary, $report['filters'] ?? []);
                 $contentType = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
                 break;
             default:

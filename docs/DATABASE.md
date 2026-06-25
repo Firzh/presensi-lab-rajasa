@@ -252,6 +252,8 @@ Yang terjadi:
 | Tombol akhiri sesi | `presensi_sesi` | Update status via finish endpoint |
 | Scanner clarity | Tidak menyentuh DB | Frontend only |
 | Laporan presensi | `presensi_jam_siswa`, `presensi_sesi`, `siswa`, `rombel`, `jam_pembelajaran` | Read only dan export file |
+
+Catatan: export compact PDF/DOCX tidak menambah schema, migration, atau enum DB; `Hadir/Tidak Lengkap` hanya status tampilan export.
 | Backup database | Semua base table | Dump SQL untuk backup |
 | Restore backup | Semua base table yang tersedia | Import data-only dengan upsert berdasarkan primary key |
 | Settings jadwal dan late rule | `jam_pembelajaran`, `konfigurasi`, `user_activities` | Update pengaturan dan catat aktivitas |

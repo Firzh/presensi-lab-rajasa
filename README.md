@@ -47,6 +47,7 @@ Status saat ini:
 - Peningkatan keamanan rute frontend dengan `PrivateRoute` dan *interceptor* API tersentralisasi (`apiClient.js`).
 - Peningkatan proteksi endpoint backend dan logging komprehensif (`session_expired`, `access_denied`, `user_activity`).
 - Laporan presensi dan export CSV/XLSX/PDF/DOCX sudah tersambung ke backend.
+- Export PDF/DOCX laporan presensi memakai format compact per siswa, sedangkan CSV/XLSX tetap detail per jam untuk audit data.
 - Panel pengaturan mendukung backup, preview restore, restore data-only, jadwal rombel, dan aturan terlambat.
 - Manajemen jurusan, admin user, dan log aktivitas sudah tersambung ke backend.
 - Layout halaman management terbaru sudah dirapikan untuk tampilan responsif.

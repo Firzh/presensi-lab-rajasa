@@ -94,7 +94,7 @@ scripts/
 | Manual edit  | `PresensiManualEditService`                                                                                          | Edit presensi dan audit                                                     |
 | Audit demo   | `PresensiAuditController`                                                                                            | Baca hasil scan terkini                                                     |
 | Laporan     | `ReportController`, `ReportService`                                                                                  | Filter dan ringkasan laporan presensi                                       |
-| Export       | `ReportExportController`, `Services/Exporters/*`                                                                     | Export laporan CSV, XLSX, PDF, dan DOCX                                     |
+| Export       | `ReportExportController`, `Services/Exporters/*`, `AttendanceExportRows`                                              | Export CSV/XLSX detail per jam; PDF/DOCX compact per siswa                  |
 | Settings     | `SettingsController`, `SettingsService`                                                                              | Pengaturan, backup, restore data-only, jadwal rombel, dan aturan terlambat  |
 | Jurusan      | `JurusanController`, `JurusanService`                                                                                | CRUD jurusan aktif/nonaktif                                                 |
 | Admin user   | `AdminUserController`, `AdminUserService`, `UserActivityController`, `UserActivityService`                            | Kelola user dan baca log aktivitas                                          |
@@ -103,7 +103,7 @@ scripts/
 
 | Modul | Komponen API | Fungsi |
 | --- | --- | --- |
-| Laporan | `laporanApi.js` | Filter laporan dan export file |
+| Laporan | `laporanApi.js`, `LaporanExportModal.jsx` | Filter laporan, tutorial export, konfirmasi rentang tanggal, dan export file |
 | Pengaturan | `settingsApi.js` | Backup, preview restore, restore, jadwal rombel, dan aturan terlambat |
 | Jurusan dan user | `jurusanApi.js`, `adminUsersApi.js` | Kelola master jurusan, user, dan log aktivitas |
 

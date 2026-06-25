@@ -29,9 +29,11 @@ Thumbs.db
 /backend/database/data/*.csv
 /backend/database/data/*.sqlite
 /backend/database/data/*.xlsx
+/backend/storage/test*
 
 # Jika kamu menggunakan PHP-DI atau library DI yang meng-compile container
 /backend/cache/
+/workplant
 
 ### --- [ FRONTEND (React / Node) ] --- ###
 **/node_modules/

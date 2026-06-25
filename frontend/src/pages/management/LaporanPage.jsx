@@ -151,7 +151,7 @@ export function LaporanPage() {
       <DashboardTopbar theme={theme} onToggleTheme={toggleTheme} />
 
       <main className="min-h-screen px-4 pb-8 pt-36 sm:px-6 lg:ml-65 lg:px-10 lg:pb-8 lg:pt-29.5">
-        <div className="w-full max-w-6xl mx-auto space-y-6">
+        <div className="space-y-6">
           <header className="mb-7 flex flex-col items-stretch justify-between gap-4 sm:mb-9 sm:flex-row sm:items-start">
             <div>
               <h1
@@ -225,6 +225,8 @@ export function LaporanPage() {
         <LaporanExportModal
           theme={theme}
           isExporting={isExporting}
+          dateFrom={filters.date_from}
+          dateTo={filters.date_to}
           onClose={() => setIsExportOpen(false)}
           onExport={handleExport}
         />

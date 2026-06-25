@@ -30,6 +30,7 @@ docker compose exec frontend npm test
 docker compose exec frontend npm run build
 ./scripts/test-single.sh FILTER_NAME
 ./scripts/test-export.sh
+TEST_DATE=2026-06-25 ROMBEL_ID=6 ./scripts/test-export-full-day-rombel.sh
 ```
 
 Reset dan import:
@@ -202,7 +203,7 @@ Validasi:
 
 ```text
 Filter laporan berjalan
-Export CSV/XLSX/PDF/DOCX menghasilkan attachment
+Export CSV/XLSX menghasilkan data detail per jam; PDF/DOCX menghasilkan data compact per siswa
 Backup/restore memakai mode data-only
 Panel pengaturan, jurusan, laporan, dan siswa ter-render
 Scan sound memberi feedback sukses/error tanpa memblokir scan
